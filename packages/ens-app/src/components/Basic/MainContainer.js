@@ -31,6 +31,8 @@ const MainContainer = styled('div')`
           return '#52e5ff'
         case 'Open':
           return '#42E068'
+        case 'Reserved':
+          return '#000000'
         default:
           return '#CACACA'
       }

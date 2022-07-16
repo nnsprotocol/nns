@@ -4,5 +4,6 @@ export default [
   'Owned',
   'Forbidden',
   'Reveal',
-  'NotYetAvailable'
+  'NotYetAvailable',
+  'Reserved'
 ]

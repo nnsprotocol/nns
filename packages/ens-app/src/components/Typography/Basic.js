@@ -16,6 +16,7 @@ export const Title = styled('h2')`
   font-weight: 100;
   padding: 0;
   margin: 0;
+  white-space: nowrap;
   ${mq.medium`
     font-size: 28px;
   `}

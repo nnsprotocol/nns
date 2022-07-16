@@ -47,6 +47,9 @@ function setState(node) {
   } else {
     state = 'Owned'
   }
+  if (node.reserved) {
+    state = 'Reserved'
+  }
   return {
     ...node,
     state
@@ -170,8 +173,7 @@ export const handleMultipleTransactions = async (
 async function getRegistrarEntry(name) {
   const registrar = getRegistrar()
   const nameArray = name.split('.')
-  if (nameArray.length > 3 || nameArray[1] !== '⌐◨-◨') {
-    // FIXME
+  if (nameArray.length > 3 || nameArray[1] !== '⌐◨-◨') {  // FIXME
     return {}
   }
 
@@ -191,7 +193,8 @@ async function getRegistrarEntry(name) {
     highestBid,
     expiryTime,
     isNewRegistrar,
-    available
+    available,
+    reserved,
   } = entry
 
   return {
@@ -210,6 +213,7 @@ async function getRegistrarEntry(name) {
     deedOwner,
     isNewRegistrar: !!isNewRegistrar,
     available,
+    reserved,
     expiryTime: expiryTime || null
   }
 }

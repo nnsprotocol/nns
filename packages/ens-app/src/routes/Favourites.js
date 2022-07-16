@@ -95,7 +95,8 @@ function getAvailable(expiryDate) {
   return e2.diff(e) > 0
 }
 
-function getDomainState(owner, available) {
+function getDomainState(owner, available, reserved) {
+  if (reserved) return 'Reserved'
   if (!owner || available) return 'Open'
   return parseInt(owner, 16) === 0 ? 'Open' : 'Owned'
 }
@@ -293,7 +294,7 @@ function Favourites() {
             <DomainItem
               domain={{
                 ...domain,
-                state: getDomainState(domain.owner, domain.available),
+                state: getDomainState(domain.owner, domain.available, domain.reserved),
                 owner: domain.owner
               }}
               isFavourite={true}

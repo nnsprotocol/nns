@@ -156,12 +156,14 @@ export default class Registrar {
       } else {
         getAvailable = RegistrarController.available(label)
       }
-
-      const [available] = await Promise.all([getAvailable])
-
+      const account = await getAccount();
+      const getReserved = RegistrarController.reserved(label, account);
+      
+      const [available, reserved] = await Promise.all([getAvailable, getReserved])
       ret = {
         ...ret,
-        available
+        available,
+        reserved
       }
       // Returns registrar address if owned by new registrar.
       // Keep it as a separate call as this will throw exception for non existing domains
@@ -190,6 +192,7 @@ export default class Registrar {
 
     if (permEntry) {
       ret.available = permEntry.available
+      ret.reserved = permEntry.reserved
       // if (permEntry.nameExpires) {
       //   ret.expiryTime = permEntry.nameExpires
       // }

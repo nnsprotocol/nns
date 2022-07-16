@@ -36,6 +36,8 @@ const Container = styled.div`
           return 'black'
         case 'NotYetAvailable':
           return 'red'
+        case 'Reserved':
+          return 'red'
         default:
           return 'red'
       }
@@ -102,6 +104,7 @@ const RightContainer = styled('div')`
 const DomainName = styled('h2')`
   font-size: 18px;
   font-weight: 100;
+  white-space: nowrap;
 
   ${mq.medium`
     font-size: 28px;
@@ -140,6 +143,9 @@ const Label = ({ domain, isOwner }) => {
       break
     case 'Owned':
       text = t('singleName.domain.state.owned')
+      break
+    case 'Reserved':
+      text = 'Reserved'
       break
     default:
       text = t('singleName.domain.state.default')
@@ -191,7 +197,6 @@ const Domain = ({
   setSelectAll,
   hasInvalidCharacter
 }) => {
-  console.log('DomainItem: ', Array.from(domain.name))
   if (loading) {
     return (
       <DomainContainer state={'Owned'} className={className} to="">
@@ -249,7 +254,7 @@ const Domain = ({
           />
         </RightContainer>
         <RightContainer>
-          {expiryDate && (
+          {/* {expiryDate && (
             <CheckBoxContainer>
               <Checkbox
                 testid={`checkbox-${domain.name}`}
@@ -269,7 +274,7 @@ const Domain = ({
                 }}
               />
             </CheckBoxContainer>
-          )}
+          )} */}
         </RightContainer>
       </DomainContainer>
     </Container>
