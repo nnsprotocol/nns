@@ -69,9 +69,9 @@ const NetworkStatus = styled('div')`
 
 const Account = styled('div')`
   color: #adbbcd;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 200;
-  font-family: Overpass Mono;
+  font-family: 'Londrina Solid';
   width: 140px;
   white-space: nowrap;
   overflow: hidden;

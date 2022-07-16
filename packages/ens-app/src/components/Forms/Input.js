@@ -13,7 +13,7 @@ const StyledInput = styled('input')`
   box-shadow: inset 0 0 4px 0 rgba(181, 177, 177, 0.5);
   border-radius: 8px;
   height: 42px;
-  font-family: Overpass Mono;
+  font-family: 'PT Root UI';
   font-weight: 300;
   font-size: 14px;
   color: #2b2b2b;

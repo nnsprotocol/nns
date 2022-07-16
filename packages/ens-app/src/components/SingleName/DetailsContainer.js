@@ -136,7 +136,7 @@ const DomainOwnerAddress = styled('span')`
 `
 
 const GracePeriodWarningContainer = styled('div')`
-  font-family: 'Overpass';
+  font-family: 'PT Root UI';
   background: ${p => (p.isExpired ? '#ff926f' : '#fef7e9')};
   padding: 10px 20px;
   margin: 5px 0px;

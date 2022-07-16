@@ -42,7 +42,7 @@ export const DetailsKey = styled('div')`
 export const DetailsValue = styled('div')`
   font-size: 14px;
   font-weight: 100;
-  font-family: Overpass Mono;
+  font-family: 'PT Root UI';
   white-space: nowrap;
   overflow: hidden;
   display: inline-flex;

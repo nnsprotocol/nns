@@ -62,7 +62,7 @@ export const RecordsKey = styled(DetailsKey)`
 `
 
 export const RecordsSubKey = styled('div')`
-  font-family: Overpass Mono;
+  font-family: 'PT Root UI';
   font-weight: 500;
   font-size: 14px;
   color: #adbbcd;

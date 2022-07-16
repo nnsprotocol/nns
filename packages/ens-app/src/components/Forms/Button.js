@@ -47,11 +47,11 @@ function getButtonStyles({ type }) {
       `
     case 'hollow-primary':
       return `
-        color: #5384FE;
+        color: black;
         background: transparent;
-        border: 2px solid #5384FE;
+        border: 2px solid black;
         &:visited {
-          color: #5384FE;
+          color: black;
         }
         &:hover {
           cursor: pointer;

@@ -71,7 +71,7 @@ export const RecordsKey = styled(DetailsKey)`
 `
 
 export const RecordsSubKey = styled('div')`
-  font-family: Overpass Mono;
+  font-family: 'PT Root UI';
   font-weight: 500;
   font-size: 14px;
   color: #adbbcd;
@@ -86,7 +86,7 @@ export const RecordsSubKey = styled('div')`
 
 export const RecordsValue = styled(DetailsValue)`
   font-size: 14px;
-  font-family: Overpass Mono;
+  font-family: 'PT Root UI';
   margin-top: 1em;
   ${mq.small`
       margin-top: 0;

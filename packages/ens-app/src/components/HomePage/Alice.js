@@ -25,7 +25,7 @@ const BaseContainer = styled('div')`
   }
 
   .bg-string {
-    font-family: Overpass Mono;
+    font-family: 'PT Root UI';
     position: relative;
     color: #5284ff;
     font-size: 26px;
