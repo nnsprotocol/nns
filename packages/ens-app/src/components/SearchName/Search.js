@@ -14,6 +14,10 @@ import LanguageSwitcher from '../LanguageSwitcher'
 const SearchForm = styled('form')`
   display: flex;
   position: relative;
+  border: none;
+  border-radius: 70px;
+  background-color: white;
+  padding: 10px;
 
   &:before {
     content: '';
@@ -28,16 +32,17 @@ const SearchForm = styled('form')`
   }
 
   input {
-    padding: 20px 0 20px 55px;
+    padding: 10px 0 10px 55px;
     width: 100%;
     border: none;
     border-radius: 0;
-    font-size: 18px;
-    font-family: Overpass;
+    font-size: 17px;
+    font-family: "PT Root UI";
     font-weight: 100;
+    margin-right: 10px;
     ${mq.medium`
       width: calc(100% - 162px);
-      font-size: 28px;
+      font-size: 17px;
     `}
 
     &:focus {
@@ -51,15 +56,17 @@ const SearchForm = styled('form')`
   }
 
   button {
-    ${p => (p && p.hasSearch ? 'background: #5284ff;' : 'background: #c7d3e3;')}
+    ${p => (p && p.hasSearch ? 'background: black;' : 'background: black;')}
     color: white;
-    font-size: 22px;
-    font-family: Overpass;
-    padding: 20px 0;
-    height: 90px;
+    font-size: 17px;
+    font-family: "PT Root UI";
+    padding: 10px 0;
+    // height: 70px;
     width: 162px;
     border: none;
     display: none;
+    text-transform: uppercase;
+    font-weight: 900;
     ${mq.medium`
       display: block;
     `}
@@ -132,7 +139,7 @@ function Search({ history, className, style }) {
         onChange={handleParse}
         autoCapitalize="off"
       />
-      <LanguageSwitcher />
+      {/* <LanguageSwitcher /> */}
       <button
         disabled={!hasSearch}
         type="submit"

@@ -56,7 +56,7 @@ const StepContent = styled('div')`
   align-items: center;
   background: white;
   padding: 3px 15px;
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-weight: bold;
   font-size: 14px;
   letter-spacing: 1px;

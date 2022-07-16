@@ -87,7 +87,7 @@ const Check = styled(DefaultCheck)`
 `
 
 const Explanation = styled('div')`
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-weight: 300;
   font-size: 14px;
   color: #2b2b2b;

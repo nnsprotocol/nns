@@ -37,7 +37,7 @@ const SVG = styled('svg')`
 
 const NoAccounts = ({
   className,
-  colour = '#ffffff',
+  colour = '#000000',
   textColour,
   onClick,
   buttonText,

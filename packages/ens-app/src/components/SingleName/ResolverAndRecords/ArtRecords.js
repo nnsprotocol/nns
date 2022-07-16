@@ -25,7 +25,7 @@ const RecordsHeader = styled('div')`
 `
 
 const RecordsTitle = styled('h3')`
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-weight: 700;
   font-size: 12px;
   color: #adbbcd;

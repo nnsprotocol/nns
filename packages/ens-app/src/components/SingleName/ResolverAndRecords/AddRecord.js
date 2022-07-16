@@ -20,7 +20,7 @@ const AddressInput = styled(DefaultAddressInput)`
 `
 
 const ToggleAddRecord = styled('span')`
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-weight: bold;
   font-size: 14px;
   color: #5284ff;
@@ -56,7 +56,7 @@ const Select = styled(DefaultSelect)`
 
 const RecordsTitle = styled('h3')`
   /* Pointers: */
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-weight: 700;
   font-size: 12px;
   color: #adbbcd;

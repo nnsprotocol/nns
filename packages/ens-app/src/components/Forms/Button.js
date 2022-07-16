@@ -89,16 +89,16 @@ function getButtonStyles({ type }) {
 function getButtonDefaultStyles(p) {
   return `
     color: white;
-    background: #5384FE;
+    background: black;
     padding: 10px 25px;
     border-radius: 25px;
     font-size: 14px;
     font-weight: 700;
-    font-family: Overpass;
+    font-family: "Londrina Solid";
     text-transform: capitalize;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     transition: 0.2s all;
-    border: 2px solid #5384FE;
+    border: 2px solid black;
     text-align: center;
 
     &:focus {

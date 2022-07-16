@@ -18,7 +18,7 @@ const Stepper = styled('div')`
 `
 
 const Icon = styled('div')`
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-size: 28px;
   font-weight: 100;
   color: #adbbcd;
@@ -47,7 +47,7 @@ const Amount = styled('div')`
   width: 150px;
   padding: 0 5px;
   display: flex;
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-size: 28px;
   font-weight: 100;
   color: #2b2b2b;
@@ -56,7 +56,7 @@ const Amount = styled('div')`
 
   input {
     background: transparent;
-    font-family: Overpass;
+    font-family: "PT Root UI";
     font-size: 28px;
     font-weight: 100;
     color: #2b2b2b;
@@ -68,7 +68,7 @@ const Amount = styled('div')`
 `
 
 const Description = styled('div')`
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-weight: 300;
   font-size: 14px;
   color: #adbbcd;

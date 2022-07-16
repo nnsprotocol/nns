@@ -54,7 +54,7 @@ const CalendarContainer = styled('div')`
 `
 
 const Value = styled('div')`
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-weight: 100;
   font-size: 22px;
   color: ${p => (p.invalid ? 'red' : '#2b2b2b')};
@@ -65,7 +65,7 @@ const Value = styled('div')`
 `
 
 const Description = styled('div')`
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-weight: 300;
   font-size: 14px;
   color: #adbbcd;

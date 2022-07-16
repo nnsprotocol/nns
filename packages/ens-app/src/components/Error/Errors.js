@@ -21,7 +21,7 @@ const Warning = styled('img')`
 `
 
 const H2 = styled('h2')`
-  font-family: Overpass;
+  font-family: "PT Root UI";
   font-weight: 300;
   font-size: 28px;
   color: #2b2b2b;
