@@ -32,6 +32,7 @@ export function getUtm() {
 }
 
 export const setupAnalytics = () => {
+  // FIXME
   if (isProduction()) {
     ReactGA.initialize(TrackingID.live)
     ReactGA.plugin.require('ecommerce')

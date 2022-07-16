@@ -351,10 +351,6 @@ export default class Registrar {
       signer
     )
     const account = await getAccount()
-    console.log(
-      'permanentRegistrarController',
-      permanentRegistrarController.address
-    )
     const resolverAddr = await this.getAddress('resolver.⌐◨-◨') // FIXME
     if (parseInt(resolverAddr, 16) === 0) {
       return permanentRegistrarController.makeCommitment(name, owner, secret)
@@ -689,17 +685,10 @@ export async function setupRegistrar(registryAddress) {
 
   let ethAddress = await ENS.owner(namehash('⌐◨-◨'))
 
-  console.log('NAMEHASH', namehash('⌐◨-◨'))
-
   let controllerAddress = await Resolver.interfaceImplementer(
     namehash('⌐◨-◨'),
     permanentRegistrarInterfaceId
   )
-
-  console.log('SETUP', {
-    ethAddress,
-    controllerAddress
-  })
 
   return new Registrar({
     registryAddress,

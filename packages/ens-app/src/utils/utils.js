@@ -215,6 +215,8 @@ export const hasNonAscii = () => {
   const strs = window.location.pathname.split('/')
   const rslt = strs.reduce((accum, next) => {
     if (accum) return true
+    // Domains end in with .⌐◨-◨ which non-ascii but ok.
+    next = next.replace(encodeURIComponent('⌐◨-◨'), '') // FIXME
     if (!validate(next)) return true
     return accum
   }, false)
@@ -260,7 +262,6 @@ export function filterNormalised(data, name, nested = false) {
 
 export function normaliseOrMark(data, name, nested = false) {
   return data?.map(data => {
-    return data // FIXME
     const domain = nested ? data.domain : data
     let normalised
     try {

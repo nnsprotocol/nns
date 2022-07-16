@@ -109,7 +109,7 @@ function HeaderContainer() {
           <Hamburger isMenuOpen={isMenuOpen} openMenu={toggleMenu} />
         )}
       </Header>
-      {/* {hasNonAscii() && (
+      {hasNonAscii() && (
         <StyledBanner>
           <StyledBannerInner>
             <p>
@@ -126,7 +126,7 @@ function HeaderContainer() {
             </p>
           </StyledBannerInner>
         </StyledBanner>
-      )} */}
+      )}
       {mediumBPMax && (
         <>
           <SideNav isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />

@@ -210,7 +210,6 @@ export class ENS {
 
   async getName(address) {
     const provider = await getProvider()
-    console.log('>>>> PROVIDER', provider, provider.lookupAddress)
     const name = await provider.lookupAddress(address)
     return {
       name
