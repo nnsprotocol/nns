@@ -105,6 +105,7 @@ const DomainName = styled('h2')`
   font-size: 18px;
   font-weight: 100;
   white-space: nowrap;
+  font-family: "Londrina Solid";
 
   ${mq.medium`
     font-size: 28px;

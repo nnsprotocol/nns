@@ -6,7 +6,7 @@ const SVG = styled('svg')`
   height: 22px;
   margin-left: 10px;
   g {
-    fill: ${p => (p.color ? p.color : '#808184')};
+    fill: ${p => (p.color ? p.color : 'black')};
   }
 `
 

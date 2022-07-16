@@ -36,6 +36,7 @@ const IconContainer = styled('div')`
   flex-direction: column;
   justify-content: start;
   align-items: center;
+  color: black;
 
   ${mq.medium`
     grid-template-columns: 1fr 1fr;

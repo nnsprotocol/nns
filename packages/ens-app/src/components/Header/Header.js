@@ -34,12 +34,7 @@ const StyledBannerInner = styled('div')`
 `
 
 const Header = styled('header')`
-  ${p =>
-    p.isMenuOpen
-      ? `
-    background: #121D46;
-  `
-      : ''}
+  ${p => (p.isMenuOpen ? `background: #121D46;` : '')}
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -54,19 +49,21 @@ const Header = styled('header')`
     box-shadow: 0 8px 24px 0 rgba(230, 240, 247, 0.8);
     height: auto;
   `}
+  background-color: #FEF9DB;
 `
 
 const SearchHeader = styled(Search)`
   margin-top: 50px;
   width: 100%;
   ${mq.medium`
-    margin-top: 0;
+    margin-top: 15px;
+    margin-bottom: 15px;
     width: calc(100% - 200px);
   `}
 `
 
 const Logo = styled(DefaultLogo)`
-  background: white;
+  background: transparent;
   position: relative;
   display: flex;
   width: 100%;

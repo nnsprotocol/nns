@@ -59,6 +59,7 @@ const Title = styled(DefaultTitle)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: 'Londrina Solid';
 `
 
 const EtherScanLink = styled(DefaultEtherScanLink)`

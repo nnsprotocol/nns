@@ -14,6 +14,7 @@ export const H2 = styled('h2')`
 export const Title = styled('h2')`
   font-size: 18px;
   font-weight: 100;
+  font-family: 'Londrina Solid';
   padding: 0;
   margin: 0;
   white-space: nowrap;

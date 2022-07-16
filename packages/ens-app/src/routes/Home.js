@@ -225,11 +225,6 @@ const InfoSection = styled(Section)`
   }
 `
 
-const HowItWorks = styled(Section)`
-  background: #f0f6fa;
-  padding: 40px 20px 80px;
-`
-
 const Inner = styled('div')`
   flex-direction: column;
   justify-content: center;
@@ -243,19 +238,9 @@ const Inner = styled('div')`
   }
 `
 
-const QuestionMark = styled(QuestionMarkDefault)`
-  transform: scale(1.18);
-  margin-right: 10px;
-`
-
 const ReadOnly = styled('span')`
   margin-left: 1em;
 `
-
-const HowToUse = styled(HowToUseDefault)`
-  padding: 70px;
-`
-
 export const HOME_DATA = gql`
   query getHomeData($address: string) @client {
     network
@@ -325,7 +310,7 @@ export default ({ match }) => {
               </NavLink>
             )}
             <NavLink to="/favourites">{t('c.favourites')}</NavLink>
-            <ExternalLink href={aboutPageURL()}>{t('c.about')}</ExternalLink>
+            {/* <ExternalLink href={aboutPageURL()}>{t('c.about')}</ExternalLink> */}
           </Nav>
           {/* <MainPageBannerContainer>
           <DAOBannerContent />

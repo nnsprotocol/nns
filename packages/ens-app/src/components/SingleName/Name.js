@@ -42,7 +42,8 @@ function isRegistrationOpen(available, parent, reserved) {
 
 function isDNSRegistrationOpen(domain) {
   const nameArray = domain.name?.split('.')
-  if (nameArray?.length !== 2 || nameArray?.[1] === '⌐◨-◨') { // FIXME
+  if (nameArray?.length !== 2 || nameArray?.[1] === '⌐◨-◨') {
+    // FIXME
     return false
   }
   return domain.isDNSRegistrar && domain.owner === EMPTY_ADDRESS
@@ -125,7 +126,11 @@ function Name({ details: domain, name, pathname, type, refetch }) {
   const isDeedOwner = domain.deedOwner === account
   const isRegistrant = !domain.available && domain.registrant === account
 
-  const registrationOpen = isRegistrationOpen(domain.available, domain.parent, domain.reserved)
+  const registrationOpen = isRegistrationOpen(
+    domain.available,
+    domain.parent,
+    domain.reserved
+  )
   const preferredTab = registrationOpen ? 'register' : 'details'
 
   let ownerType,
@@ -155,7 +160,7 @@ function Name({ details: domain, name, pathname, type, refetch }) {
 
   return (
     <>
-     {/* { showNameWrapperBanner ? 
+      {/* { showNameWrapperBanner ? 
       <NonMainPageBannerContainerWithMarginBottom>
           <NameWrapperBanner isWrapped={isNameWrapped} />
       </NonMainPageBannerContainerWithMarginBottom> : null } */}

@@ -31,9 +31,7 @@ const ChildDomainItemContainer = styled('div')`
 `
 
 const DomainLink = styled(Link)`
-  display: grid;
-  grid-template-columns: 250px auto 50px;
-  grid-gap: 10px;
+  display: flex;
   width: 100%;
   background-color: ${props => (props.warning ? 'hsla(37,91%,55%,0.1)' : '')};
   color: #2b2b2b;
@@ -58,6 +56,7 @@ const DomainLink = styled(Link)`
     font-size: 28px;
     width: 100%;
     white-space: nowrap;
+    font-family: 'Londrina Solid';
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;

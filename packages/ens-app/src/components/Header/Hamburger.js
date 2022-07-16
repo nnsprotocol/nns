@@ -2,7 +2,7 @@ import React from 'react'
 import styled from '@emotion/styled/macro'
 
 const HamburgerContainer = styled('div')`
-  background: white;
+  background: '#FEF9DB';
   ${p =>
     p.isMenuOpen
       ? `

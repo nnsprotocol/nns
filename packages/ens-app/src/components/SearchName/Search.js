@@ -37,7 +37,7 @@ const SearchForm = styled('form')`
     border: none;
     border-radius: 0;
     font-size: 17px;
-    font-family: "PT Root UI";
+    font-family: 'PT Root UI';
     font-weight: 100;
     margin-right: 10px;
     ${mq.medium`
@@ -59,7 +59,8 @@ const SearchForm = styled('form')`
     ${p => (p && p.hasSearch ? 'background: black;' : 'background: black;')}
     color: white;
     font-size: 17px;
-    font-family: "PT Root UI";
+    font-family: 'Londrina Solid';
+    border-radius: 50px;
     padding: 10px 0;
     // height: 70px;
     width: 162px;

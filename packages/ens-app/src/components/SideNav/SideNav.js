@@ -64,9 +64,10 @@ const NavLink = styled(Link)`
   justify-content: center;
   font-weight: 200;
   font-size: 22px;
-  color: ${p => (p.active ? '#5284FF' : '#C7D3E3')};
+  color: ${p => (p.active ? 'black' : 'black')};
   padding: 10px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: 'Londrina Solid';
 
   ${mq.medium`
     justify-content: start;
@@ -74,24 +75,24 @@ const NavLink = styled(Link)`
   `}
 
   &:visited {
-    color: #c7d3e3;
+    color: black;
   }
 
   span {
     transition: 0.2s;
     margin-left: 15px;
-    color: ${p => (p.active ? '#5284FF' : '#C7D3E3')};
+    color: ${p => (p.active ? 'black' : 'black')};
   }
 
   &:hover {
     span {
-      color: #5284ff;
+      color: black;
     }
     path {
-      fill: #5284ff;
+      fill: black;
     }
     g {
-      fill: #5284ff;
+      fill: black;
     }
   }
 `
@@ -102,9 +103,10 @@ const ThirdPartyLink = styled('a')`
   justify-content: center;
   font-weight: 200;
   font-size: 22px;
-  color: ${p => (p.active ? '#5284FF' : '#C7D3E3')};
+  color: ${p => (p.active ? 'black' : 'black')};
   padding: 10px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-family: 'Londrina Solid';
 
   ${mq.medium`
     justify-content: start;
@@ -112,24 +114,24 @@ const ThirdPartyLink = styled('a')`
   `}
 
   &:visited {
-    color: #c7d3e3;
+    color: black;
   }
 
   span {
     transition: 0.2s;
     margin-left: 15px;
-    color: ${p => (p.active ? '#5284FF' : '#C7D3E3')};
+    color: ${p => (p.active ? 'black' : 'black')};
   }
 
   &:hover {
     span {
-      color: #5284ff;
+      color: black;
     }
     path {
-      fill: #5284ff;
+      fill: black;
     }
     g {
-      fill: #5284ff;
+      fill: black;
     }
   }
 `
@@ -173,7 +175,7 @@ function SideNav({ match, isMenuOpen, toggleMenu }) {
             <span>{t('c.favourites')}</span>
           </NavLink>
         </li>
-        <li>
+        {/* <li>
           <NavLink
             onClick={toggleMenu}
             active={url === '/faq' ? 1 : 0}
@@ -182,9 +184,9 @@ function SideNav({ match, isMenuOpen, toggleMenu }) {
             <FaqIcon />
             <span>{t('c.faq')}</span>
           </NavLink>
-        </li>
+        </li> */}
         <li>
-          <ThirdPartyLink href={aboutPageURL()}>
+          <ThirdPartyLink href="/">
             <Info />
             <span>{t('c.about')}</span>
           </ThirdPartyLink>
