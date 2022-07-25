@@ -32,14 +32,14 @@ const option = {
         jsonRpcUrl: rpcUrl
       }
     },
-    mewconnect: {
-      package: () => import('@myetherwallet/mewconnect-web-client'),
-      packageFactory: true,
-      options: {
-        rpc: rpcUrl,
-        description: ''
-      }
-    },
+    // mewconnect: {
+    //   package: () => import('@myetherwallet/mewconnect-web-client'),
+    //   packageFactory: true,
+    //   options: {
+    //     rpc: rpcUrl,
+    //     description: ''
+    //   }
+    // },
     portis: {
       package: () => import('@portis/web3'),
       packageFactory: true,

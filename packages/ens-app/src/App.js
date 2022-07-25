@@ -42,10 +42,10 @@ const Favourites = lazy(() =>
   )
 )
 
-const Faq = lazy(() =>
+const About = lazy(() =>
   import(
-    /* webpackChunkName: "Faq", webpackPrefetch:true */
-    './routes/Faq'
+    /* webpackChunkName: "About", webpackPrefetch:true */
+    './routes/About'
   )
 )
 
@@ -68,7 +68,7 @@ const Renew = lazy(() =>
 // import SearchResults from './routes/SearchResults'
 // import SingleName from './routes/SingleName'
 // import Favourites from './routes/Favourites'
-// import Faq from './routes/Faq'
+// import About from './routes/About'
 // import Address from './routes/AddressPage'
 // import Renew from './routes/Renew'
 
@@ -122,7 +122,7 @@ const App = () => {
         <Route exact path="/" component={Home} layout={HomePageLayout} />
         <Route path="/test-registrar" component={TestRegistrar} />
         <Route path="/favourites" component={Favourites} />
-        <Route path="/faq" component={Faq} />
+        <Route path="/about" component={About} />
         <Route path="/my-bids" component={SearchResults} />
         <Route path="/how-it-works" component={SearchResults} />
         <Route path="/search/:searchTerm" component={SearchResults} />

@@ -63,6 +63,18 @@ const Title = styled('h1')`
   font-weight: 700;
   font-family: 'Londrina Solid';
   letter-spacing: 1px;
+  margin-bottom: 25px;
+`
+
+const Credits = styled('p')`
+  text-align: center;
+  font-size: 1rem;
+  font-family: 'PT Root UI';
+  margin-top: 25px;
+
+  a {
+    font-weight: 700;
+  }
 `
 
 const NetworkStatus = styled('div')`
@@ -110,24 +122,26 @@ const NavLink = styled(Link)`
   }
 `
 
-const ExternalLink = styled('a')`
-  margin-left: 20px;
-  &:first-child {
-    margin-left: 0;
-  }
+const MobileOnlyNavLink = styled(NavLink)`
+  ${mq.small`
+    display: none;
+  `}
 `
 
 const Hero = styled('section')`
   background: url(${bg});
-  background-size: 450px auto;
-  padding: 60px 20px 20px;
+  background-size: 75px auto;
+  ${mq.medium`
+    background-size: 550px auto;
+  `}
+  background-position: center;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 90vh;
+  height: 100vh;
   ${mq.medium`
-    padding: 0 20px 0;
+    padding: 120px 20px 0;
   `}
 `
 
@@ -156,6 +170,8 @@ const SearchContainer = styled('div')`
 
 const Search = styled(SearchDefault)`
   min-width: 90%;
+  width: 90%;
+  margin: auto;
   ${mq.medium`
     min-width: 600px;
   `}
@@ -301,39 +317,37 @@ export default ({ match }) => {
             )}
           </NetworkStatus>
           <Nav>
-            {accounts?.length > 0 && !isReadOnly && (
+            {accounts?.length > 0 && !isReadOnly ? (
               <NavLink
                 active={url === '/address/' + accounts[0]}
                 to={'/address/' + accounts[0]}
               >
                 {t('c.mynames')}
               </NavLink>
+            ) : (
+              <MobileOnlyNavLink to={'#'} onClick={connectProvider}>
+                Connect
+              </MobileOnlyNavLink>
             )}
+
             <NavLink to="/favourites">{t('c.favourites')}</NavLink>
-            {/* <ExternalLink href={aboutPageURL()}>{t('c.about')}</ExternalLink> */}
+            <NavLink to="/about">About</NavLink>
           </Nav>
-          {/* <MainPageBannerContainer>
-          <DAOBannerContent />
-        </MainPageBannerContainer> */}
         </HeroTop>
         <SearchContainer>
           <>
-            {/* <LogoLarge
-            initial={animation.initial}
-            animate={animation.animate}
-            src={ENSLogo}
-            alt="ENS logo"
-          /> */}
             <Title>Nouns Naming System</Title>
-            {/* <PermanentRegistrarLogo
-            initial={animation.initial}
-            animate={animation.animate}
-          /> */}
             <Search />
+            <Credits>
+              Background by{' '}
+              <a href="https://twitter.com/mattdowney" target="_blank">
+                @mattdowney
+              </a>
+            </Credits>
           </>
         </SearchContainer>
       </Hero>
-      <Explanation>
+      {/* <Explanation>
         <InfoSection color="blue">
           <Inner>
             <H2>{t('home.whatisens.title')}</H2>
@@ -351,7 +365,6 @@ export default ({ match }) => {
         <InfoSection color="green">
           <H2>yourname.⌐◨-◨</H2>
         </InfoSection>
-        {/* <HowToUse /> */}
         <InfoSection color="yellow">
           <H2>How to use NNS</H2>
           <p>
@@ -372,7 +385,7 @@ export default ({ match }) => {
             <ImageIcon src={imPig} />
           </ImageGrid>
         </InfoSection>
-      </Explanation>
+      </Explanation> */}
     </>
   )
 }

@@ -6,7 +6,7 @@ const HamburgerContainer = styled('div')`
   ${p =>
     p.isMenuOpen
       ? `
-    background: #121D46;
+    background: #FEF9DB;
   `
       : ''}
 
@@ -119,7 +119,7 @@ const HamburgerContainer = styled('div')`
   .hamburger--collapse-r.is-active .hamburger-inner,
   .hamburger--collapse-r.is-active .hamburger-inner::after,
   .hamburger--collapse-r.is-active .hamburger-inner::before {
-    background: #fff;
+    background: black;
   }
 `
 

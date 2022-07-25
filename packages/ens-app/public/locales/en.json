@@ -11,10 +11,7 @@
     },
     "renew": {
       "button": "Extend Selected",
-      "confirm": [
-        "The following names:",
-        "will be extended for "
-      ],
+      "confirm": ["The following names:", "will be extended for "],
       "confirmButton": "Extend",
       "year": "{{count}} year",
       "year_plural": "{{count}} years"
@@ -78,12 +75,7 @@
     "notmigrated": "not migrated"
   },
   "dns": {
-    "breadcrumbs": [
-      "ENABLE DNSSEC",
-      "ADD TEXT",
-      "SUBMIT PROOF",
-      "MANAGE NAME"
-    ],
+    "breadcrumbs": ["ENABLE DNSSEC", "ADD TEXT", "SUBMIT PROOF", "MANAGE NAME"],
     "dnsowner": "DNS Owner",
     "steps": {
       "addtext": {
@@ -125,8 +117,7 @@
     "subdomainFavouriteTitle": "Favourite Subdomains"
   },
   "home": {
-    "announcements": {
-    },
+    "announcements": {},
     "howtouse": {
       "body": "The ENS App is a Graphical User Interface for non-technical users. It allows you to search any name, manage their addresses or resources it points to and create subdomains for each name.",
       "title": "How to use ENS"

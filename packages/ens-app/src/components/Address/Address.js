@@ -148,7 +148,6 @@ function useDomains({ resultsPerPage, domainType, address, sort, page }) {
       id: address,
       first: resultsPerPage,
       skip,
-      orderBy: sort.type,
       orderDirection: sort.direction
     },
     skip: domainType !== 'registrant',

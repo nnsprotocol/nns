@@ -18,14 +18,14 @@ import Info from 'components/Icons/Info'
 const SideNavContainer = styled('nav')`
   display: ${p => (p.isMenuOpen ? 'block' : 'none')};
   position: fixed;
-  z-index: 1;
+  z-index: 20;
   ${mq.medium`
-    z-index: 1;
+    z-index: 20;
   `}
 
   left: 0;
   height: auto;
-  background: #121d46;
+  background: #fef9db;
   width: 100%;
   margin-top: -10px;
   ${mq.medium`
@@ -49,11 +49,11 @@ const SideNavContainer = styled('nav')`
   ${p =>
     p.hasNonAscii
       ? `
-      top: 200px;
+      top: 50px;
       ${mq.medium`top: 200px`}
     `
       : `
-      top: 100px;
+      top: 50px;
       ${mq.medium`top: 100px`}
     `}
 `
@@ -186,7 +186,7 @@ function SideNav({ match, isMenuOpen, toggleMenu }) {
           </NavLink>
         </li> */}
         <li>
-          <ThirdPartyLink href="/">
+          <ThirdPartyLink href="/about">
             <Info />
             <span>{t('c.about')}</span>
           </ThirdPartyLink>
