@@ -1,7 +1,7 @@
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
-const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
+const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, network, ethers } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
@@ -20,14 +20,15 @@ const func: DeployFunction = async function(hre: HardhatRuntimeEnvironment) {
 
   // 1 character names = $1000 (or 1000 * 1e18 attousd)
   // 2 character names = $500
-  // 3 or more = $100
-    const prices = [
-      ethers.BigNumber.from('1000000000000000000000'),
-      ethers.BigNumber.from('500000000000000000000'),
-      ethers.BigNumber.from('100000000000000000000'),
-      ethers.BigNumber.from('100000000000000000000'),
-      ethers.BigNumber.from('100000000000000000000'),
-  ];
+  // 3 character names = $250
+  // 4 or more = $100
+  const prices = [
+    ethers.BigNumber.from('1000000000000000000000'),
+    ethers.BigNumber.from('500000000000000000000'),
+    ethers.BigNumber.from('250000000000000000000'),
+    ethers.BigNumber.from('100000000000000000000'),
+    ethers.BigNumber.from('100000000000000000000'),
+  ]
 
   await deploy('StablePriceOracle', {
     from: deployer,
