@@ -198,12 +198,6 @@ export function isShortName(term) {
   return [...term].length < 3
 }
 
-export const aboutPageURL = () => {
-  const lang = window.localStorage.getItem('language') || ''
-
-  return `https://ens.domains/${lang === 'en' ? '' : lang}`
-}
-
 export function isRecordEmpty(value) {
   return !value || value === emptyAddress || value === ''
 }
@@ -306,7 +300,7 @@ export function imageUrl(url, name, network) {
   // provided network name is valid,
   // domain name is available
   if (_protocol && _network && name) {
-    return `https://metadata.ens.domains/${_network}/avatar/${name}`
+    return `https://metadata.ens.domains/${_network}/avatar/${name}` // FIXME
   }
   console.warn('Unsupported avatar', network, name, url)
 }

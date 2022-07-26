@@ -26,7 +26,9 @@ export function getConfig(service) {
 }
 
 export function getDev() {
-  if (window.location.href.includes('https://app.ens.domains')) {
+  if (
+    window.location.href.includes(`https://${process.env.REACT_APP_PROD_HOST}`)
+  ) {
     return false
   } else {
     return true

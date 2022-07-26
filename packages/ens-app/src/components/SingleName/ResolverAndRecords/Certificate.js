@@ -4,9 +4,7 @@ function createFetchUrl(name) {
 }
 
 function whitelisted() {
-  return ['app.ens.domains', 'ens.eth', 'ens.eth.link'].includes(
-    window.location.host
-  )
+  return [process.env.REACT_APP_PROD_HOST].includes(window.location.host)
 }
 
 export function requestCertificate(name) {

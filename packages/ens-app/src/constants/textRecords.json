@@ -9,6 +9,5 @@
   "com.github",
   "com.reddit",
   "com.twitter",
-  "org.telegram",
-  "eth.ens.delegate"
+  "org.telegram"
 ]

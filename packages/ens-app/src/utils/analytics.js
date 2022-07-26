@@ -7,11 +7,11 @@ const TrackingID = {
 }
 
 function isProduction() {
-  return window.location.host === 'app.ens.domains'
+  return window.location.host === process.env.REACT_APP_PROD_HOST
 }
 
 function isDev() {
-  return window.location.host === 'ensappdev.surge.sh'
+  return window.location.host === process.env.REACT_APP_DEV_HOST
 }
 
 async function isMainnet() {
