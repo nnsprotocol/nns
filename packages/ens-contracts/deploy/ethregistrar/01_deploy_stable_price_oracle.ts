@@ -2,21 +2,26 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { getNamedAccounts, deployments, network, ethers } = hre
+  const { getNamedAccounts, deployments, network, ethers, userConfig } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
+  const usdOracleAddress = userConfig.networks?.[network.name]?.usdOracleAddress
 
-  // FIXME: CHECK THIS AS WE NEED AN ORACLE IN MAINNET TOO
-  if (network.name === 'mainnet') {
-    return true
+  let oracleAddress
+  // check if there is a USD oracle in the config
+  if (usdOracleAddress) {
+    oracleAddress = usdOracleAddress
+    console.log('Using USD Oracle with address: ', oracleAddress)
+  } else {
+    // No USD oracle ... deploy DummyOracle with 1 ETH == 2000 USD
+    const dummyOracle = await deploy('DummyOracle', {
+      from: deployer,
+      args: [ethers.BigNumber.from('200000000000')],
+      log: true,
+    })
+    oracleAddress = dummyOracle.address
+    console.log('Using DummyOracle with address: ', oracleAddress)
   }
-
-  // DummyOracle with 1 ETH == 2000 USD
-  const dummyOracle = await deploy('DummyOracle', {
-    from: deployer,
-    args: [ethers.BigNumber.from('200000000000')],
-    log: true,
-  })
 
   // 1 character names = $1000 (or 1000 * 1e18 attousd)
   // 2 character names = $500
@@ -32,7 +37,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deploy('StablePriceOracle', {
     from: deployer,
-    args: [dummyOracle.address, prices],
+    args: [oracleAddress, prices],
     log: true,
   })
 }

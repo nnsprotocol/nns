@@ -6,7 +6,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, userConfig, network } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
-  const ethRegistryAddress = userConfig.networks?.[network.name]?.ethRegistryAddress ?? '0x0000000000000000000000000000000000000000';
+  const ethRegistryAddress =
+    userConfig.networks?.[network.name]?.ethRegistryAddress ??
+    '0x0000000000000000000000000000000000000000'
 
   const registrar = await ethers.getContract('BaseRegistrarImplementation')
   const priceOracle = await ethers.getContract('StablePriceOracle')
@@ -49,6 +51,7 @@ func.dependencies = [
   'wrapper',
   'BaseRegistrarImplementation',
   'NamedReservations',
+  'StablePriceOracle',
 ]
 
 export default func

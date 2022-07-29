@@ -1,15 +1,17 @@
-import "hardhat/types/config";
+import 'hardhat/types/config'
 
-declare module "hardhat/types/config" {
+declare module 'hardhat/types/config' {
   interface HardhatUserConfig {
-    tld: string;
+    tld: string
   }
 
   interface HttpNetworkUserConfig {
-    ethRegistryAddress?: string;
+    ethRegistryAddress?: string
+    usdOracleAddress?: string
   }
 
   interface HardhatNetworkUserConfig {
-    ethRegistryAddress?: string;
+    ethRegistryAddress?: string
+    usdOracleAddress?: string
   }
 }

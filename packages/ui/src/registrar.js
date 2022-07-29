@@ -308,7 +308,6 @@ export default class Registrar {
     const oracleens = 'eth-usd.data.eth'
     try {
       const contractAddress = await this.getAddress(oracleens)
-      console.log('GET ETH PRICE', contractAddress)
       const oracle = await this.getOracle(contractAddress)
       return (await oracle.latestAnswer()).toNumber() / 100000000
     } catch (e) {

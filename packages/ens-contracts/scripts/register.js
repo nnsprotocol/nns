@@ -15,11 +15,16 @@ async function getContract(name) {
 }
 
 async function main() {
-  const name = ''
-  const owner = ''
-
   const registrar = await getContract('BaseRegistrarImplementation')
-  await registrar.register('0x' + keccak256(name), owner)
+
+  const owner = ''
+  const names = []
+
+  for (const name of names) {
+    console.log(`registering ${name}...`)
+    await registrar.register('0x' + keccak256(name), owner)
+    console.log(`${name} has been registered...`)
+  }
 }
 
 main()

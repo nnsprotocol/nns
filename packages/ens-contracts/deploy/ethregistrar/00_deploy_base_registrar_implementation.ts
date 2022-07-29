@@ -8,7 +8,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, network, userConfig } = hre
   const { deploy } = deployments
   const { deployer, owner } = await getNamedAccounts()
-  const { tld } = userConfig;
+  const { tld } = userConfig
 
   if (!network.tags.use_root) {
     return true
