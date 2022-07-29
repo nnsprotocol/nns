@@ -8,7 +8,7 @@ export async function setupENS({
   ensAddress,
   reloadOnAccountsChange,
   enforceReadOnly,
-  enforceReload,
+  enforceReload
 } = {}) {
   const { provider } = await setupWeb3({
     customProvider,
@@ -17,12 +17,27 @@ export async function setupENS({
     enforceReload,
     ensAddress
   })
+
   const networkId = await getNetworkId()
-  provider.network.ensAddress = ensAddress;
-  const ens = new ENS({ provider, networkId, registryAddress: ensAddress })
+  let registryAddress = ensAddress
+  if (typeof ensAddress === 'object') {
+    if (!ensAddress[networkId]) {
+      throw new Error(`missing ensAddress for network ${networkId}`)
+    }
+    registryAddress = ensAddress[networkId]
+  }
+
+  provider.network.ensAddress = registryAddress
+  const ens = new ENS({ provider, networkId, registryAddress })
   const registrar = await setupRegistrar(ens.registryAddress)
   const network = await getNetwork()
-  return { ens, registrar, provider:customProvider, network, providerObject: provider }
+  return {
+    ens,
+    registrar,
+    provider: customProvider,
+    network,
+    providerObject: provider
+  }
 }
 
 export * from './ens'

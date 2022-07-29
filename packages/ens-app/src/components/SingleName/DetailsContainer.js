@@ -201,7 +201,6 @@ function DetailsContainer({
   readOnly = false
 }) {
   const { t } = useTranslation()
-  const isExpired = domain.expiryTime < new Date()
   const domainOwner =
     domain.available || domain.owner === '0x0' ? null : domain.owner
   const registrant =
@@ -268,8 +267,8 @@ function DetailsContainer({
               domain={domain}
               keyName="registrant"
               value={registrant}
-              canEdit={isRegistrant && !isExpired && !readOnly}
-              isExpiredRegistrant={isRegistrant && isExpired}
+              canEdit={isRegistrant && !readOnly}
+              isExpiredRegistrant={false}
               type="address"
               editButton={t('c.transfer')}
               mutationButton={t('c.transfer')}
