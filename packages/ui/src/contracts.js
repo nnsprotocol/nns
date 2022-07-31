@@ -7,8 +7,8 @@ import {
   // DNSRegistrar as dnsRegistrarContract,
   Resolver as resolverContract,
   ReverseRegistrar as reverseRegistrarContract,
-  TestRegistrar as testRegistrarContract
-  // AggregatorInterface as oracleContract
+  TestRegistrar as testRegistrarContract,
+  AggregatorInterface as oracleContract
 } from '@ensdomains/ens-contracts'
 
 // import { abi as oldResolverContract } from '@ensdomains/contracts/abis/ens-022/PublicResolver.json'
@@ -64,9 +64,9 @@ function getPermanentRegistrarControllerContract({ address, provider }) {
 //   return new Contract(address, bulkRenewalContract, provider)
 // }
 
-// function getOracleContract({ address, provider }) {
-//   return new Contract(address, oracleContract, provider)
-// }
+function getOracleContract({ address, provider }) {
+  return new Contract(address, oracleContract, provider)
+}
 
 export {
   getTestRegistrarContract,
@@ -77,9 +77,9 @@ export {
   // getDnsRegistrarContract,
   // getOldDnsRegistrarContract,
   getPermanentRegistrarContract,
-  getPermanentRegistrarControllerContract
+  getPermanentRegistrarControllerContract,
   // getLegacyAuctionContract,
   // getDeedContract,
   // getBulkRenewalContract
-  // getOracleContract
+  getOracleContract
 }

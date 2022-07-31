@@ -336,7 +336,7 @@ export default ({ match }) => {
         </HeroTop>
         <SearchContainer>
           <>
-            <Title>Nouns Naming Service</Title>
+            <Title>Nouns Name Service</Title>
             <Search />
             <Credits>
               Background by{' '}

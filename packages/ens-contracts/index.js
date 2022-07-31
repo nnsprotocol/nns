@@ -10,6 +10,7 @@ const NNSRegistrarControllerWithReservation = require('./build/contracts/NNSRegi
 // const FIFSRegistrar = require('./build/contracts/FIFSRegistrar')
 // const LinearPremiumPriceOracle = require('./build/contracts/LinearPremiumPriceOracle')
 const PriceOracle = require('./build/contracts/IPriceOracle')
+const AggregatorInterface = require('./build/contracts/AggregatorInterface')
 const PublicResolver = require('./build/contracts/PublicResolver')
 const Resolver = require('./build/contracts/Resolver')
 const ReverseRegistrar = require('./build/contracts/ReverseRegistrar')
@@ -50,6 +51,7 @@ module.exports = {
   // SimplePublicSuffixList,
   // TLDPublicSuffixList,
   Root,
+  AggregatorInterface,
   // DNSSEC,
   // RSASHA256Algorithm,
   // RSASHA1Algorithm,

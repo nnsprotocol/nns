@@ -305,14 +305,13 @@ export default class Registrar {
   // }
 
   async getEthPrice() {
-    const oracleens = 'eth-usd.data.eth'
+    const contractAddress = '0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419' // eth-usd.data.eth
     try {
-      const contractAddress = await this.getAddress(oracleens)
       const oracle = await this.getOracle(contractAddress)
       return (await oracle.latestAnswer()).toNumber() / 100000000
     } catch (e) {
       console.warn(
-        `Either ${oracleens} does not exist or Oracle is not throwing an error`,
+        `Either ${contractAddress} does not exist or Oracle is not throwing an error`,
         e
       )
     }
