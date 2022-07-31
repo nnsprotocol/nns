@@ -14,6 +14,7 @@ import mq from 'mediaQuery'
 import { Link, withRouter } from 'react-router-dom'
 import gql from 'graphql-tag'
 import Info from 'components/Icons/Info'
+import theme from 'theme'
 
 const SideNavContainer = styled('nav')`
   display: ${p => (p.isMenuOpen ? 'block' : 'none')};
@@ -64,7 +65,7 @@ const NavLink = styled(Link)`
   justify-content: center;
   font-weight: 200;
   font-size: 22px;
-  color: ${p => (p.active ? 'black' : 'black')};
+  color: ${p => (p.active ? theme.colors.accent : 'black')};
   padding: 10px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   font-family: 'Londrina Solid';
@@ -74,14 +75,20 @@ const NavLink = styled(Link)`
     border-bottom: 0;
   `}
 
-  &:visited {
-    color: black;
-  }
-
   span {
     transition: 0.2s;
     margin-left: 15px;
-    color: ${p => (p.active ? 'black' : 'black')};
+    color: ${p => (p.active ? theme.colors.accent : 'black')};
+  }
+
+  span {
+    color: ${p => (p.active ? theme.colors.accent : 'black')};
+  }
+  path {
+    fill: ${p => (p.active ? theme.colors.accent : 'black')};
+  }
+  g {
+    fill: ${p => (p.active ? theme.colors.accent : 'black')};
   }
 
   &:hover {
@@ -103,7 +110,7 @@ const ThirdPartyLink = styled('a')`
   justify-content: center;
   font-weight: 200;
   font-size: 22px;
-  color: ${p => (p.active ? 'black' : 'black')};
+  color: ${p => (p.active ? p.theme.colors.accent : 'black')};
   padding: 10px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   font-family: 'Londrina Solid';
@@ -120,7 +127,7 @@ const ThirdPartyLink = styled('a')`
   span {
     transition: 0.2s;
     margin-left: 15px;
-    color: ${p => (p.active ? 'black' : 'black')};
+    color: ${p => (p.active ? p.theme.colors.accent : 'black')};
   }
 
   &:hover {

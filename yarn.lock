@@ -1813,7 +1813,7 @@
     bluebird "^3.5.2"
     dns-packet "^5.0.4"
 
-"@ensdomains/web3modal@1.9.8":
+"@ensdomains/web3modal@1.10.1":
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/@ensdomains/web3modal/-/web3modal-1.10.1.tgz#77fb4a216c5efdfa86b7f272ae0a7dc045dd3deb"
   integrity sha512-l3t76AuobthhBy5PJQQ706/MzZZGsDNrIm6XPs6Nfcug8AkvH0nuDUc11DvyENMPhNTXQU0SDDriNal3AZUnvA==
