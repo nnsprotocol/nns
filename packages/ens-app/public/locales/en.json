@@ -166,14 +166,14 @@
   "register": {
     "buttons": {
       "connect": "No wallet connected. Please connect a wallet to continue.",
-      "insufficient": "Insufficient balance on your wallet. Fill in your wallet and reload the page.",
+      "insufficient": "Looks like your balance is insufficient for this transaction. Fill in your wallet and reload the page.",
       "manage": "Manage name",
       "register": "Register",
       "request": "Request to register",
       "setreverserecord": "Set as Primary NNS Name",
       "warning": "Click register to move to the 3rd step"
     },
-    "favourite": "* Favorite the name for easy access in case you close out of your browser.",
+    "favourite": "* Add your next names to Favorites and don't lose track of them.",
     "increaseRegistrationPeriod": "Increase registration period to avoid paying gas every year",
     "notifications": {
       "ready": "is ready to be registered"
@@ -192,21 +192,21 @@
     "step1": {
       "label": "Step 1",
       "text": "Your wallet will open and you will be asked to confirm the first of two transactions required for registration.",
-      "text2": "If the second transaction is not processed within 7 days of the first, you will need to start again from step 1.",
-      "title": "Request to register"
+      "text2": "If the second transaction is not processed within 7 days, you will need to repeat this step.",
+      "title": "Register"
     },
     "step2": {
       "label": "Step 2",
-      "text": "The waiting period is required to ensure another person hasn’t tried to register the same name and protect you after your request.",
-      "title": "Wait for 1 minute"
+      "text": "Just one minute to ensure no one else is trying to register the same name and protect you after the request.",
+      "title": "Relax for 1 minute"
     },
     "step3": {
       "label": "Step 3",
-      "text": "Click ‘register’ and your wallet will re-open. Only after the 2nd transaction is confirmed you'll know if you got the name.",
-      "title": "Complete Registration"
+      "text": "Once you click 'Register' your wallet will re-open. Just confirmt the second transaction and you'll know if you got your nounish name.",
+      "title": "Complete Registration (LFG!)"
     },
     "titles": [
-      "Registering a name requires you to complete 3 steps",
+      "Only 3 steps to complete your name registration",
       "You’ll be able to manage your name soon.",
       "You’ve completed all the steps, manage your name now!"
     ]

@@ -41,7 +41,7 @@ const StyledInput = styled('input')`
   ${p =>
     p.warning &&
     `  
-    color: #F5A623
+    color: black
   `};
 `
 

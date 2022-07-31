@@ -27,7 +27,7 @@ const BaseContainer = styled('div')`
   .bg-string {
     font-family: 'PT Root UI';
     position: relative;
-    color: #5284ff;
+    color: black;
     font-size: 26px;
     font-weight: 300;
     line-height: 1em;

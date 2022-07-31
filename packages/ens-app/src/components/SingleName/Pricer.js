@@ -36,7 +36,7 @@ const OrangeExclamation = styled(DefaultOrangeExclamation)`
 `
 
 const Prompt = styled('div')`
-  color: #ffa600;
+  color: black;
   display: flex;
   align-items: center;
   margin-bottom: 10px;

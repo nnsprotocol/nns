@@ -31,7 +31,7 @@ const Pencil = styled(DefaultPencil)`
 `
 
 const Prompt = styled('span')`
-  color: #ffa600;
+  color: black;
   margin-right: 10px;
 `
 
@@ -106,7 +106,7 @@ function getCTA({
               </Prompt>
               <NoAccountsModal
                 onClick={connectProvider}
-                colour={'#F5A623'}
+                colour={'black'}
                 buttonText={t('c.connect')}
               />
             </>

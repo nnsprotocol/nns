@@ -11,8 +11,8 @@ function getButtonStyles({ type }) {
         }
         &:hover {
           cursor: pointer;
-          border: 2px solid #2c46a6;
-          background: #2c46a6;
+          border: 2px solid black;
+          background: black;
           box-shadow: 0 10px 21px 0 rgba(161, 175, 184, 0.89);
           border-radius: 23px;
         }
@@ -25,7 +25,7 @@ function getButtonStyles({ type }) {
         &:hover {
           cursor: pointer;
           border: 2px solid transparent;
-          background: #2c46a6;
+          background: black;
           box-shadow: 0 10px 21px 0 rgba(161, 175, 184, 0.89);
         }
       `
@@ -41,7 +41,7 @@ function getButtonStyles({ type }) {
           color: white;
           cursor: pointer;
           border: 2px solid transparent;
-          background: #2c46a6;
+          background: black;
           box-shadow: 0 10px 21px 0 rgba(161, 175, 184, 0.89);
         }
       `
@@ -55,8 +55,8 @@ function getButtonStyles({ type }) {
         }
         &:hover {
           cursor: pointer;
-          border: 2px solid #2C46A6;
-          color: #2C46A6;
+          border: 2px solid black;
+          color: black;
         }
       `
     case 'hollow-primary-disabled':

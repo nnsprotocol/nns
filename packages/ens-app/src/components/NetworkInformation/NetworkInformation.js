@@ -62,13 +62,13 @@ const NetworkStatus = styled('div')`
     width: 6px;
     height: 6px;
     border-radius: 3px;
-    background: #5284ff;
+    background: black;
     margin-right: 5px;
   }
 `
 
 const Account = styled('div')`
-  color: #adbbcd;
+  color: black;
   font-size: 18px;
   font-weight: 200;
   font-family: 'Londrina Solid';
@@ -146,7 +146,7 @@ function NetworkInformation() {
             <NoAccountsModal
               onClick={disconnectProvider}
               buttonText={t('c.disconnect')}
-              colour={'#F5A623'}
+              colour={'black'}
             />
           )}
         </AccountContainer>
@@ -160,7 +160,7 @@ function NetworkInformation() {
           </NetworkStatus>
           <NoAccountsModal
             onClick={connectProvider}
-            colour={'#F5A623'}
+            colour={'black'}
             buttonText={t('c.connect')}
           />
         </AccountContainer>

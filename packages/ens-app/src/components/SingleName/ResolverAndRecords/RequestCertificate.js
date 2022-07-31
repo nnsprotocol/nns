@@ -15,7 +15,7 @@ import useNetworkInfo from '../../NetworkInformation/useNetworkInfo'
 
 const Warning = styled('span')`
   margin-right: 1em;
-  color: #f5a623;
+  color: black;
 `
 
 const Action = styled('div')`

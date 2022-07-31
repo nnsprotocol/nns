@@ -183,7 +183,7 @@ const WarningContainer = styled.div`
   padding: 10px 0px 10px 20px;
 
   & a:hover {
-    color: #2c46a6;
+    color: black;
   }
 `
 

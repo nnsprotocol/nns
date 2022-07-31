@@ -20,7 +20,7 @@ const MigrateKey = styled(DetailsKey)`
 `
 
 const MigrateValue = styled(DetailsValue)`
-  color: #f5a623;
+  color: black;
 `
 
 const MigrateButton = styled(Button)`
@@ -91,7 +91,7 @@ export default function MigrateResolver({
         <SVG width="16" height="16" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M8.739 5.82c-.039.746-.096 1.512-.134 2.258-.02.25-.02.268-.02.517a.723.723 0 01-.727.708.707.707 0 01-.727-.689c-.058-1.167-.134-2.143-.192-3.311l-.057-.938c-.02-.478.268-.9.727-1.034a.972.972 0 011.13.556c.057.153.095.306.095.478-.019.479-.057.976-.095 1.455m-.88 6.316a.98.98 0 01-.977-.976.98.98 0 01.976-.976c.536 0 .976.44.957.995.02.517-.44.957-.957.957M7.93 0a7.93 7.93 0 100 15.86A7.93 7.93 0 007.93 0"
-            fill="#F5A623"
+            fill="black"
             fillRule="evenodd"
           />
         </SVG>
@@ -99,7 +99,7 @@ export default function MigrateResolver({
       </MigrateKey>
       <MigrateValue editable data-testid={'migrate-value'}>
         {value}
-        <CopyToClipBoard iconColour="#f5a623" />
+        <CopyToClipBoard iconColour="black" />
       </MigrateValue>
       <MigrateAction>
         {pending1 &&

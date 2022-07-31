@@ -42,7 +42,7 @@ const Switch = styled(Button)`
 `
 
 const Warning = styled('div')`
-  color: #f5a623;
+  color: black;
   align-self: center;
   margin-right: 20px;
 `
@@ -128,9 +128,9 @@ export const SaveCancel = React.forwardRef(
     return (
       <SaveCancelContainer className={className} ref={ref}>
         {warningMessage ? <Warning>{warningMessage}</Warning> : null}
-        <Cancel data-testid="cancel" type="hollow" onClick={stopEditing}>
+        {/* <Cancel data-testid="cancel" type="hollow" onClick={stopEditing}>
           {t('c.cancel')}
-        </Cancel>
+        </Cancel> */}
         <ActionButton
           disabled={disabled}
           mutation={mutation}

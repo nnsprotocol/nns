@@ -122,7 +122,7 @@ const OrangeExclamation = styled(DefaultOrangeExclamation)`
 `
 
 const DNSOwnerError = styled('span')`
-  color: #f5a623;
+  color: black;
 `
 
 const OwnerFields = styled('div')`
@@ -152,7 +152,7 @@ const GracePeriodDate = styled('span')`
 `
 
 const Expiration = styled('span')`
-  color: ${p => (p.isExpired ? 'white' : '#f5a623')};
+  color: ${p => (p.isExpired ? 'white' : 'black')};
   font-weight: bold;
 `
 

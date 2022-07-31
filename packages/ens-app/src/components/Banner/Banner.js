@@ -12,7 +12,7 @@ const Banner = styled('div')`
 
   h3 {
     margin: 0;
-    color: #f5a623;
+    color: black;
     font-weight: 300;
     font-size: 18px;
   }

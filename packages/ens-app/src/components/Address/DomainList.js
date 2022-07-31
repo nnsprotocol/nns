@@ -4,6 +4,7 @@ import styled from '@emotion/styled/macro'
 import DomainItem from '../DomainItem/ChildDomainItem'
 
 const NoDomainsContainer = styled('div')`
+  font-family: 'PT Root UI';
   display: flex;
   padding: 40px;
   flex-direction: column;
@@ -56,7 +57,7 @@ export default function DomainList({
   if (!domains || domains.length === 0) {
     return (
       <NoDomainsContainer>
-        <h2>This address does not own any domains</h2>
+        <h2>Looks like you don't have any nounish domains yet</h2>
       </NoDomainsContainer>
     )
   }

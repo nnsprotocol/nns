@@ -20,10 +20,10 @@ const AddressInput = styled(DefaultAddressInput)`
 `
 
 const ToggleAddRecord = styled('span')`
-  font-family: "PT Root UI";
+  font-family: 'PT Root UI';
   font-weight: bold;
   font-size: 14px;
-  color: #5284ff;
+  color: black;
   letter-spacing: 0.58px;
   text-align: center;
 
@@ -56,7 +56,7 @@ const Select = styled(DefaultSelect)`
 
 const RecordsTitle = styled('h3')`
   /* Pointers: */
-  font-family: "PT Root UI";
+  font-family: 'PT Root UI';
   font-weight: 700;
   font-size: 12px;
   color: #adbbcd;
@@ -118,7 +118,7 @@ const UploadBtn = styled(Button)`
   flex-direction: row;
   margin-bottom: 5px;
   width: 100%;
-  background: #5284ff;
+  background: black;
   ${mq.small`
     margin-left: 20px;
     margin-bottom: 20px;

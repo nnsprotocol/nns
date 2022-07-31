@@ -32,7 +32,8 @@ const Loading = styled('span')`
 `
 
 const Warning = styled('div')`
-  color: #f5a623;
+  color: black;
+  font-weight: 500;
 `
 
 const AddReverseRecordContainer = styled('div')`
