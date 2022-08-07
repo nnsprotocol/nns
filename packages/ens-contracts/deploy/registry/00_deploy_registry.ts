@@ -46,11 +46,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       contract: await deployments.getArtifact('ENSRegistryWithFallback'),
     })
   } else {
-    await deploy('ENSRegistry', {
+    const { newlyDeployed } = await deploy('ENSRegistry', {
       from: deployer,
       args: [],
       log: true,
     })
+
+    if (!newlyDeployed) {
+      return
+    }
   }
 
   if (!network.tags.use_root) {

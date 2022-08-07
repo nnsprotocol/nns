@@ -8,16 +8,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, userConfig } = hre
   const { deploy } = deployments
   const { deployer, owner } = await getNamedAccounts()
-  const { tld } = userConfig;
+  const { tld } = userConfig
 
   const registry = await ethers.getContract('ENSRegistry')
   // const nameWrapper = await ethers.getContract('NameWrapper')
-  const controller = await ethers.getContract('NNSRegistrarControllerWithReservation')
+  const controller = await ethers.getContract(
+    'NNSRegistrarControllerWithReservation',
+  )
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
   const registrar = await ethers.getContract('BaseRegistrarImplementation')
-  const root = await ethers.getContract('Root');
+  const root = await ethers.getContract('Root')
 
-  await deploy('PublicResolver', {
+  const { newlyDeployed } = await deploy('PublicResolver', {
     from: deployer,
     args: [
       registry.address,
@@ -27,7 +29,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ],
     log: true,
   })
-  const publicResolver = await ethers.getContract('PublicResolver');
+  if (!newlyDeployed) {
+    return
+  }
+
+  const publicResolver = await ethers.getContract('PublicResolver')
 
   const tx = await reverseRegistrar.setDefaultResolver(publicResolver.address, {
     from: deployer,
@@ -39,7 +45,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const tx2 = await registrar
     .connect(await ethers.getSigner(owner))
-    .setResolver(publicResolver.address);
+    .setResolver(publicResolver.address)
 
   console.log(
     `Setting resolver for ${tld} on Registry to resolver (tx: ${tx2.hash})...`,
@@ -48,7 +54,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const tx3 = await controller
     .connect(await ethers.getSigner(owner))
-    .setAsInterface(publicResolver.address);
+    .setAsInterface(publicResolver.address)
   console.log(
     `Setting controller as implementer of controller interface (tx: ${tx2.hash})...`,
   )
@@ -56,10 +62,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const tx4 = await root
     .connect(await ethers.getSigner(owner))
-    .setSubnodeOwner(
-        '0x' + keccak256(tld),
-        owner,
-    )
+    .setSubnodeOwner('0x' + keccak256(tld), owner)
   console.log(
     `Tranferring ownership of tld back to deployer (tx: ${tx4.hash})...`,
   )
@@ -67,11 +70,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const tx5 = await registry
     .connect(await ethers.getSigner(owner))
-    .setSubnodeOwner(
-        namehash.hash(tld),
-        '0x' + keccak256('resolver'),
-        owner,
-    )
+    .setSubnodeOwner(namehash.hash(tld), '0x' + keccak256('resolver'), owner)
   console.log(
     `Setting owner of resolver.${tld} to ${owner} (tx: ${tx5.hash})...`,
   )
@@ -79,10 +78,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const tx6 = await root
     .connect(await ethers.getSigner(owner))
-    .setSubnodeOwner(
-        '0x' + keccak256(tld),
-        registrar.address,
-    )
+    .setSubnodeOwner('0x' + keccak256(tld), registrar.address)
   console.log(
     `Tranferring ownership of tld back to the registrar (tx: ${tx6.hash})...`,
   )
@@ -92,8 +88,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     namehash.hash(`resolver.${tld}`),
     publicResolver.address,
     {
-      from: owner
-    }
+      from: owner,
+    },
   )
   console.log(
     `Setting addr resolution for resolver.${tld} to public resolver (tx: ${tx7.hash})...`,
@@ -102,10 +98,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const tx8 = await registry
     .connect(await ethers.getSigner(owner))
-    .setResolver(
-        namehash.hash(`resolver.${tld}`),
-        publicResolver.address,
-    )
+    .setResolver(namehash.hash(`resolver.${tld}`), publicResolver.address)
   console.log(
     `Setting resolver for resolver.${tld} to publicResolver (tx: ${tx8.hash})...`,
   )

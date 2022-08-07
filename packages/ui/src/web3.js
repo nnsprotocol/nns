@@ -90,7 +90,7 @@ export async function setupWeb3({
     signer = provider.getSigner()
     if (window.ethereum.on && reloadOnAccountsChange) {
       address = await signer.getAddress()
-      window.ethereum.on('accountsChanged', async function (accounts) {
+      window.ethereum.on('accountsChanged', async function(accounts) {
         address = await signer.getAddress()
         if (accounts[0] !== address) {
           window.location.reload()

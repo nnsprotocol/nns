@@ -27,6 +27,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ],
     log: true,
   })
+  if (!controller.newlyDeployed) {
+    return
+  }
 
   const tx1 = await registrar.addController(controller.address, {
     from: deployer,

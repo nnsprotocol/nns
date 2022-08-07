@@ -16,6 +16,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [registry.address],
     log: true,
   })
+  if (!reverseRegistrar.newlyDeployed) {
+    return
+  }
 
   const root = await ethers.getContract('Root')
 

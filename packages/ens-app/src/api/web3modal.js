@@ -84,17 +84,19 @@ export const disconnect = async function() {
   if (provider && provider.disconnect) {
     provider.disconnect()
   }
-  await setupENS({
-    customProvider: rpcUrl,
-    reloadOnAccountsChange: false,
-    enforceReadOnly: true,
-    enforceReload: false
-  })
+  // await setupENS({
+  //   customProvider: rpcUrl,
+  //   reloadOnAccountsChange: false,
+  //   enforceReadOnly: true,
+  //   enforceReload: false
+  // })
 
   isReadOnlyReactive(isReadOnly())
   web3ProviderReactive(null)
-  networkIdReactive(await getNetworkId())
-  networkReactive(await getNetwork())
+  networkIdReactive(null)
+  networkReactive(null)
+  // networkIdReactive(await getNetworkId())
+  // networkReactive(await getNetwork())
 }
 
 export const setWeb3Modal = x => {

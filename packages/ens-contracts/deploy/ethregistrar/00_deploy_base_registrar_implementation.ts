@@ -17,11 +17,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const registry = await ethers.getContract('ENSRegistry')
   const root = await ethers.getContract('Root')
 
-  await deploy('BaseRegistrarImplementation', {
+  const { newlyDeployed } = await deploy('BaseRegistrarImplementation', {
     from: deployer,
     args: [registry.address, namehash.hash(tld)],
     log: true,
   })
+  if (!newlyDeployed) {
+    return
+  }
 
   const registrar = await ethers.getContract('BaseRegistrarImplementation')
 

@@ -38,6 +38,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await deploy('StablePriceOracle', {
     from: deployer,
     args: [oracleAddress, prices],
+    skipIfAlreadyDeployed: true,
     log: true,
   })
 }

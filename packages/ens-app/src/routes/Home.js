@@ -59,11 +59,15 @@ const Name = styled('span')`
 
 const Title = styled('h1')`
   text-align: center;
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 700;
   font-family: 'Londrina Solid';
   letter-spacing: 1px;
   margin-bottom: 25px;
+
+  ${mq.small`
+    font-size: 3rem;
+  `}
 `
 
 const Credits = styled('p')`
@@ -297,22 +301,26 @@ export default ({ match }) => {
     variables: { address: accounts?.[0] }
   })
 
+  const hasAccounts = accounts?.length > 0
+  const isLoading = network === 'Loading'
+
   return (
     <>
       <Hero>
         <HeroTop>
           <NetworkStatus>
             <Network>
-              {`${network} ${t('c.network')}`}
-              {isReadOnly && <ReadOnly>({t('c.readonly')})</ReadOnly>}
-              {!isReadOnly && displayName && (
+              {isLoading
+                ? 'Connect your wallet'
+                : `${network} ${t('c.network')}`}
+              {hasAccounts && displayName && (
                 <Name data-testid="display-name">({displayName})</Name>
               )}
             </Network>
             {!isSafeApp && (
               <NoAccounts
-                onClick={isReadOnly ? connectProvider : disconnectProvider}
-                buttonText={isReadOnly ? t('c.connect') : t('c.disconnect')}
+                onClick={!hasAccounts ? connectProvider : disconnectProvider}
+                buttonText={!hasAccounts ? t('c.connect') : t('c.disconnect')}
               />
             )}
           </NetworkStatus>

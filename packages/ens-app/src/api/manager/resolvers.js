@@ -173,7 +173,8 @@ export const handleMultipleTransactions = async (
 async function getRegistrarEntry(name) {
   const registrar = getRegistrar()
   const nameArray = name.split('.')
-  if (nameArray.length > 3 || nameArray[1] !== '⌐◨-◨') {  // FIXME
+  if (nameArray.length > 3 || nameArray[1] !== '⌐◨-◨') {
+    // FIXME
     return {}
   }
 
@@ -194,7 +195,7 @@ async function getRegistrarEntry(name) {
     expiryTime,
     isNewRegistrar,
     available,
-    reserved,
+    reserved
   } = entry
 
   return {

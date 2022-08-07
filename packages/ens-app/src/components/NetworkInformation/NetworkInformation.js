@@ -123,48 +123,40 @@ function NetworkInformation() {
     skip: !accounts?.length
   })
 
+  const hasAccounts = accounts?.length > 0
+
   return (
     <NetworkInformationContainer hasAccount={accounts && accounts.length > 0}>
-      {!isReadOnly ? (
-        <AccountContainer>
-          {!reverseRecordLoading &&
-          getReverseRecord &&
-          getReverseRecord.avatar ? (
-            <Avatar
-              src={imageUrl(getReverseRecord.avatar, displayName, network)}
-            />
-          ) : (
-            <Blockies address={accounts[0]} imageSize={45} />
-          )}
-          <Account data-testid="account" className="account">
-            <span>{displayName}</span>
-          </Account>
-          <NetworkStatus>
-            {network} {t('c.network')}
-          </NetworkStatus>
-          {!isSafeApp && (
-            <NoAccountsModal
-              onClick={disconnectProvider}
-              buttonText={t('c.disconnect')}
-              colour={'black'}
-            />
-          )}
-        </AccountContainer>
-      ) : (
-        <AccountContainer>
-          <Account data-testid="account" className="account">
-            {t('c.readonly')}
-          </Account>
-          <NetworkStatus>
-            {network} {t('c.network')}
-          </NetworkStatus>
+      <AccountContainer>
+        {!reverseRecordLoading &&
+        getReverseRecord &&
+        getReverseRecord.avatar ? (
+          <Avatar
+            src={imageUrl(getReverseRecord.avatar, displayName, network)}
+          />
+        ) : hasAccounts ? (
+          <Blockies address={accounts[0]} imageSize={45} />
+        ) : null}
+        <Account data-testid="account" className="account">
+          <span>{displayName}</span>
+        </Account>
+        <NetworkStatus>
+          {network} {t('c.network')}
+        </NetworkStatus>
+        {hasAccounts ? (
+          <NoAccountsModal
+            onClick={disconnectProvider}
+            buttonText={t('c.disconnect')}
+            colour={'black'}
+          />
+        ) : (
           <NoAccountsModal
             onClick={connectProvider}
             colour={'black'}
             buttonText={t('c.connect')}
           />
-        </AccountContainer>
-      )}
+        )}
+      </AccountContainer>
     </NetworkInformationContainer>
   )
 }

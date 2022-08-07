@@ -16,11 +16,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const registry = await ethers.getContract('ENSRegistry')
 
-  await deploy('Root', {
+  const { newlyDeployed } = await deploy('Root', {
     from: deployer,
     args: [registry.address],
     log: true,
   })
+  if (!newlyDeployed) {
+    return
+  }
 
   const root = await ethers.getContract('Root')
 

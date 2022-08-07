@@ -84,7 +84,8 @@ export const getProvider = async reconnect => {
 
     if (
       window.localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER') ||
-      reconnect
+      reconnect ||
+      true
     ) {
       provider = await connect()
       return provider
