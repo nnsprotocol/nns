@@ -275,7 +275,7 @@
         "auction": "In Auction",
         "available": "Available",
         "default": "Unknown State",
-        "owned": "Unavailable",
+        "owned": "Claimed",
         "owner": "Owner"
       }
     },

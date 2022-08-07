@@ -43,12 +43,9 @@ function setState(node) {
     return node
   }
   if (node.available) {
-    state = 'Open'
+    state = node.reserved ? 'Reserved' : 'Open'
   } else {
     state = 'Owned'
-  }
-  if (node.reserved) {
-    state = 'Reserved'
   }
   return {
     ...node,
