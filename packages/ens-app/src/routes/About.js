@@ -109,10 +109,9 @@ function Faq() {
           reservation on names will be removed.
           <br />
           <br />
-          <strong>Example: </strong>
-          During the first 60 days after launch, nouns.⌐◨-◨ will be claimable
-          only by the owner of nouns.eth. If the name is not claimed within this
-          period it will be made available to everyone.
+          Example: During the first 60 days after launch, nouns.⌐◨-◨ will be
+          claimable only by the owner of nouns.eth. If the name is not claimed
+          within this period it will be made available to everyone.
         </Section>
 
         <Section question="Why are all the numbers from 0 to 9999 reserved?">
@@ -138,9 +137,47 @@ function Faq() {
           partners platforms.
         </Section>
 
+        <Section question="When was the Main Net launched?">
+          The NNS Main Net was launched the 28/7/2022.
+        </Section>
+
+        <Section question="Where can I see my .⌐◨-◨ names natively resolved?">
+          The NNS is already supported by the major DAOs and auction projects of
+          the Nouniverse.
+          <br />
+          Here is the fully updated list of our ecosystem:
+          <ul>
+            <li>Nouns DAO (Coming soon)</li>
+            <li>Prop House (Coming soon)</li>
+            <li>Lil Nouns DAO (Coming soon)</li>
+            <li>Gnars DAO (Coming soon)</li>
+            <li>Tings DAO (Coming soon)</li>
+            <li>Nouns Town (Coming soon)</li>
+          </ul>
+          Extending the NNS ecosystem is a never ending process and our number 1
+          priority.
+          <br />
+          Our current pipeline of integrations includes a constant stream of new
+          nounish projects, CC0 creators and external apps and marketplaces!
+          <br />
+          <br />
+          Do you want to be in the list above? DM us on Twitter!
+        </Section>
+
+        <Section question="How much does it cost to register a .⌐◨-◨ name?">
+          The NNS Main Net was launched the 28/7/2022.
+        </Section>
+
         <Section question="Are .⌐◨-◨ names NFTs?">
-          Yes. NNS domains are issued as ERC-721 tokens. This makes them super
-          easy to manage across different wallets and exchanges.
+          Prices are currently as follows:
+          <ul>
+            <li>4+ character .⌐◨-◨ names: $100 in ETH, one-time fee.</li>
+            <li>3 character .⌐◨-◨ names: $250 in ETH, one-time fee.</li>
+            <li>2 character .⌐◨-◨ names: $500 in ETH, one-time fee.</li>
+            <li>1 character .⌐◨-◨ names: $1000 in ETH, one-time fee. </li>
+          </ul>
+          The premium price for the names with a length below 4 characters has
+          been applied to reflect their scarcity.
         </Section>
 
         <Section question="Why should I buy a name?">
@@ -149,7 +186,8 @@ function Faq() {
           <br />
           There are 2 main reasons why you should join:
           <p>
-            <strong>First, identity.</strong>
+            First, identity.
+            <br />
             <br />
             The more the Nouns and the cc0 culture grow, the more having a cool
             .⌐◨-◨ name will be relevant at an identity and cultural level.
@@ -161,7 +199,8 @@ function Faq() {
             This will increase the demand of short and effective .⌐◨-◨ names.
           </p>
           <p>
-            <strong>Second, benefits.</strong>
+            Second, benefits.
+            <br />
             <br />
             NNS will constantly partner with creators who share the same cc0
             vision to bring more benefits to the NNS owners.
