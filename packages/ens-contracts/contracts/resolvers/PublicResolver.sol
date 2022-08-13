@@ -32,9 +32,6 @@ contract PublicResolver is
     TextResolver
 {
     ENS immutable ens;
-    // INameWrapper immutable nameWrapper;
-    address immutable trustedETHController;
-    address immutable trustedReverseRegistrar;
 
     /**
      * A mapping of operators. An address that is authorised for an address
@@ -51,16 +48,8 @@ contract PublicResolver is
         bool approved
     );
 
-    constructor(
-        ENS _ens,
-        // INameWrapper wrapperAddress,
-        address _trustedETHController,
-        address _trustedReverseRegistrar
-    ) {
+    constructor(ENS _ens) {
         ens = _ens;
-        // nameWrapper = wrapperAddress;
-        trustedETHController = _trustedETHController;
-        trustedReverseRegistrar = _trustedReverseRegistrar;
     }
 
     /**
@@ -88,16 +77,7 @@ contract PublicResolver is
     }
 
     function isAuthorised(bytes32 node) internal view override returns (bool) {
-        if (
-            msg.sender == trustedETHController ||
-            msg.sender == trustedReverseRegistrar
-        ) {
-            return true;
-        }
         address owner = ens.owner(node);
-        // if (owner == address(nameWrapper)) {
-        //     owner = nameWrapper.ownerOf(uint256(node));
-        // }
         return owner == msg.sender || isApprovedForAll(owner, msg.sender);
     }
 

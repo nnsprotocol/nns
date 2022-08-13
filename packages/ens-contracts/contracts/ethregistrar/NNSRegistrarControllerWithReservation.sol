@@ -39,6 +39,11 @@ contract NNSRegistrarControllerWithReservation is IETHRegistrarController, Ownab
     uint public minCommitmentAge;
     uint public maxCommitmentAge;
 
+    bool enabled10kReservations = true;
+    bool enabledETHReservations = true;
+    bool enabledNamedReservations = true;
+    uint minNameLength = 3;
+
     mapping(bytes32=>uint) public commitments;
 
     event NameRegistered(string name, bytes32 indexed label, address indexed owner, uint cost);
@@ -63,8 +68,8 @@ contract NNSRegistrarControllerWithReservation is IETHRegistrarController, Ownab
         return prices.price(name);
     }
 
-    function valid(string memory name) public pure returns(bool) {
-        return name.strlen() >= 1;
+    function valid(string memory name) public view returns(bool) {
+        return name.strlen() >= minNameLength;
     }
 
     function available(string memory name) public view returns(bool) {
@@ -73,15 +78,15 @@ contract NNSRegistrarControllerWithReservation is IETHRegistrarController, Ownab
     }
 
     function reserved(string memory name, address sender) public view returns(bool) {
-        if (_is10k(name)) {
+        if (enabled10kReservations && _is10k(name)) {
             return true;
         }
 
-        if (namedReservations.reserved(name)) {
+        if (enabledNamedReservations && namedReservations.reserved(name)) {
             return true;
         }
 
-        if (address(ethENS) == address(0)) {
+        if (!enabledETHReservations || address(ethENS) == address(0)) {
             return false;
         }
 
@@ -191,12 +196,24 @@ contract NNSRegistrarControllerWithReservation is IETHRegistrarController, Ownab
         maxCommitmentAge = _maxCommitmentAge;
     }
 
-    function withdraw() public onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);        
+    function setEnable10KReservations(bool _enabled10kReservations) public onlyOwner {
+        enabled10kReservations = _enabled10kReservations;
     }
 
-    function setAsInterface(Resolver resolver) public onlyOwner {
-        resolver.setInterface(ETH_NODE, 0x018fac06, address(this)); // regiter
+    function setEnableETHReservations(bool _enabledETHReservations) public onlyOwner {
+        enabledETHReservations = _enabledETHReservations;
+    }
+
+    function setEnableNamedReservations(bool _enabledNamedReservations) public onlyOwner {
+        enabledNamedReservations = _enabledNamedReservations;
+    }
+
+    function setMinNameLength(uint _minNameLength) public onlyOwner {
+        minNameLength = _minNameLength;
+    }
+
+    function withdraw() public onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);        
     }
 
     function supportsInterface(bytes4 interfaceID) external pure returns (bool) {

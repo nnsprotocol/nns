@@ -11,7 +11,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { tld } = userConfig
 
   const registry = await ethers.getContract('ENSRegistry')
-  // const nameWrapper = await ethers.getContract('NameWrapper')
   const controller = await ethers.getContract(
     'NNSRegistrarControllerWithReservation',
   )
@@ -21,12 +20,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { newlyDeployed } = await deploy('PublicResolver', {
     from: deployer,
-    args: [
-      registry.address,
-      // nameWrapper.address,
-      controller.address,
-      reverseRegistrar.address,
-    ],
+    args: [registry.address],
     log: true,
   })
   if (!newlyDeployed) {
@@ -35,6 +29,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const publicResolver = await ethers.getContract('PublicResolver')
 
+  // Default resolver for reverse registrar
   const tx = await reverseRegistrar.setDefaultResolver(publicResolver.address, {
     from: deployer,
   })
@@ -43,38 +38,42 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   )
   await tx.wait()
 
+  // Default resolver for base registrar
   const tx2 = await registrar
     .connect(await ethers.getSigner(owner))
     .setResolver(publicResolver.address)
-
   console.log(
     `Setting resolver for ${tld} on Registry to resolver (tx: ${tx2.hash})...`,
   )
   await tx2.wait()
-
-  const tx3 = await controller
-    .connect(await ethers.getSigner(owner))
-    .setAsInterface(publicResolver.address)
-  console.log(
-    `Setting controller as implementer of controller interface (tx: ${tx2.hash})...`,
-  )
-  await tx3.wait()
-
+  
+  console.log(`Setting ownership of resolver.${tld} to owner`)
   const tx4 = await root
     .connect(await ethers.getSigner(owner))
     .setSubnodeOwner('0x' + keccak256(tld), owner)
   console.log(
-    `Tranferring ownership of tld back to deployer (tx: ${tx4.hash})...`,
+    `Tranferring ownership of .${tld} back to deployer (tx: ${tx4.hash})...`,
   )
   await tx4.wait()
 
-  const tx5 = await registry
+  const ownerOfResolverTLD = await registry.owner(namehash.hash(`resolver.${tld}`));
+  if (ownerOfResolverTLD !== owner) {
+    const tx = await registry
+      .connect(await ethers.getSigner(owner))
+      .setSubnodeOwner(namehash.hash(tld), '0x' + keccak256('resolver'), owner)
+    console.log(
+      `Setting owner of resolver.${tld} to ${owner} (tx: ${tx.hash})...`,
+    )
+    await tx.wait()
+  }
+
+  const tx3 = await publicResolver
     .connect(await ethers.getSigner(owner))
-    .setSubnodeOwner(namehash.hash(tld), '0x' + keccak256('resolver'), owner)
+    .setInterface(namehash.hash(tld), 0x018fac06, controller.address);
   console.log(
-    `Setting owner of resolver.${tld} to ${owner} (tx: ${tx5.hash})...`,
+    `Set controller as implementer of controller interface for .${tld} (tx: ${tx3.hash})...`,
   )
-  await tx5.wait()
+  await tx3.wait()
 
   const tx6 = await root
     .connect(await ethers.getSigner(owner))
@@ -83,7 +82,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     `Tranferring ownership of tld back to the registrar (tx: ${tx6.hash})...`,
   )
   await tx6.wait()
-
+  
   const tx7 = await publicResolver['setAddr(bytes32,address)'](
     namehash.hash(`resolver.${tld}`),
     publicResolver.address,

@@ -15,7 +15,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
   const namedReservations = await ethers.getContract('NamedReservations')
 
-  const controller = await deploy('NNSRegistrarControllerWithReservation', {
+  const oldController = await ethers.getContractOrNull(
+    'NNSRegistrarControllerWithReservation',
+  )
+
+  const { newlyDeployed } = await deploy('NNSRegistrarControllerWithReservation', {
     from: deployer,
     args: [
       registrar.address,
@@ -27,10 +31,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ],
     log: true,
   })
-  if (!controller.newlyDeployed) {
+  if (!newlyDeployed) {
     return
   }
 
+  const controller = await ethers.getContract("NNSRegistrarControllerWithReservation")
   const tx1 = await registrar.addController(controller.address, {
     from: deployer,
   })
@@ -38,6 +43,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     `Adding controller as controller on registrar (tx: ${tx1.hash})...`,
   )
   await tx1.wait()
+
+  if (oldController) {
+    const tx = await registrar.removeController(oldController!.address, {
+      from: deployer,
+    })
+    console.log(`Removing old controller from registrar (tx: ${tx.hash})...`)
+    await tx.wait()
+  }
 
   const tx3 = await reverseRegistrar.setController(controller.address, {
     from: deployer,
