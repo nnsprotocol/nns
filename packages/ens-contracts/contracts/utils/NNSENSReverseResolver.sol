@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.4;
 import {ENS} from '../registry/ENS.sol';
 import {INameResolver} from '../resolvers/profiles/INameResolver.sol';
