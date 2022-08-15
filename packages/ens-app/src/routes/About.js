@@ -2,15 +2,9 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from '@emotion/styled/macro'
 import mq from 'mediaQuery'
-
 import { H2 as DefaultH2, Title } from '../components/Typography/Basic'
 import Anchor from '../components/Icons/Anchor'
 import slugify from 'slugify'
-import ReverseRecordImageSrc from '../assets/reverseRecordImage.png'
-import {
-  NonMainPageBannerContainer,
-  DAOBannerContent
-} from '../components/Banner/DAOBanner'
 
 const H2 = styled(DefaultH2)`
   margin-top: 50px;
@@ -114,6 +108,41 @@ function Faq() {
           within this period it will be made available to everyone.
         </Section>
 
+        <Section question="I'm the holder of a .eth but the correspondent .⌐◨-◨ still has the “Reserved” status. Why is that?">
+          If you are an ENS holder, the only way to switch your .⌐◨-◨ name from
+          “Reserved” to “Available” is to have the correspondent .eth on the
+          wallet you are using to claim your .⌐◨-◨ name.
+          <br />
+          <br />
+          If for any reason you are unable to have your .eth on the address used
+          to claim your NNS name, DM us on Twitter and we’ll find another way to
+          verify your ownership.
+        </Section>
+
+        <Section question="Can I set the same address as primary on both NNS and ENS?">
+          Yes. There is no conflict between NNS and ENS. Being a new naming
+          system, the NNS is currently natively supported only in the
+          nouniverse.
+          <br />
+          <br />
+          If you choose to use the same primary address on both, your name will
+          be resolved in its nounish version (.⌐◨-◨) inside the nouniverse, but
+          it will stay in its classic version (.eth) outside of it.
+          <br />
+          <br />
+          This way, it will be like having an ENS with nounish powers!
+          <br />
+          <br />
+          Example: nouns.eth decides to use the same primary address on both NNS
+          and ENS.
+          <br />
+          If this address bids in a nounish project or makes a proposal on Prop
+          House, its name will be natively resolved in nouns.⌐◨-◨.
+          <br />
+          If this address interacts with metamask, etherscan or other external
+          apps outside the nouniverse, its name will keep the nouns.eth form.
+        </Section>
+
         <Section question="Why are all the numbers from 0 to 9999 reserved?">
           The numbers will be reserved for an exciting initiative that will be
           revealed soon.
@@ -165,10 +194,6 @@ function Faq() {
         </Section>
 
         <Section question="How much does it cost to register a .⌐◨-◨ name?">
-          The NNS Main Net was launched the 28/7/2022.
-        </Section>
-
-        <Section question="Are .⌐◨-◨ names NFTs?">
           Prices are currently as follows:
           <ul>
             <li>4+ character .⌐◨-◨ names: $100 in ETH, one-time fee.</li>
@@ -178,6 +203,11 @@ function Faq() {
           </ul>
           The premium price for the names with a length below 4 characters has
           been applied to reflect their scarcity.
+        </Section>
+
+        <Section question="Are .⌐◨-◨ names NFTs?">
+          Yes. NNS domains are issued as ERC-721 tokens. This makes them super
+          easy to manage across different wallets and exchanges.
         </Section>
 
         <Section question="Why should I buy a name?">
