@@ -7,6 +7,7 @@ import { ReactComponent as DefaultOrangeExclamation } from '../Icons/OrangeExcla
 import mq from 'mediaQuery'
 import { ReactComponent as ChainDefault } from '../Icons/chain.svg'
 import { useTranslation } from 'react-i18next'
+import theme from 'theme'
 
 const PricingContainer = styled('div')`
   display: grid;
@@ -29,10 +30,14 @@ const Chain = styled(ChainDefault)`
   `}
 `
 
-const OrangeExclamation = styled(DefaultOrangeExclamation)`
+const ExclamationIcon = styled(DefaultOrangeExclamation)`
   height: 14px;
   width: 14px;
   margin-right: 2px;
+  padding-top: 1px;
+  path {
+    fill: ${theme.colors.accent};
+  }
 `
 
 const Prompt = styled('div')`
@@ -40,6 +45,7 @@ const Prompt = styled('div')`
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  color: ${theme.colors.accent};
 `
 
 function PricerInner({
@@ -61,12 +67,10 @@ function PricerInner({
   const { t } = useTranslation()
   return (
     <>
-      {/* {years <= 1 && (
-        <Prompt>
-          <OrangeExclamation />
-          <div>{t('register.increaseRegistrationPeriod')}</div>
+      <Prompt>
+          <ExclamationIcon />
+          <div>Your .⌐◨-◨ name is yours forever. Say goodbye to renewal fees!</div>
         </Prompt>
-      )} */}
       <PricingContainer className={className} ref={reference}>
         {/* <Years years={years} setYears={setYears} />
         <Chain /> */}
