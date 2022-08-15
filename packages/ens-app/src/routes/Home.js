@@ -8,6 +8,7 @@ import mq from 'mediaQuery'
 
 import SearchDefault from '../components/SearchName/Search'
 import NoAccountsDefault from '../components/NoAccounts/NoAccountsModal'
+import bgMobile from '../assets/nns/bg-mobile.jpg'
 import bg from '../assets/nns/bg.jpg'
 import TextBubbleDefault from '../components/Icons/TextBubble'
 import QuestionMarkDefault from '../components/Icons/QuestionMark'
@@ -133,20 +134,22 @@ const MobileOnlyNavLink = styled(NavLink)`
 `
 
 const Hero = styled('section')`
-  background: url(${bg});
-  background-size: 75px auto;
-  ${mq.medium`
-    background-size: 550px auto;
-  `}
-  background-position: center;
+  background: url(${bgMobile});
+  background-repeat: repeat-x;
+  background-size: contain;
+  background-position-y: 30px;
+  background-position-x: center;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  ${mq.medium`
+  @media (min-width: 768px) {
+    background: url(${bg});
+    background-size: 550px auto;
+    background-position: center;
     padding: 120px 20px 0;
-  `}
+  }
 `
 
 const SearchContainer = styled('div')`
