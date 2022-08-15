@@ -185,17 +185,6 @@ function getCTA({
     ),
     REVEAL_CONFIRMED: (
       <>
-        <AddToCalendar
-          css={css`
-            margin-right: 20px;
-          `}
-          name={`${label}.⌐◨-◨`} // FIXME
-          startDatetime={moment()
-            .utc()
-            .local()
-            .add(duration, 'seconds')
-            .subtract(30, 'days')}
-        />
         <LeftLink
           onClick={async () => {
             await Promise.all([refetch(), refetchIsMigrated()])
