@@ -1,9 +1,9 @@
-import ReactGA from 'react-ga'
+import ReactGA from 'react-ga4'
 import { getNetworkId } from '@ensdomains/ui'
 
 const TrackingID = {
-  live: 'UA-138903307-1',
-  dev: 'UA-138903307-2'
+  live: 'G-8T4W4V0B5W',
+  dev: ''
 }
 
 function isProduction() {
@@ -32,23 +32,23 @@ export function getUtm() {
 }
 
 export const setupAnalytics = () => {
-  // FIXME
   if (isProduction()) {
     ReactGA.initialize(TrackingID.live)
-    ReactGA.plugin.require('ecommerce')
+    // ReactGA.plugin.require('ecommerce')
   } else {
     ReactGA.initialize(TrackingID.dev)
-    ReactGA.plugin.require('ecommerce', { debug: true })
-    console.log('Analytics setup for dev with ', TrackingID.dev)
+    // ReactGA.plugin.require('ecommerce', { debug: true })
+    // console.log('Analytics setup for dev with ', TrackingID.dev)
   }
 
   setUtm()
 }
 
 export const pageview = () => {
-  const page = window.location.pathname + window.location.search
+  console.log('pageview')
+  // const page = window.location.pathname + window.location.search
   if (isProduction() || isDev()) {
-    ReactGA.pageview(page)
+    ReactGA.send('pageview')
   }
 }
 
@@ -60,11 +60,15 @@ export const trackReferral = async ({
   premium = 0,
   years
 }) => {
+  return;
+
   const mainnet = await isMainnet()
   const referrer = getUtm()
   const unitPrice = (price - premium) / years / labels.length
 
   function track() {
+    return;
+
     ReactGA.event({
       category: 'referral',
       action: `${type} domain`,
@@ -112,18 +116,18 @@ export const trackReferral = async ({
     track()
     console.log('Completed tracking from dev')
   } else {
-    console.log(
-      'Referral triggered on local development',
-      JSON.stringify({
-        labels,
-        transactionId,
-        type,
-        price,
-        unitPrice,
-        premium,
-        years,
-        referrer
-      })
-    )
+    // console.log(
+    //   'Referral triggered on local development',
+    //   JSON.stringify({
+    //     labels,
+    //     transactionId,
+    //     type,
+    //     price,
+    //     unitPrice,
+    //     premium,
+    //     years,
+    //     referrer
+    //   })
+    // )
   }
 }

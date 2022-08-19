@@ -176,12 +176,15 @@ function Faq() {
           <br />
           Here is the fully updated list of our ecosystem:
           <ul>
-            <li>Nouns DAO (Coming soon)</li>
+            <li>Nouns DAO</li>
+            <li>Tings DAO</li>
+            <li>Nouns Town</li>
+            <li>Food Nouns</li>
+            <li>Yolo Nouns</li>
             <li>Prop House (Coming soon)</li>
             <li>Lil Nouns DAO (Coming soon)</li>
             <li>Gnars DAO (Coming soon)</li>
-            <li>Tings DAO (Coming soon)</li>
-            <li>Nouns Town (Coming soon)</li>
+            <li>Lost Nouns (Coming soon)</li>
           </ul>
           Extending the NNS ecosystem is a never ending process and our number 1
           priority.
@@ -198,8 +201,8 @@ function Faq() {
           <ul>
             <li>4+ character .⌐◨-◨ names: $100 in ETH, one-time fee.</li>
             <li>3 character .⌐◨-◨ names: $250 in ETH, one-time fee.</li>
-            <li>2 character .⌐◨-◨ names: $500 in ETH, one-time fee.</li>
-            <li>1 character .⌐◨-◨ names: $1000 in ETH, one-time fee. </li>
+            <li>2 character .⌐◨-◨ names: $1000 in ETH, one-time fee.</li>
+            <li>1 character .⌐◨-◨ names: Coming soon. </li>
           </ul>
           The premium price for the names with a length below 4 characters has
           been applied to reflect their scarcity.
