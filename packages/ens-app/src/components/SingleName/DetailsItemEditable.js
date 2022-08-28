@@ -175,7 +175,7 @@ function getMessages({ keyName, parent, deedOwner, isDeedOwner, t }) {
   let [newValue, newType] = getDefaultMessage(keyName, t)
   if (
     keyName === 'Owner' &&
-    parent === 'eth' &&
+    parent === '⌐◨-◨' && // FIXME
     parseInt(deedOwner, 16) !== 0
   ) {
     newValue = t('singleName.messages.noresolver')
@@ -344,6 +344,7 @@ const Editable = ({
   confirm,
   copyToClipboard
 }) => {
+  console.log(domain);
   const { t } = useTranslation()
   const { state, actions } = useEditable()
   const [presetValue, setPresetValue] = useState('')

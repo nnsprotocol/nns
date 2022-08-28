@@ -3,7 +3,7 @@ import { getNetworkId } from '@ensdomains/ui'
 
 const TrackingID = {
   live: 'G-8T4W4V0B5W',
-  dev: ''
+  dev: 'G-9RL31SKPKG'
 }
 
 function isProduction() {
@@ -45,7 +45,6 @@ export const setupAnalytics = () => {
 }
 
 export const pageview = () => {
-  console.log('pageview')
   // const page = window.location.pathname + window.location.search
   if (isProduction() || isDev()) {
     ReactGA.send('pageview')

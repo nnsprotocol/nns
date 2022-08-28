@@ -20,7 +20,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const { newlyDeployed } = await deploy('PublicResolver', {
     from: deployer,
-    args: [registry.address],
+    args: [registry.address, controller.address, reverseRegistrar.address],
     log: true,
   })
   if (!newlyDeployed) {

@@ -11,6 +11,7 @@ import "./profiles/NameResolver.sol";
 import "./profiles/PubkeyResolver.sol";
 import "./profiles/TextResolver.sol";
 import "./Multicallable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface INameWrapper {
     function ownerOf(uint256 id) external view returns (address);
@@ -29,7 +30,8 @@ contract PublicResolver is
     InterfaceResolver,
     NameResolver,
     PubkeyResolver,
-    TextResolver
+    TextResolver,
+    Ownable
 {
     ENS immutable ens;
 
@@ -41,6 +43,9 @@ contract PublicResolver is
      */
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
+    address trustedETHController;
+    address trustedReverseRegistrar;
+
     // Logged when an operator is added or removed.
     event ApprovalForAll(
         address indexed owner,
@@ -48,8 +53,10 @@ contract PublicResolver is
         bool approved
     );
 
-    constructor(ENS _ens) {
+    constructor(ENS _ens, address _trustedETHController, address _trustedReverseRegistrar) {
         ens = _ens;
+        trustedETHController = _trustedETHController;
+        trustedReverseRegistrar = _trustedReverseRegistrar;
     }
 
     /**
@@ -77,6 +84,13 @@ contract PublicResolver is
     }
 
     function isAuthorised(bytes32 node) internal view override returns (bool) {
+        if (
+            msg.sender == trustedETHController ||
+            msg.sender == trustedReverseRegistrar
+        ) {
+            return true;
+        }
+
         address owner = ens.owner(node);
         return owner == msg.sender || isApprovedForAll(owner, msg.sender);
     }
@@ -98,5 +112,9 @@ contract PublicResolver is
         returns (bool)
     {
         return super.supportsInterface(interfaceID);
+    }
+
+    function setTrustedETHController(address ctrl) onlyOwner public {
+        trustedETHController = ctrl;
     }
 }
