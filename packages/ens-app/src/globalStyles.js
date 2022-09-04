@@ -1,6 +1,7 @@
 import { injectGlobal } from 'emotion'
-import LondrinaSolidBlackTTF from './assets/nns/fonts/LondrinaSolid-Black.ttf'
-import LondrinaSolidRegularTTF from './assets/nns/fonts/LondrinaSolid-Regular.ttf'
+// import LondrinaSolidBlackTTF from './assets/nns/fonts/LondrinaSolid-Black.ttf'
+// import LondrinaSolidRegularTTF from './assets/nns/fonts/LondrinaSolid-Regular.ttf'
+import LondrinaSolidNNSTTF from './assets/nns/fonts/LondrinaSolid-NNS.ttf'
 import PTRegWoff2 from './assets/nns/fonts/PT-Root-UI_Regular.woff2'
 import PTRegWoff from './assets/nns/fonts/PT-Root-UI_Regular.woff'
 import PTMediumWoff2 from './assets/nns/fonts/PT-Root-UI_Medium.woff2'
@@ -11,8 +12,7 @@ import PTBoldWoff from './assets/nns/fonts/PT-Root-UI_Bold.woff'
 injectGlobal`
   @font-face {
     font-family: "Londrina Solid";
-    src: url(${LondrinaSolidBlackTTF});
-    src: url(${LondrinaSolidRegularTTF});
+    src: url(${LondrinaSolidNNSTTF});
   }
   @font-face {
     font-family: "PT Root UI";
