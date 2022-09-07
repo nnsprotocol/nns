@@ -95,7 +95,7 @@ function Faq() {
 
         <H2>LEARN MORE</H2>
 
-        <Section question="How can I claim a .⌐◨-◨ name?">
+        <Section question="How the ENS Reservation Period works?">
           To avoid speculation on names, we will launch the NNS with a 60 days
           reservation period for ENS holders. During this time frame, only .eth
           holders will be able to get their nounish counterpart. After the
@@ -108,15 +108,25 @@ function Faq() {
           within this period it will be made available to everyone.
         </Section>
 
-        <Section question="I'm the holder of a .eth but the correspondent .⌐◨-◨ still has the “Reserved” status. Why is that?">
-          If you are an ENS holder, the only way to switch your .⌐◨-◨ name from
-          “Reserved” to “Available” is to have the correspondent .eth on the
-          wallet you are using to claim your .⌐◨-◨ name.
-          <br />
-          <br />
-          If for any reason you are unable to have your .eth on the address used
-          to claim your NNS name, DM us on Twitter and we’ll find another way to
-          verify your ownership.
+        <Section question="How can I claim a .⌐◨-◨ name?">
+          Our ENS verification method uses the Controller (i.e. the owner of the domain on the registry) 
+          of the ens domain to verify the ownership of that name. This gives you 2 options to claim
+          your correspondent NNS name:
+          <ol>
+            <li>
+              Simply connect your ENS to the nns.xyz website and the
+              correspondent .⌐◨-◨ name will immediately change its status from
+              “Reserved” to “Available”.
+            </li>
+            <li>
+              If your ENS is in a cold wallet and you can't connect it to
+              nns.xyz, go on the ENS dashboard of that name and change its
+              Controller with the address you are going to use to claim your
+              name on nns.xyz. Our system will verify you as the legitimate
+              owner of your ENS name and the correspondent .⌐◨-◨ will become
+              available for purchase.
+            </li>
+          </ol>
         </Section>
 
         <Section question="Can I set the same address as primary on both NNS and ENS?">
@@ -181,6 +191,7 @@ function Faq() {
             <li>Nouns Town</li>
             <li>Food Nouns</li>
             <li>Yolo Nouns</li>
+            <li>WizardsDAO</li>
             <li>Prop House (Coming soon)</li>
             <li>Lil Nouns DAO (Coming soon)</li>
             <li>Gnars DAO (Coming soon)</li>
