@@ -219,7 +219,7 @@ function DetailsContainer({
   return (
     <Details data-testid="name-details">
       {isOwner && <SetupName initialState={showExplainer} />}
-      {parseInt(domain.owner, 16) !== 0 &&
+      {/* {parseInt(domain.owner, 16) !== 0 &&
         !loadingIsMigrated &&
         !isMigratedToNewRegistry && (
           <RegistryMigration
@@ -231,7 +231,7 @@ function DetailsContainer({
             loadingIsParentMigrated={loadingIsParentMigrated}
             readOnly={readOnly}
           />
-        )}
+        )} */}
       {domainParent ? (
         <DetailsItem uneditable>
           <DetailsKey>{t('c.parent')}</DetailsKey>
@@ -261,7 +261,7 @@ function DetailsContainer({
         </GracePeriodWarningContainer>
       )}
       <OwnerFields outOfSync={outOfSync}>
-        {domain.parent === '⌐◨-◨' && domain.isNewRegistrar ? ( // FIX ME
+        {domain.parent === '⌐◨-◨' ? ( // FIX ME
           <>
             <DetailsItemEditable
               domain={domain}
@@ -296,103 +296,6 @@ function DetailsContainer({
               copyToClipboard={true}
             />
           </>
-        ) : domain.parent === 'eth' && !domain.isNewRegistrar ? (
-          <>
-            <DetailsItem uneditable>
-              <DetailsKey>{t('c.registrant')}</DetailsKey>
-              <DetailsValue>
-                <AddressLink
-                  address={domain.deedOwner}
-                  arialLabel={t('c.registrant')}
-                >
-                  <SingleNameBlockies
-                    address={domain.deedOwner}
-                    imageSize={24}
-                  />
-                  {domain.deedOwner}
-                </AddressLink>
-              </DetailsValue>
-            </DetailsItem>
-            <DetailsItemEditable
-              domain={domain}
-              keyName="Controller"
-              value={domain.owner}
-              canEdit={
-                !readOnly &&
-                (isRegistrant || (isOwner && isMigratedToNewRegistry))
-              }
-              deedOwner={domain.deedOwner}
-              isDeedOwner={isDeedOwner}
-              type="address"
-              editButton={isRegistrant ? t('c.set') : t('c.transfer')}
-              mutationButton={isRegistrant ? t('c.set') : t('c.transfer')}
-              mutation={isRegistrant ? RECLAIM : SET_OWNER}
-              refetch={refetch}
-              confirm={true}
-              copyToClipboard={true}
-            />
-          </>
-        ) : domain.isDNSRegistrar ? (
-          <DetailsItem uneditable>
-            <DetailsKey>
-              {t('c.Controller')} {isOwner ? <You /> : ''}
-            </DetailsKey>
-            <DetailsValue>
-              <AddressLink address={domain.owner} ariaLabel={t('c.Controller')}>
-                {outOfSync ? (
-                  <SingleNameBlockies
-                    address={domain.owner}
-                    imageSize={24}
-                    color={'#E1E1E1'}
-                    bgcolor={'#FFFFFF'}
-                    spotcolor={'#CFCFCF'}
-                  />
-                ) : (
-                  <SingleNameBlockies address={domain.owner} imageSize={24} />
-                )}
-                <DomainOwnerAddress outOfSync={outOfSync}>
-                  {domain.owner}
-                </DomainOwnerAddress>
-              </AddressLink>
-            </DetailsValue>
-            <ButtonContainer outOfSync={outOfSync}>
-              {canSubmit && !readOnly ? (
-                <SubmitProof
-                  name={domain.name}
-                  parentOwner={domain.parentOwner}
-                  refetch={refetch}
-                  actionText={t('c.sync')}
-                />
-              ) : (
-                <Tooltip
-                  text={t(
-                    'singleName.tooltips.detailsItem.ControllerAndDnsAlreadySync'
-                  )}
-                  position="left"
-                  border={true}
-                  warning={true}
-                  offset={{ left: -30, top: 10 }}
-                >
-                  {({ tooltipElement, showTooltip, hideTooltip }) => {
-                    return (
-                      <Button
-                        onMouseOver={() => {
-                          showTooltip()
-                        }}
-                        onMouseLeave={() => {
-                          hideTooltip()
-                        }}
-                        type="disabled"
-                      >
-                        {t('c.sync')}
-                        {tooltipElement}
-                      </Button>
-                    )
-                  }}
-                </Tooltip>
-              )}
-            </ButtonContainer>
-          </DetailsItem>
         ) : (
           // Either subdomain, or .test
           <DetailsItemEditable
@@ -401,7 +304,7 @@ function DetailsContainer({
             value={domain.owner}
             canEdit={
               !readOnly &&
-              ((isOwner || isOwnerOfParent) && isMigratedToNewRegistry)
+              ((isOwner || isOwnerOfParent))
             }
             deedOwner={domain.deedOwner}
             isDeedOwner={isDeedOwner}
@@ -416,105 +319,6 @@ function DetailsContainer({
           />
         )}
         {/* To be replaced with a logic a function to detect dnsregistrar */}
-        {domain.isDNSRegistrar ? (
-          <>
-            <DetailsItem uneditable>
-              <DetailsKey>{t('dns.dnsowner')}</DetailsKey>
-              <DetailsValue>
-                {dnssecmode.displayError ? (
-                  <DNSOwnerError>{dnssecmode.title}</DNSOwnerError>
-                ) : (
-                  <AddressLink
-                    address={domain.dnsOwner}
-                    ariaLabel={t('dns.dnsowner')}
-                  >
-                    <SingleNameBlockies
-                      address={domain.dnsOwner}
-                      imageSize={24}
-                    />
-                    {domain.dnsOwner}
-                  </AddressLink>
-                )}
-              </DetailsValue>
-              <ButtonContainer outOfSync={outOfSync}>
-                {loading ? (
-                  <Button>
-                    <Loader />
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => {
-                      setLoading(true)
-                      refetch()
-                        .then(dd => {
-                          setLoading(false)
-                        })
-                        .catch(err => {
-                          console.log('failed to refetch', err)
-                        })
-                    }}
-                  >
-                    {t('c.refresh')}{' '}
-                  </Button>
-                )}
-              </ButtonContainer>
-            </DetailsItem>
-            {dnssecmode.displayError ? (
-              <ErrorExplainer>
-                <OrangeExclamation />
-                {domain.stateError
-                  ? domain.stateError
-                  : t('singleName.dns.messages.error')}
-                <LinkToLearnMore
-                  href="https://docs.ens.domains/dns-registrar-guide"
-                  target="_blank"
-                >
-                  {t('c.learnmore')}{' '}
-                  <EtherScanLinkContainer>
-                    <ExternalLinkIcon />
-                  </EtherScanLinkContainer>
-                </LinkToLearnMore>
-              </ErrorExplainer>
-            ) : outOfSync ? (
-              <OutOfSyncExplainerContainer>
-                <HR />
-                <OutOfSyncExplainer>
-                  <OrangeExclamation />
-                  <Trans i18nKey={'singleName.dns.messages.outOfSync'}>
-                    {dnssecmode.explainer}
-                  </Trans>
-                  <LinkToLearnMore
-                    href="https://docs.ens.domains/dns-registrar-guide"
-                    target="_blank"
-                    outOfSync={outOfSync}
-                  >
-                    {t('c.learnmore')}{' '}
-                    <EtherScanLinkContainer>
-                      <ExternalLinkIcon />
-                    </EtherScanLinkContainer>
-                  </LinkToLearnMore>
-                </OutOfSyncExplainer>
-              </OutOfSyncExplainerContainer>
-            ) : (
-              <Explainer>
-                <Trans i18nKey={'singleName.dns.messages.readyToRegister'}>
-                  {dnssecmode.explainer}
-                </Trans>
-                <LinkToLearnMore
-                  href="https://docs.ens.domains/dns-registrar-guide"
-                  target="_blank"
-                >
-                  {t('c.learnmore')}{' '}
-                  <EtherScanLinkContainer>
-                    <ExternalLinkIcon />
-                  </EtherScanLinkContainer>
-                </LinkToLearnMore>
-              </Explainer>
-            )}
-          </>
-        ) : (
-          ''
-        )}
 
         {domain.registrationDate ? (
           <DetailsItem uneditable>
