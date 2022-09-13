@@ -1,34 +1,21 @@
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import styled from '@emotion/styled/macro'
+import { gql, useQuery } from '@apollo/client'
 import { Query } from '@apollo/client/react/components'
+import styled from '@emotion/styled/macro'
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import DomainItem from '../components/DomainItem/DomainItem'
-import { getNamehash } from '@ensdomains/ui'
-import { useQuery } from '@apollo/client'
-import { gql } from '@apollo/client'
 
 import {
-  GET_FAVOURITES,
-  GET_SUBDOMAIN_FAVOURITES,
-  GET_OWNER,
-  GET_REGISTRATIONS_BY_IDS_SUBGRAPH,
-  GET_ERRORS
+  GET_ERRORS, GET_FAVOURITES, GET_OWNER, GET_SINGLE_NAME, GET_SUBDOMAIN_FAVOURITES
 } from '../graphql/queries'
 
 import mq from 'mediaQuery'
 import moment from 'moment'
 
-import { H2 as DefaultH2 } from '../components/Typography/Basic'
-import LargeHeart from '../components/Icons/LargeHeart'
-import RenewAll from '../components/Address/RenewAll'
-import Checkbox from '../components/Forms/Checkbox'
-import { useAccount } from '../components/QueryAccount'
-import { filterNormalised, normaliseOrMark } from '../utils/utils'
-import {
-  NonMainPageBannerContainer,
-  DAOBannerContent
-} from '../components/Banner/DAOBanner'
 import { InvalidCharacterError } from '../components/Error/Errors'
+import LargeHeart from '../components/Icons/LargeHeart'
+import { H2 as DefaultH2 } from '../components/Typography/Basic'
+import { normaliseOrMark } from '../utils/utils'
 
 const SelectAll = styled('div')`
   grid-area: selectall;
@@ -106,16 +93,16 @@ const RESET_STATE_QUERY = gql`
     networkId
   }
 `
-export const useResetState = (setYears, setCheckedBoxes, setSelectAll) => {
-  const {
-    data: { networkId }
-  } = useQuery(RESET_STATE_QUERY)
-  useEffect(() => {
-    setYears(1)
-    setCheckedBoxes({})
-    setSelectAll(null)
-  }, [networkId])
-}
+// export const useResetState = (setYears, setCheckedBoxes, setSelectAll) => {
+//   const {
+//     data: { networkId }
+//   } = useQuery(RESET_STATE_QUERY)
+//   useEffect(() => {
+//     setYears(1)
+//     setCheckedBoxes({})
+//     setSelectAll(null)
+//   }, [networkId])
+// }
 
 function Favourites() {
   const { t } = useTranslation()
@@ -123,97 +110,85 @@ function Favourites() {
     document.title = 'NNS Favourites'
   }, [])
 
-  let [years, setYears] = useState(1)
-  let [checkedBoxes, setCheckedBoxes] = useState({})
-  const [selectAll, setSelectAll] = useState(false)
-  const account = useAccount()
+  // let [years, setYears] = useState(1)
+  // let [checkedBoxes, setCheckedBoxes] = useState({})
+  // const [selectAll, setSelectAll] = useState(false)
+  // const account = useAccount()
 
-  useResetState(setYears, setCheckedBoxes, setSelectAll)
+  // useResetState(setYears, setCheckedBoxes, setSelectAll)
 
   const { data: { favourites: favouritesWithUnnormalised } = [] } = useQuery(
     GET_FAVOURITES
   )
-  useEffect(() => {
-    document.title = 'NNS Favourites'
-  }, [])
-
   const { data: { subDomainFavourites } = [] } = useQuery(
     GET_SUBDOMAIN_FAVOURITES
   )
   const {
     data: { globalError }
   } = useQuery(GET_ERRORS)
-  const favourites = normaliseOrMark(favouritesWithUnnormalised, 'name')
+  let favourites = normaliseOrMark(favouritesWithUnnormalised, 'name')
   if (globalError.invalidCharacter || !favourites) {
     return <InvalidCharacterError message={globalError.invalidCharacter} />
   }
-  const ids =
-    favourites &&
-    favourites
-      .map(f => {
-        try {
-          return getNamehash(f.name)
-        } catch (e) {
-          console.error('Error getting favourite ids: ', e)
-          return null
-        }
-      })
-      ?.filter(x => x)
+  // const ids = favourites?.map(f => {
+  //       try {
+  //         return getNamehash(f.name)
+  //       } catch (e) {
+  //         console.error('Error getting favourite ids: ', e)
+  //         return null
+  //       }
+  //     })?.filter(x => x) || [];
 
-  const { data: { registrations } = [], refetch } = useQuery(
-    GET_REGISTRATIONS_BY_IDS_SUBGRAPH,
-    {
-      variables: { ids },
-      fetchPolicy: 'no-cache',
-      nextFetchPolicy: 'no-cache',
-      context: {
-        queryDeduplication: false
-      }
-    }
-  )
+  // const { data: { registrations } = [], refetch } = useQuery(
+  //   GET_REGISTRATIONS_BY_IDS_SUBGRAPH,
+  //   {
+  //     variables: { ids },
+  //     fetchPolicy: 'no-cache',
+  //     nextFetchPolicy: 'no-cache',
+  //     context: {
+  //       queryDeduplication: false
+  //     }
+  //   }
+  // )
 
-  if (!favourites || (favourites.length === 0 && !registrations)) {
+  if (!favourites || favourites.length === 0) {
     return <NoDomains />
   }
-  let favouritesList = []
+  // if (favourites.length > 0) {
+  //   if (registrations && registrations.length > 0) {
+  //     favouritesList = favourites.map(f => {
+  //       try {
+  //         let r = registrations.filter(
+  //           a => a.domain.id === getNamehash(f.name)
+  //         )[0]
+  //         return {
+  //           name: f.name,
+  //           owner: r && r.registrant.id,
+  //           available: getAvailable(r && r.expiryDate),
+  //           expiryDate: r && r.expiryDate,
+  //           hasInvalidCharacter: f.hasInvalidCharacter
+  //         }
+  //       } catch (e) {
+  //         return {
+  //           name: f.name,
+  //           hasInvalidCharacter: true,
+  //           available: false,
+  //           expiryDate: false
+  //         }
+  //       }
+  //     })
+  //   } else {
+  //     // Fallback when subgraph is not returning result
+  //     favouritesList = favourites.map(f => {
+  //       return {
+  //         name: f.name,
+  //         hasInvalidCharacter: f.hasInvalidCharacter
+  //       }
+  //     })
+  //   }
+  // }
 
-  if (favourites.length > 0) {
-    if (registrations && registrations.length > 0) {
-      favouritesList = favourites.map(f => {
-        try {
-          let r = registrations.filter(
-            a => a.domain.id === getNamehash(f.name)
-          )[0]
-          return {
-            name: f.name,
-            owner: r && r.registrant.id,
-            available: getAvailable(r && r.expiryDate),
-            expiryDate: r && r.expiryDate,
-            hasInvalidCharacter: f.hasInvalidCharacter
-          }
-        } catch (e) {
-          return {
-            name: f.name,
-            hasInvalidCharacter: true,
-            available: false,
-            expiryDate: false
-          }
-        }
-      })
-    } else {
-      // Fallback when subgraph is not returning result
-      favouritesList = favourites.map(f => {
-        return {
-          name: f.name,
-          hasInvalidCharacter: f.hasInvalidCharacter
-        }
-      })
-    }
-  }
-
-  const hasFavourites =
-    (favouritesList && favouritesList.length > 0) ||
-    (subDomainFavourites && subDomainFavourites.length > 0)
+  const hasFavourites =favourites?.length > 0 || subDomainFavourites?.length > 0;
   if (!hasFavourites) {
     return (
       <FavouritesContainer data-testid="favourites-container">
@@ -227,69 +202,59 @@ function Favourites() {
     )
   }
 
-  const selectedNames = Object.entries(checkedBoxes)
-    .filter(([key, value]) => value)
-    .map(([key]) => key)
+  // const selectedNames = Object.entries(checkedBoxes)
+  //   .filter(([key, value]) => value)
+  //   .map(([key]) => key)
 
-  const allNames = favouritesList.map(f => f.name)
-  const selectAllNames = () => {
-    const obj = favouritesList.reduce((acc, f) => {
-      if (f.expiryDate) {
-        acc[f.name] = true
-      }
-      return acc
-    }, {})
-    setCheckedBoxes(obj)
-  }
-  let data = []
-  const checkedOtherOwner =
-    favouritesList.filter(
-      f =>
-        f.expiryDate &&
-        f.owner !== account?.toLowerCase() &&
-        checkedBoxes[f.name]
-    ).length > 0
-  const canRenew = favouritesList.filter(f => f.expiryDate).length > 0
+  // const allNames = favouritesList.map(f => f.name)
+  // const selectAllNames = () => {
+  //   const obj = favouritesList.reduce((acc, f) => {
+  //     if (f.expiryDate) {
+  //       acc[f.name] = true
+  //     }
+  //     return acc
+  //   }, {})
+  //   setCheckedBoxes(obj)
+  // }
+  // let data = []
+  // const checkedOtherOwner =
+  //   favouritesList.filter(
+  //     f =>
+  //       f.expiryDate &&
+  //       f.owner !== account?.toLowerCase() &&
+  //       checkedBoxes[f.name]
+  //   ).length > 0
+  // const canRenew = favouritesList.filter(f => f.expiryDate).length > 0
   return (
     <FavouritesContainer data-testid="favourites-container">
-      {/* <NonMainPageBannerContainer>
-        <DAOBannerContent />
-      </NonMainPageBannerContainer> */}
       <H2>{t('favourites.favouriteTitle')}</H2>
-      {canRenew && (
-        <>
-          <RenewAll
-            years={years}
-            setYears={setYears}
-            selectedNames={selectedNames}
-            setCheckedBoxes={setCheckedBoxes}
-            setSelectAll={setSelectAll}
-            allNames={allNames}
-            refetch={refetch}
-            data={data}
-            getterString="registrations"
-            checkedOtherOwner={checkedOtherOwner}
-          />
-          <SelectAll>
-            <Checkbox
-              testid="checkbox-renewall"
-              type="double"
-              checked={selectAll}
-              onClick={() => {
-                if (!selectAll) {
-                  selectAllNames()
-                } else {
-                  setCheckedBoxes({})
-                }
-                setSelectAll(selectAll => !selectAll)
-              }}
-            />
-          </SelectAll>
-        </>
-      )}
-
-      {favouritesList &&
-        favouritesList.map(domain => {
+      {favourites &&
+        favourites.map(domain => {
+          return (
+            <Query
+            query={GET_SINGLE_NAME}
+            variables={{ name: domain.name }}
+            key={domain.name}
+          >
+            {({ loading, error, data }) => {
+              console.log('data', domain.name, data, loading, error)
+              if (error) {
+                return <div>{(console.log(error), JSON.stringify(error))}</div>
+              }
+              if (loading || !data.singleName?.name) {
+                return <div>Loading...</div>
+              }
+              const isLoading = loading || !data.singleName?.name;
+              const d = isLoading ? null : data.singleName;
+              return <DomainItem
+                loading={isLoading}
+                domain={d}
+                isSubDomain={true}
+                isFavourite={true}
+              />
+            }}
+          </Query>
+          )
           return (
             <DomainItem
               domain={{
