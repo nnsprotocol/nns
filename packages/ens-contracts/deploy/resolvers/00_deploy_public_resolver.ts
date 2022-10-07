@@ -22,6 +22,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [registry.address, controller.address, reverseRegistrar.address],
     log: true,
+    skipIfAlreadyDeployed: true,
   })
   if (!newlyDeployed) {
     return

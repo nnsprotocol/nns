@@ -21,7 +21,7 @@ const archivedDeploymentPath = './deployments/archive'
 // if this file is missing. dotenv will never modify any environment variables
 // that have already been set.
 // https://github.com/motdotla/dotenv
-dotenv.config({ debug: false })
+dotenv.config() //({ debug: false })
 
 task('accounts', 'Prints the list of accounts', async (_, hre) => {
   const accounts = await hre.ethers.getSigners()
@@ -124,9 +124,14 @@ let real_accounts = undefined
 if (process.env.DEPLOYER_KEY && process.env.OWNER_KEY) {
   real_accounts = [process.env.DEPLOYER_KEY, process.env.OWNER_KEY]
 }
+let test_accounts = undefined
+if (process.env.TEST_DEPLOYER_KEY && process.env.TEST_OWNER_KEY) {
+  test_accounts = [process.env.TEST_DEPLOYER_KEY, process.env.TEST_OWNER_KEY]
+}
 
 const config: HardhatUserConfig = {
   tld: '⌐◨-◨',
+  defaultNetwork: "localhost",
   networks: {
     hardhat: {
       // Required for real DNS record tests
@@ -138,20 +143,20 @@ const config: HardhatUserConfig = {
       url: 'http://127.0.0.1:8545',
       saveDeployments: true,
       tags: ['test', 'use_root'],
-      accounts: real_accounts,
+      accounts: test_accounts,
       blockGasLimit: 1000000000000000,
     },
     ropsten: {
       url: `https://ropsten.infura.io/v3/${process.env.INFURA_ID}`,
       tags: ['test', 'legacy', 'use_root'],
       chainId: 3,
-      accounts: real_accounts,
+      accounts: test_accounts,
     },
     goerli: {
       url: `https://eth-goerli.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
       tags: ['use_root'],
       chainId: 5,
-      accounts: real_accounts,
+      accounts: test_accounts,
       ethRegistryAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
     },
     mainnet: {

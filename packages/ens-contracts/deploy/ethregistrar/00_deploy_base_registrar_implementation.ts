@@ -28,6 +28,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const registrar = await ethers.getContract('BaseRegistrarImplementation')
 
+  const tx0 = await registrar.setBaseURI(`https://metadata.nns.xyz/${network.name}/${registrar.address}/`)
+  console.log(`Setting base URI (tx: ${tx0.hash})...`)
+  await tx0.wait()
+
   const tx1 = await registrar.addController(owner, { from: deployer })
   console.log(`Adding owner as controller to registrar (tx: ${tx1.hash})...`)
   await tx1.wait()
