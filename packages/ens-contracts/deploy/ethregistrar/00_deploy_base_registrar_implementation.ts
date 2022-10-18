@@ -17,7 +17,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const registry = await ethers.getContract('ENSRegistry')
   const root = await ethers.getContract('Root')
 
-  const { newlyDeployed } = await deploy('BaseRegistrarImplementation', {
+  const { newlyDeployed } = await deploy('BaseRegistrarImplementationWithMetadata', {
     from: deployer,
     args: [registry.address, namehash.hash(tld)],
     log: true,
@@ -26,7 +26,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     return
   }
 
-  const registrar = await ethers.getContract('BaseRegistrarImplementation')
+  const registrar = await ethers.getContract('BaseRegistrarImplementationWithMetadata')
 
   const tx0 = await registrar.setBaseURI(`https://metadata.nns.xyz/${network.name}/${registrar.address}/`)
   console.log(`Setting base URI (tx: ${tx0.hash})...`)
@@ -46,7 +46,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 }
 
 func.id = 'registrar'
-func.tags = ['ethregistrar', 'BaseRegistrarImplementation']
+func.tags = ['ethregistrar', 'BaseRegistrarImplementationWithMetadata']
 func.dependencies = ['registry', 'root']
 
 export default func

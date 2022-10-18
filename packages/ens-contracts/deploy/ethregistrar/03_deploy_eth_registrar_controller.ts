@@ -10,7 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     userConfig.networks?.[network.name]?.ethRegistryAddress ??
     '0x0000000000000000000000000000000000000000'
 
-  const registrar = await ethers.getContract('BaseRegistrarImplementation')
+  const registrar = await ethers.getContract('BaseRegistrarImplementationWithMetadata')
   const priceOracle = await ethers.getContract('StablePriceOracle')
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
   const namedReservations = await ethers.getContract('NamedReservations')
@@ -44,13 +44,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   )
   await tx1.wait()
 
-  if (oldController) {
-    const tx = await registrar.removeController(oldController!.address, {
-      from: deployer,
-    })
-    console.log(`Removing old controller from registrar (tx: ${tx.hash})...`)
-    await tx.wait()
-  }
+  // if (oldController) {
+  //   const tx = await registrar.removeController(oldController!.address, {
+  //     from: deployer,
+  //   })
+  //   console.log(`Removing old controller from registrar (tx: ${tx.hash})...`)
+  //   await tx.wait()
+  // }
 
   const tx3 = await reverseRegistrar.setController(controller.address, {
     from: deployer,
@@ -65,7 +65,7 @@ func.tags = ['ethregistrar', 'ETHRegistrarController']
 func.dependencies = [
   'registry',
   'wrapper',
-  'BaseRegistrarImplementation',
+  'BaseRegistrarImplementationWithMetadata',
   'NamedReservations',
   'StablePriceOracle',
 ]

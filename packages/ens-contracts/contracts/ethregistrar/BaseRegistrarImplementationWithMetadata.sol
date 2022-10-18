@@ -4,8 +4,9 @@ import "../registry/ENS.sol";
 import "./IBaseRegistrar.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable  {
+contract BaseRegistrarImplementationWithMetadata is ERC721, IBaseRegistrar, Ownable  {
     bytes4 constant private INTERFACE_META_ID = bytes4(keccak256("supportsInterface(bytes4)"));
     bytes4 constant private ERC721_ID = bytes4(
         keccak256("balanceOf(address)") ^
@@ -22,9 +23,10 @@ contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable  {
 
     ENS public ens;
     bytes32 public baseNode;
+    string baseURI;
     mapping(address=>bool) public controllers;
 
-    constructor(ENS _ens, bytes32 _baseNode) ERC721("","") {
+    constructor(ENS _ens, bytes32 _baseNode) ERC721("Nouns Name Service", "NNS") {
         ens = _ens;
         baseNode = _baseNode;
     }
@@ -103,5 +105,13 @@ contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable  {
         return interfaceID == INTERFACE_META_ID ||
                interfaceID == ERC721_ID ||
                interfaceID == RECLAIM_ID;
+    }
+
+    function setBaseURI(string memory _base) external onlyOwner {
+        baseURI = _base;
+    }
+
+    function _baseURI() override internal view virtual returns (string memory) {
+        return baseURI;
     }
 }

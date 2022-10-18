@@ -15,7 +15,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     'NNSRegistrarControllerWithReservation',
   )
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
-  const registrar = await ethers.getContract('BaseRegistrarImplementation')
+  const registrar = await ethers.getContract('BaseRegistrarImplementationWithMetadata')
   const root = await ethers.getContract('Root')
 
   const { newlyDeployed } = await deploy('PublicResolver', {
@@ -24,31 +24,30 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
   })
-  if (!newlyDeployed) {
-    return
-  }
+  // if (!newlyDeployed) {
+  //   return
+  // }
 
   const publicResolver = await ethers.getContract('PublicResolver')
 
   // Default resolver for reverse registrar
-  const tx = await reverseRegistrar.setDefaultResolver(publicResolver.address, {
-    from: deployer,
-  })
-  console.log(
-    `Setting default resolver on ReverseRegistrar to resolver (tx: ${tx.hash})...`,
-  )
-  await tx.wait()
+  // const tx = await reverseRegistrar.setDefaultResolver(publicResolver.address, {
+  //   from: deployer,
+  // })
+  // console.log(
+  //   `Setting default resolver on ReverseRegistrar to resolver (tx: ${tx.hash})...`,
+  // )
+  // await tx.wait()
 
   // Default resolver for base registrar
   const tx2 = await registrar
     .connect(await ethers.getSigner(owner))
     .setResolver(publicResolver.address)
   console.log(
-    `Setting resolver for ${tld} on Registry to resolver (tx: ${tx2.hash})...`,
+    `Setting resolver for ${tld} on registrar to resolver (tx: ${tx2.hash})...`,
   )
   await tx2.wait()
-  
-  console.log(`Setting ownership of resolver.${tld} to owner`)
+
   const tx4 = await root
     .connect(await ethers.getSigner(owner))
     .setSubnodeOwner('0x' + keccak256(tld), owner)
@@ -56,17 +55,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     `Tranferring ownership of .${tld} back to deployer (tx: ${tx4.hash})...`,
   )
   await tx4.wait()
-
-  const ownerOfResolverTLD = await registry.owner(namehash.hash(`resolver.${tld}`));
-  if (ownerOfResolverTLD !== owner) {
-    const tx = await registry
-      .connect(await ethers.getSigner(owner))
-      .setSubnodeOwner(namehash.hash(tld), '0x' + keccak256('resolver'), owner)
-    console.log(
-      `Setting owner of resolver.${tld} to ${owner} (tx: ${tx.hash})...`,
-    )
-    await tx.wait()
-  }
 
   const tx3 = await publicResolver
     .connect(await ethers.getSigner(owner))
@@ -84,25 +72,44 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   )
   await tx6.wait()
   
-  const tx7 = await publicResolver['setAddr(bytes32,address)'](
-    namehash.hash(`resolver.${tld}`),
-    publicResolver.address,
-    {
-      from: owner,
-    },
-  )
-  console.log(
-    `Setting addr resolution for resolver.${tld} to public resolver (tx: ${tx7.hash})...`,
-  )
-  await tx7.wait()
+  // const ownerOfResolverTLD = await registry.owner(namehash.hash(`resolver.${tld}`));
+  // if (ownerOfResolverTLD !== owner) {
+  //   const tx = await registry
+  //     .connect(await ethers.getSigner(owner))
+  //     .setSubnodeOwner(namehash.hash(tld), '0x' + keccak256('resolver'), owner)
+  //   console.log(
+  //     `Setting owner of resolver.${tld} to ${owner} (tx: ${tx.hash})...`,
+  //   )
+  //   await tx.wait()
+  // }
 
-  const tx8 = await registry
-    .connect(await ethers.getSigner(owner))
-    .setResolver(namehash.hash(`resolver.${tld}`), publicResolver.address)
+  // const tx7 = await publicResolver['setAddr(bytes32,address)'](
+  //   namehash.hash(`resolver.${tld}`),
+  //   publicResolver.address,
+  //   {
+  //     from: owner,
+  //   },
+  // )
+  // console.log(
+  //   `Setting addr resolution for resolver.${tld} to public resolver (tx: ${tx7.hash})...`,
+  // )
+  // await tx7.wait()
+
+  // const tx8 = await registry
+  //   .connect(await ethers.getSigner(owner))
+  //   .setResolver(namehash.hash(`resolver.${tld}`), publicResolver.address)
+  // console.log(
+  //   `Setting resolver for resolver.${tld} to publicResolver (tx: ${tx8.hash})...`,
+  // )
+  // await tx8.wait()
+
+  // if (!newlyDeployed) {
+  const tx9 = await publicResolver.setTrustedETHController(controller.address);
   console.log(
-    `Setting resolver for resolver.${tld} to publicResolver (tx: ${tx8.hash})...`,
+    `Set trusted ETH controller on resolver (tx: ${tx9.hash})...`,
   )
-  await tx8.wait()
+  await tx9.wait()
+  // }
 }
 
 func.id = 'resolver'

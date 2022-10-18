@@ -40,7 +40,7 @@ doc.dataSources.forEach((s) => {
       s.source.address = getAddress("ENSRegistry");
       break;
     case "BaseRegistrar":
-      s.source.address = getAddress("BaseRegistrarImplementation");
+      s.source.address = getAddress("BaseRegistrarImplementationWithMetadata");
       break;
     case "EthRegistrarController":
       s.source.address = getAddress("NNSRegistrarControllerWithReservation");
