@@ -74,7 +74,7 @@ function Faq() {
         <Title>About</Title>
         <H2>WTF IS THIS</H2>
         <Section>
-          NNS is an experimental naming infrastructure to connect the cc0 world
+          NNS is an experimental naming infrastructure to connect the CC0 world
           spreading the nounish culture. Every .⌐◨-◨ name is a natural extension
           of your nounish identity. It will transform the ⌐◨-◨ from a simple
           icon to a fully functional TLD with a growing set of benefits and
@@ -94,40 +94,6 @@ function Faq() {
         </Section>
 
         <H2>LEARN MORE</H2>
-
-        <Section question="How the ENS Reservation Period works?">
-          To avoid speculation on names, we will launch the NNS with a 60 days
-          reservation period for ENS holders. During this time frame, only .eth
-          holders will be able to get their nounish counterpart. After the
-          reservation period ends, the NNS will be opened to the public and any
-          reservation on names will be removed.
-          <br />
-          <br />
-          Example: During the first 60 days after launch, nouns.⌐◨-◨ will be
-          claimable only by the owner of nouns.eth. If the name is not claimed
-          within this period it will be made available to everyone.
-        </Section>
-
-        <Section question="How can I claim a .⌐◨-◨ name?">
-          Our ENS verification method uses the Controller (i.e. the owner of the domain on the registry) 
-          of the ens domain to verify the ownership of that name. This gives you 2 options to claim
-          your correspondent NNS name:
-          <ol>
-            <li>
-              Simply connect your ENS to the nns.xyz website and the
-              correspondent .⌐◨-◨ name will immediately change its status from
-              “Reserved” to “Available”.
-            </li>
-            <li>
-              If your ENS is in a cold wallet and you can't connect it to
-              nns.xyz, go on the ENS dashboard of that name and change its
-              Controller with the address you are going to use to claim your
-              name on nns.xyz. Our system will verify you as the legitimate
-              owner of your ENS name and the correspondent .⌐◨-◨ will become
-              available for purchase.
-            </li>
-          </ol>
-        </Section>
 
         <Section question="Can I set the same address as primary on both NNS and ENS?">
           Yes. There is no conflict between NNS and ENS. Being a new naming
@@ -160,7 +126,7 @@ function Faq() {
           <br />
           The goal of this initiative is to support every single nounish project
           giving a stack in the NNS adventure, exploring at the same time new
-          forms of community partecipation.
+          forms of community participation.
         </Section>
 
         <Section question="How can I resolve my .⌐◨-◨ domain in a browser, like a website?">
@@ -177,7 +143,7 @@ function Faq() {
         </Section>
 
         <Section question="When was the Main Net launched?">
-          The NNS Main Net was launched the 28/7/2022.
+          The NNS Main Net was launched on July 28, 2022.
         </Section>
 
         <Section question="Where can I see my .⌐◨-◨ names natively resolved?">
@@ -187,15 +153,20 @@ function Faq() {
           Here is the fully updated list of our ecosystem:
           <ul>
             <li>Nouns DAO</li>
+            <li>Lil Nouns DAO</li>
+            <li>Gnars DAO</li>
             <li>Tings DAO</li>
-            <li>Nouns Town</li>
+            <li>Wizards DAO</li>
+            <li>Auctions.wtf</li>
             <li>Food Nouns</li>
+            <li>Public Nouns</li>
+            <li>Nouns Town</li>
             <li>Yolo Nouns</li>
-            <li>WizardsDAO</li>
-            <li>Prop House (Coming soon)</li>
-            <li>Lil Nouns DAO (Coming soon)</li>
-            <li>Gnars DAO (Coming soon)</li>
-            <li>Lost Nouns (Coming soon)</li>
+            <li>Nu Nouns</li>
+            <li>Puppet Samurai</li>
+            <li>Lifeboat.fi</li>
+            <li>nounsagora.com</li>
+            <li>Prop House (coming soon)</li>
           </ul>
           Extending the NNS ecosystem is a never ending process and our number 1
           priority.
@@ -226,14 +197,14 @@ function Faq() {
 
         <Section question="Why should I buy a name?">
           NNS is an ambitious experiment which aims to create a naming
-          infrastructure for the nouniverse and the cc0 ecosystem.
+          infrastructure for the nouniverse and the CC0 ecosystem.
           <br />
           There are 2 main reasons why you should join:
           <p>
             First, identity.
             <br />
             <br />
-            The more the Nouns and the cc0 culture grow, the more having a cool
+            The more the Nouns and the CC0 culture grow, the more having a cool
             .⌐◨-◨ name will be relevant at an identity and cultural level.
             <br />
             As the ecosystem grows, creators will be able to build their web3
@@ -246,7 +217,7 @@ function Faq() {
             Second, benefits.
             <br />
             <br />
-            NNS will constantly partner with creators who share the same cc0
+            NNS will constantly partner with creators who share the same CC0
             vision to bring more benefits to the NNS owners.
             <br />
             Also, the first 10.000 names will be officially classified as Early

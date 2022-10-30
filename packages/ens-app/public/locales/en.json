@@ -42,7 +42,7 @@
     "email": "Email",
     "expires": "Expires",
     "faq": "FAQ",
-    "favourites": "Favourites",
+    "favourites": "Favorites",
     "learnmore": "Learn More",
     "learnmoreenglishonly": "Learn More",
     "migrate": "Migrate",
@@ -105,13 +105,13 @@
     "reminder": "Remind me"
   },
   "favourites": {
-    "favouriteTitle": "Favourites",
+    "favouriteTitle": "Favorites",
     "nofavouritesDomains": {
-      "text": "To add names to favourites, click the heart icon next to any desired name.",
+      "text": "To add names to favorites, click the heart icon next to any desired name.",
       "title": "No names have been saved."
     },
     "nofavouritesSubdomains": {
-      "text": "To add names to favourites, click the heart icon next to any desired name.",
+      "text": "To add names to favorites, click the heart icon next to any desired name.",
       "title": "No Subdomains have been saved."
     },
     "subdomainFavouriteTitle": "Favourite Subdomains"
