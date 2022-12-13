@@ -1,8 +1,14 @@
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.4;
 import {ENS} from '../registry/ENS.sol';
 import {INameResolver} from '../resolvers/profiles/INameResolver.sol';
+import {IAddrResolver} from '../resolvers/profiles/IAddrResolver.sol';
+import './ENSNamehash.sol';
 
 contract NNSENSReverseResolver {
+
+  using ENSNamehash for bytes;
+
   bytes32 private constant ADDR_REVERSE_NODE =
     0x91d1777781884d03a6757a803996e38de2a42967fb37eeaca72729271025a9e2;
   bytes32 private constant ZERO_ADDRESS =
@@ -29,23 +35,37 @@ contract NNSENSReverseResolver {
     view
     returns (string memory)
   {
-    bytes32 n = node(addr);
+    // Resolve addr to name.
+    bytes32 n = reverseAddrNode(addr);
     address resolverAddress = registry.resolver(n);
     if (resolverAddress == address(0)) {
       return '';
     }
-    INameResolver resolver = INameResolver(resolverAddress);
-    string memory name = resolver.name(n);
+    INameResolver nameResolver = INameResolver(resolverAddress);
+    string memory name = nameResolver.name(n);
     if (
       bytes(name).length == 0 ||
       keccak256(abi.encodePacked(name)) == ZERO_ADDRESS
     ) {
       return '';
     }
+
+    // Reverse check.
+    bytes32 nameNode = bytes(name).namehash();
+    address addrResolverAddr = registry.resolver(nameNode);
+    if (addrResolverAddr == address(0)) {
+      return '';
+    }
+    IAddrResolver addrResolver = IAddrResolver(addrResolverAddr);
+    address revAddr = addrResolver.addr(nameNode);
+    if (revAddr != addr) {
+      return '';
+    }
+ 
     return name;
   }
 
-  function node(address addr) private pure returns (bytes32) {
+  function reverseAddrNode(address addr) private pure returns (bytes32) {
     return keccak256(abi.encodePacked(ADDR_REVERSE_NODE, sha3HexAddress(addr)));
   }
 

@@ -21,6 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [registry.address, namehash.hash(tld)],
     log: true,
+    skipIfAlreadyDeployed: true
   })
   if (!newlyDeployed) {
     return

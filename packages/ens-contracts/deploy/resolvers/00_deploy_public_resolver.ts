@@ -24,9 +24,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
   })
-  // if (!newlyDeployed) {
-  //   return
-  // }
+  if (!newlyDeployed) {
+    return
+  }
 
   const publicResolver = await ethers.getContract('PublicResolver')
 
