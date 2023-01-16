@@ -291,6 +291,7 @@ const animation = {
 }
 
 const NetworkInfo = ({ isReadOnly, displayName, isLoading, network }) => {
+  const { t } = useTranslation()
   if (isLoading) return 'Connect your wallet'
   return (
     <>
