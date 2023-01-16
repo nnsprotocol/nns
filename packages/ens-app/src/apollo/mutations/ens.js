@@ -13,9 +13,9 @@ export async function setup({
   ensAddress
 }) {
   let option = {
-    reloadOnAccountsChange: true,
-    enforceReadOnly: false,
-    enforceReload: false,
+    reloadOnAccountsChange,
+    enforceReadOnly,
+    enforceReload,
     customProvider,
     ensAddress: {
       '1': process.env.REACT_APP_ENS_ADDRESS_MAINNET,

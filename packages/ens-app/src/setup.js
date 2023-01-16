@@ -53,28 +53,28 @@ export const isSupportedNetwork = networkId => {
 export const getProvider = async reconnect => {
   try {
     let provider
-    if (
-      process.env.REACT_APP_STAGE === 'local' &&
-      process.env.REACT_APP_ENS_ADDRESS
-    ) {
-      const { providerObject } = await setup({
-        reloadOnAccountsChange: false,
-        customProvider: 'http://localhost:8545',
-        ensAddress: process.env.REACT_APP_ENS_ADDRESS
-      })
-      provider = providerObject
-      let labels = window.localStorage['labels']
-        ? JSON.parse(window.localStorage['labels'])
-        : {}
-      window.localStorage.setItem(
-        'labels',
-        JSON.stringify({
-          ...labels
-          // ...JSON.parse(process.env.REACT_APP_LABELS)
-        })
-      )
-      return provider
-    }
+    // if (
+    //   process.env.REACT_APP_STAGE === 'local' &&
+    //   process.env.REACT_APP_ENS_ADDRESS
+    // ) {
+    //   const { providerObject } = await setup({
+    //     reloadOnAccountsChange: false,
+    //     customProvider: 'http://localhost:8545',
+    //     ensAddress: process.env.REACT_APP_ENS_ADDRESS
+    //   })
+    //   provider = providerObject
+    //   let labels = window.localStorage['labels']
+    //     ? JSON.parse(window.localStorage['labels'])
+    //     : {}
+    //   window.localStorage.setItem(
+    //     'labels',
+    //     JSON.stringify({
+    //       ...labels
+    //       // ...JSON.parse(process.env.REACT_APP_LABELS)
+    //     })
+    //   )
+    //   return provider
+    // }
 
     const safe = await safeInfo()
     if (safe) {
@@ -82,10 +82,10 @@ export const getProvider = async reconnect => {
       return provider
     }
 
+    window.localStorage.clear()
     if (
       window.localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER') ||
-      reconnect ||
-      true
+      reconnect
     ) {
       provider = await connect()
       return provider
@@ -93,13 +93,14 @@ export const getProvider = async reconnect => {
 
     const { providerObject } = await setup({
       customProvider: rpcUrl,
-      reloadOnAccountsChange: true,
-      enforceReadOnly: false,
+      reloadOnAccountsChange: false,
+      enforceReadOnly: true,
       enforceReload: false
     })
     provider = providerObject
     return provider
   } catch (e) {
+    console.error(e)
     if (e.message.match(/Unsupported network/)) {
       globalErrorReactive({
         ...globalErrorReactive(),

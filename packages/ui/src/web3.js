@@ -182,7 +182,7 @@ export async function getAccount() {
     const address = await signer.getAddress()
     return address
   } catch (e) {
-    return '0x0'
+    return ethers.constants.AddressZero
   }
 }
 

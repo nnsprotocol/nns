@@ -1,1 +1,2 @@
-export const rpcUrl = 'https://web3.ens.domains/v1/mainnet'
+export const rpcUrl =
+  'https://eth-mainnet.g.alchemy.com/v2/FzSjc5hFAWuIEOAAlPXK8tDYBESIw7ot'

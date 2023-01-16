@@ -127,36 +127,37 @@ function NetworkInformation() {
 
   return (
     <NetworkInformationContainer hasAccount={accounts && accounts.length > 0}>
-      <AccountContainer>
-        {!reverseRecordLoading &&
-        getReverseRecord &&
-        getReverseRecord.avatar ? (
-          <Avatar
-            src={imageUrl(getReverseRecord.avatar, displayName, network)}
-          />
-        ) : hasAccounts ? (
-          <Blockies address={accounts[0]} imageSize={45} />
-        ) : null}
-        <Account data-testid="account" className="account">
-          <span>{displayName}</span>
-        </Account>
-        <NetworkStatus>
-          {network} {t('c.network')}
-        </NetworkStatus>
-        {hasAccounts ? (
-          <NoAccountsModal
-            onClick={disconnectProvider}
-            buttonText={t('c.disconnect')}
-            colour={'black'}
-          />
-        ) : (
+      {!isReadOnly ? (
+        <AccountContainer>
+          <Account data-testid="account" className="account">
+            <span>{displayName}</span>
+          </Account>
+          <NetworkStatus>
+            {network} {t('c.network')}
+          </NetworkStatus>
+          {!isSafeApp && (
+            <NoAccountsModal
+              onClick={disconnectProvider}
+              buttonText={t('c.disconnect')}
+              colour={'black'}
+            />
+          )}
+        </AccountContainer>
+      ) : (
+        <AccountContainer>
+          <Account data-testid="account" className="account">
+            {t('c.readonly')}
+          </Account>
+          <NetworkStatus>
+            {network} {t('c.network')}
+          </NetworkStatus>
           <NoAccountsModal
             onClick={connectProvider}
             colour={'black'}
             buttonText={t('c.connect')}
           />
-        )}
-      </AccountContainer>
+        </AccountContainer>
+      )}
     </NetworkInformationContainer>
   )
 }

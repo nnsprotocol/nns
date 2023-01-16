@@ -290,6 +290,17 @@ const animation = {
   }
 }
 
+const NetworkInfo = ({ isReadOnly, displayName, isLoading, network }) => {
+  if (isLoading) return 'Connect your wallet'
+  return (
+    <>
+      {`${network} ${t('c.network')}`}
+      {isReadOnly && <ReadOnly>({t('c.readonly')})</ReadOnly>}
+      {!isReadOnly && displayName && <Name>({displayName})</Name>}
+    </>
+  )
+}
+
 export default ({ match }) => {
   const { url } = match
   const { t } = useTranslation()
@@ -313,12 +324,9 @@ export default ({ match }) => {
         <HeroTop>
           <NetworkStatus>
             <Network>
-              {isLoading
-                ? 'Connect your wallet'
-                : `${network} ${t('c.network')}`}
-              {hasAccounts && displayName && (
-                <Name data-testid="display-name">({displayName})</Name>
-              )}
+              <NetworkInfo
+                {...{ isLoading, network, isReadOnly, displayName }}
+              />
             </Network>
             {!isSafeApp && (
               <NoAccounts
