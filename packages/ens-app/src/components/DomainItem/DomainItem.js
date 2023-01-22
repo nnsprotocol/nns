@@ -198,13 +198,14 @@ const Domain = ({
   setSelectAll,
   hasInvalidCharacter
 }) => {
-  if (loading) {
-    return (
-      <DomainContainer state={'Owned'} className={className} to="">
-        <Loader />
-      </DomainContainer>
-    )
-  }
+  // if (loading) {
+  //   return (
+  // <DomainContainer state={'Owned'} className={className} to="">
+  //   <Loader />
+  // </DomainContainer>
+  //   )
+  // }
+  if (!domain) domain = {}
   const account = useAccount()
   let isOwner = false
   if (!domain.available && domain.owner && parseInt(domain.owner, 16) !== 0) {
@@ -218,9 +219,20 @@ const Domain = ({
   if (domain.expiryTime) {
     expiryDate = parseInt(domain.expiryTime.getTime() / 1000)
   }
+
+  function containerState() {
+    if (isOwner) {
+      return 'Yours'
+    }
+    if (domain.state) {
+      return domain.state
+    }
+    return 'Owned'
+  }
+
   return (
     <Container
-      state={isOwner ? 'Yours' : domain.state}
+      state={containerState()}
       hasInvalidCharacter={hasInvalidCharacter}
     >
       {hasInvalidCharacter && (
@@ -237,46 +249,28 @@ const Domain = ({
         </WarningContainer>
       )}
       <DomainContainer
-        to={`/name/${domain.name}`}
+        to={domain.name ? `/name/${domain.name}` : ''}
         className={className}
         percentDone={percentDone}
         data-testid={`domain-${domain.name}`}
       >
-        <DomainName state={isOwner ? 'Yours' : domain.state}>
-          {humaniseName(domain.name)}
+        <DomainName state={containerState()}>
+          {humaniseName(domain.name ?? 'Loading...')}
         </DomainName>
         <ExpiryDate expiryDate={expiryDate} name={domain.name} />
-        {!hasInvalidCharacter && <Label domain={domain} isOwner={isOwner} />}
+        {!hasInvalidCharacter && domain.state && (
+          <Label domain={domain} isOwner={isOwner} />
+        )}
         <RightContainer>
-          <AddFavourite
-            domain={domain}
-            isSubDomain={isSubDomain}
-            isFavourite={isFavourite}
-          />
+          {domain.state && (
+            <AddFavourite
+              domain={domain}
+              isSubDomain={isSubDomain}
+              isFavourite={isFavourite}
+            />
+          )}
         </RightContainer>
-        <RightContainer>
-          {/* {expiryDate && (
-            <CheckBoxContainer>
-              <Checkbox
-                testid={`checkbox-${domain.name}`}
-                checked={checkedBoxes[domain.name]}
-                onClick={e => {
-                  e.preventDefault()
-                  setCheckedBoxes &&
-                    setCheckedBoxes(prevState => {
-                      return {
-                        ...prevState,
-                        [domain.name]: !prevState[domain.name]
-                      }
-                    })
-                  if (checkedBoxes[domain.name]) {
-                    setSelectAll(false)
-                  }
-                }}
-              />
-            </CheckBoxContainer>
-          )} */}
-        </RightContainer>
+        {!domain.state && <Loader />}
       </DomainContainer>
     </Container>
   )

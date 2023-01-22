@@ -364,7 +364,7 @@ const resolvers = {
 
     singleName: async (_, { name }) => {
       try {
-        if (!isENSReadyReactive() || !name)
+        if (!isENSReadyReactive() || !name) {
           return {
             name: null,
             revealDate: null,
@@ -392,6 +392,7 @@ const resolvers = {
             registrant: null,
             auctionEnds: null
           }
+        }
 
         const ens = getENS()
         const decrypted = isDecrypted(name)

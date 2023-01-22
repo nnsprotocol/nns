@@ -81,8 +81,6 @@ export const getProvider = async reconnect => {
       const provider = await setupSafeApp(safe)
       return provider
     }
-
-    window.localStorage.clear()
     if (
       window.localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER') ||
       reconnect

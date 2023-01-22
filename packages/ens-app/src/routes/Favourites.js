@@ -6,7 +6,11 @@ import { useTranslation } from 'react-i18next'
 import DomainItem from '../components/DomainItem/DomainItem'
 
 import {
-  GET_ERRORS, GET_FAVOURITES, GET_OWNER, GET_SINGLE_NAME, GET_SUBDOMAIN_FAVOURITES
+  GET_ERRORS,
+  GET_FAVOURITES,
+  GET_OWNER,
+  GET_SINGLE_NAME,
+  GET_SUBDOMAIN_FAVOURITES
 } from '../graphql/queries'
 
 import mq from 'mediaQuery'
@@ -76,23 +80,18 @@ const NoDomains = () => {
   )
 }
 
-function getAvailable(expiryDate) {
-  let e = moment(parseInt(expiryDate * 1000))
-  let e2 = moment().subtract(90, 'days')
-  return e2.diff(e) > 0
-}
-
 function getDomainState(owner, available, reserved) {
   if (reserved) return 'Reserved'
   if (!owner || available) return 'Open'
   return parseInt(owner, 16) === 0 ? 'Open' : 'Owned'
 }
 
-const RESET_STATE_QUERY = gql`
-  query resetStateQuery @client {
-    networkId
+const REACT_VAR_LISTENERS = gql`
+  query reactiveVarListeners @client {
+    isENSReady
   }
 `
+
 // export const useResetState = (setYears, setCheckedBoxes, setSelectAll) => {
 //   const {
 //     data: { networkId }
@@ -124,12 +123,19 @@ function Favourites() {
     GET_SUBDOMAIN_FAVOURITES
   )
   const {
+    data: { isENSReady }
+  } = useQuery(REACT_VAR_LISTENERS)
+  const {
     data: { globalError }
   } = useQuery(GET_ERRORS)
   let favourites = normaliseOrMark(favouritesWithUnnormalised, 'name')
   if (globalError.invalidCharacter || !favourites) {
     return <InvalidCharacterError message={globalError.invalidCharacter} />
   }
+  if (!isENSReady) {
+    return ''
+  }
+
   // const ids = favourites?.map(f => {
   //       try {
   //         return getNamehash(f.name)
@@ -188,7 +194,8 @@ function Favourites() {
   //   }
   // }
 
-  const hasFavourites =favourites?.length > 0 || subDomainFavourites?.length > 0;
+  const hasFavourites =
+    favourites?.length > 0 || subDomainFavourites?.length > 0
   if (!hasFavourites) {
     return (
       <FavouritesContainer data-testid="favourites-container">
@@ -232,28 +239,29 @@ function Favourites() {
         favourites.map(domain => {
           return (
             <Query
-            query={GET_SINGLE_NAME}
-            variables={{ name: domain.name }}
-            key={domain.name}
-          >
-            {({ loading, error, data }) => {
-              console.log('data', domain.name, data, loading, error)
-              if (error) {
-                return <div>{(console.log(error), JSON.stringify(error))}</div>
-              }
-              if (loading || !data.singleName?.name) {
-                return <div>Loading...</div>
-              }
-              const isLoading = loading || !data.singleName?.name;
-              const d = isLoading ? null : data.singleName;
-              return <DomainItem
-                loading={isLoading}
-                domain={d}
-                isSubDomain={true}
-                isFavourite={true}
-              />
-            }}
-          </Query>
+              query={GET_SINGLE_NAME}
+              variables={{ name: domain.name }}
+              key={domain.name}
+            >
+              {({ loading, error, data }) => {
+                console.log('data', domain.name, data, loading, error)
+                if (error) {
+                  return (
+                    <div>{(console.log(error), JSON.stringify(error))}</div>
+                  )
+                }
+                const isLoading = loading || !data.singleName?.name
+                const d = isLoading ? { name: domain.name } : data.singleName
+                return (
+                  <DomainItem
+                    loading={isLoading}
+                    domain={d}
+                    isSubDomain={true}
+                    isFavourite={true}
+                  />
+                )
+              }}
+            </Query>
           )
           return (
             <DomainItem
