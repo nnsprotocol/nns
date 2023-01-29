@@ -4,8 +4,6 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '../resolvers/Resolver.sol';
 import './BaseRegistrarImplementation.sol';
 
-// import 'hardhat/console.sol';
-
 // TenKClubController registers a random name from 00000 to 99999
 // for accounts that have one or more claims available.
 contract TenKClubController is Ownable {
