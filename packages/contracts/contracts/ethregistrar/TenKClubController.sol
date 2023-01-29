@@ -23,9 +23,13 @@ contract TenKClubController is Ownable {
   BaseRegistrarImplementation base;
   uint256 private maxDigits;
 
+  uint256 private namesRemaining;
+  mapping(uint256 => uint256) movedNames;
+
   constructor(BaseRegistrarImplementation _base, uint256 _maxDigits) {
     base = _base;
     maxDigits = _maxDigits;
+    namesRemaining = 10**_maxDigits;
   }
 
   /**
@@ -34,15 +38,7 @@ contract TenKClubController is Ownable {
 
   // Register a random name from 0000 to 9999.
   function register(address resolver, address addr) external {
-    uint256 attempt = 0;
-    string memory name;
-    bytes32 tokenId;
-    do {
-      name = _generateName(attempt);
-      tokenId = keccak256(bytes(name));
-      attempt++;
-    } while (!_available(name));
-
+    string memory name = _formatName(_draw());
     _register(name, resolver, addr);
   }
 
@@ -52,7 +48,7 @@ contract TenKClubController is Ownable {
     address resolver,
     address addr
   ) private {
-    require(_available(name));
+    require(_available(name), 'name not available');
     _consumeClaim();
 
     bytes32 label = keccak256(bytes(name));
@@ -96,21 +92,38 @@ contract TenKClubController is Ownable {
     Name generation
   */
 
-  // Generates a pseudo-random name from 00000 to 99999.
-  function _generateName(uint256 attempt) public view returns (string memory) {
-    uint256 pseudorandomness = uint256(
-      keccak256(
-        abi.encodePacked(blockhash(block.number - 1), msg.sender, attempt)
-      )
-    );
-
-    uint256 max = 10**maxDigits;
-    uint16 number = uint16(pseudorandomness % max);
-    return _formatName(number);
+  function _nameAt(uint256 i) private view returns (uint256) {
+    if (movedNames[i] > 0) {
+      return movedNames[i];
+    } else {
+      return i;
+    }
   }
 
-  // Formats the given number as a 5 digit 0-left-padded string.
-  function _formatName(uint16 v) private view returns (string memory) {
+  // draws the next number.
+  function _draw() private returns (uint256) {
+    require(namesRemaining > 0, 'No names left');
+
+    // Pick i
+    uint256 pseudorandomness = uint256(
+      keccak256(abi.encodePacked(blockhash(block.number - 1), msg.sender))
+    );
+
+    uint16 i = uint16(pseudorandomness % namesRemaining);
+
+    // Pick the ith card in the "deck"
+    uint256 outCard = _nameAt(i);
+
+    // Move the last card in the deck into position i
+    movedNames[i] = _nameAt(namesRemaining - 1);
+    movedNames[namesRemaining - 1] = 0;
+    namesRemaining -= 1;
+
+    return outCard;
+  }
+
+  // Formats the given number as a maxDigit 0-left-padded string.
+  function _formatName(uint256 v) private view returns (string memory) {
     bytes memory b = new bytes(maxDigits);
     uint256 digit = 0;
     while (digit < maxDigits) {

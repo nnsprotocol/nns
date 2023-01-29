@@ -113,32 +113,23 @@ contract('TenKClubController', function (accounts) {
       assert.equal(await resolver.addr(node), w1)
     })
 
-    it('should try until one is available in the registrar', async () => {
-      const target = '88'
-      // Register all names but the target.
+    it('should reject when all names are registered', async () => {
       for (const n of ALL_NAMES) {
-        if (n === target) {
-          continue
-        }
-        await registrar.register(sha3(n), w3, { from: owner }).catch(() => {}) // ignore if already registered
+        await registrar.register(sha3(n), w3, { from: owner })
       }
 
       let { timestamp } = await web3.eth.getBlock('latest')
       await controller.createClaims([w1], timestamp + 1e4, {
         from: owner,
       })
-      const tx = await controller.register(resolver.address, w1, {
+      const op = controller.register(resolver.address, w1, {
         from: w1,
       })
-      const event = tx.receipt.logs[0]
-      const name = event.args.name
-      assert.equal(name, target)
+      await exceptions.expectFailure(op)
     })
 
-    it('should try until one is not in the deny list', async () => {
-      const target = '88'
-      // Register all names but the target.
-      const labels = ALL_NAMES.filter((n) => n !== target).map((n) => sha3(n))
+    it('should reject when all names are in the deny list', async () => {
+      const labels = ALL_NAMES.map((n) => sha3(n))
       await controller.addToDenyList(labels, {
         from: owner,
       })
@@ -147,12 +138,10 @@ contract('TenKClubController', function (accounts) {
       await controller.createClaims([w1], timestamp + 1e4, {
         from: owner,
       })
-      const tx = await controller.register(resolver.address, w1, {
+      const op = controller.register(resolver.address, w1, {
         from: w1,
       })
-      const event = tx.receipt.logs[0]
-      const name = event.args.name
-      assert.equal(name, target)
+      await exceptions.expectFailure(op)
     })
 
     it('should sample and register a 4 digit name', async () => {
@@ -211,39 +200,6 @@ contract('TenKClubController', function (accounts) {
       })
       assert.isFalse(await controller.denyList(n1))
       assert.isFalse(await controller.denyList(n2))
-    })
-  })
-
-  describe('name generation', () => {
-    let names
-
-    before(async () => {
-      names = await Promise.all(
-        ALL_NAMES.map((v, idx) => {
-          return controller._generateName(idx)
-        }),
-      )
-    })
-
-    it('should not sample the same name too many times', async () => {
-      const counters = names.reduce(
-        (acc, cur) => ({ ...acc, [cur]: (acc[cur] || 0) + 1 }),
-        {},
-      )
-      const threshold = 5
-      for (const [name, count] of Object.entries(counters)) {
-        assert.isBelow(
-          count,
-          threshold,
-          `'${name}' sampled more than ${threshold} times`,
-        )
-      }
-    })
-
-    it('should only sample 2 digit numbers', async () => {
-      for (const name of names) {
-        assert.isTrue(/^\d{2}$/.test(name), `${name} is not a 2 digit number`)
-      }
     })
   })
 })
