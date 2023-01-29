@@ -7,6 +7,7 @@ const ENSRegistry = require('./build/contracts/ENSRegistry')
 // const ExponentialPremiumPriceOracle = require('./build/contracts/ExponentialPremiumPriceOracle')
 // const ETHRegistrarController = require('./build/contracts/ETHRegistrarController')
 const NNSRegistrarControllerWithReservation = require('./build/contracts/NNSRegistrarControllerWithReservation')
+const TenKClubController = require('./build/contracts/TenKClubController')
 // const FIFSRegistrar = require('./build/contracts/FIFSRegistrar')
 // const LinearPremiumPriceOracle = require('./build/contracts/LinearPremiumPriceOracle')
 const PriceOracle = require('./build/contracts/IPriceOracle')
@@ -59,4 +60,5 @@ module.exports = {
   // SHA1Digest,
   // SHA1NSEC3Digest,
   NNSRegistrarControllerWithReservation,
+  TenKClubController,
 }
