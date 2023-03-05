@@ -10,7 +10,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     userConfig.networks?.[network.name]?.ethRegistryAddress ??
     '0x0000000000000000000000000000000000000000'
 
-  const registrar = await ethers.getContract('BaseRegistrarImplementationWithMetadata')
+  const registrar = await ethers.getContract(
+    'BaseRegistrarImplementationWithMetadata',
+  )
   const priceOracle = await ethers.getContract('StablePriceOracle')
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
   const namedReservations = await ethers.getContract('NamedReservations')
@@ -19,23 +21,29 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     'NNSRegistrarControllerWithReservation',
   )
 
-  const { newlyDeployed } = await deploy('NNSRegistrarControllerWithReservation', {
-    from: deployer,
-    args: [
-      registrar.address,
-      priceOracle.address,
-      60,
-      86400,
-      ethRegistryAddress,
-      namedReservations.address,
-    ],
-    log: true,
-  })
+  const { newlyDeployed } = await deploy(
+    'NNSRegistrarControllerWithReservation',
+    {
+      from: deployer,
+      args: [
+        registrar.address,
+        priceOracle.address,
+        60,
+        86400,
+        ethRegistryAddress,
+        namedReservations.address,
+      ],
+      log: true,
+      skipIfAlreadyDeployed: true,
+    },
+  )
   if (!newlyDeployed) {
     return
   }
 
-  const controller = await ethers.getContract("NNSRegistrarControllerWithReservation")
+  const controller = await ethers.getContract(
+    'NNSRegistrarControllerWithReservation',
+  )
   const tx1 = await registrar.addController(controller.address, {
     from: deployer,
   })

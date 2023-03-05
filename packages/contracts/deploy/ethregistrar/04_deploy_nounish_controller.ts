@@ -11,16 +11,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     'BaseRegistrarImplementationWithMetadata',
   )
 
-  const { newlyDeployed } = await deploy('TenKClubController', {
+  const { newlyDeployed } = await deploy('NounishClubController', {
     from: deployer,
-    args: [registrar.address, 4],
+    args: [registrar.address, 1000, 9999],
     log: true,
   })
   if (!newlyDeployed) {
     return
   }
 
-  const controller = await ethers.getContract('TenKClubController')
+  const controller = await ethers.getContract('NounishClubController')
   const tx1 = await registrar.addController(controller.address, {
     from: deployer,
   })
@@ -30,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await tx1.wait()
 }
 
-func.tags = ['ethregistrar', 'TenKClubController']
+func.tags = ['ethregistrar', 'NounishClubController']
 func.dependencies = [
   'registry',
   'wrapper',

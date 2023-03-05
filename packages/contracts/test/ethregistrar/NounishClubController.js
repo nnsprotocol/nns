@@ -3,7 +3,7 @@ const BaseRegistrar = artifacts.require(
   './registrar/BaseRegistrarImplementation',
 )
 const PublicResolver = artifacts.require('./resolvers/PublicResolver')
-const Controller = artifacts.require('./ethregistrar/TenKClubController')
+const Controller = artifacts.require('./ethregistrar/NounishClubController')
 
 const namehash = require('eth-ens-namehash')
 const sha3 = require('web3-utils').sha3
@@ -13,15 +13,18 @@ const { exceptions } = require('../test-utils')
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const TLD = '⌐◨-◨'
 
-contract('TenKClubController', function (accounts) {
+contract('NounishClubController', function (accounts) {
   const [owner, w1, w2, w3] = accounts
+
+  const FROM = 1003
+  const TO = 1094
 
   let ens
   let registrar
   let controller
   let resolver
-  const ALL_NAMES = Array.from({ length: 100 }).map((_, n) =>
-    String(n).padStart(2, '0'),
+  const ALL_NAMES = Array.from({ length: TO - FROM + 1 }).map((_, n) =>
+    String(FROM + n),
   )
 
   beforeEach(async () => {
@@ -31,7 +34,7 @@ contract('TenKClubController', function (accounts) {
     })
     await ens.setSubnodeOwner('0x0', sha3(TLD), registrar.address)
 
-    controller = await Controller.new(registrar.address, 2)
+    controller = await Controller.new(registrar.address, FROM, TO)
     await registrar.addController(controller.address, { from: owner })
     await registrar.addController(owner, { from: owner })
 
@@ -93,7 +96,7 @@ contract('TenKClubController', function (accounts) {
       })
       const event = tx.receipt.logs[0]
       assert.equal(event.event, 'NameRegistered')
-      assert.isTrue(/^\d{2}$/.test(event.args.name))
+      assert.isNotNaN(parseInt(event.args.name))
       assert.equal(event.args.owner, w1)
       assert.equal(event.args.label, sha3(event.args.name))
 
@@ -144,10 +147,7 @@ contract('TenKClubController', function (accounts) {
       await exceptions.expectFailure(op)
     })
 
-    it('should sample and register a 4 digit name', async () => {
-      const controller = await Controller.new(registrar.address, 4)
-      await registrar.addController(controller.address, { from: owner })
-
+    it('should sample and register a name between FROM and TO', async () => {
       let { timestamp } = await web3.eth.getBlock('latest')
       await controller.createClaims([w1], timestamp + 1e4, {
         from: owner,
@@ -157,7 +157,40 @@ contract('TenKClubController', function (accounts) {
       })
 
       const event = tx.receipt.logs[0]
-      assert.isTrue(/^\d{4}$/.test(event.args.name))
+      const num = parseInt(event.args.name)
+      assert.isAtLeast(num, FROM)
+      assert.isAtMost(num, TO)
+    })
+
+    it('should register all names from FROM to TO', async () => {
+      const { timestamp } = await web3.eth.getBlock('latest')
+      for (let i = FROM; i <= TO; i++) {
+        await controller.createClaims([w1], timestamp + 1e4, {
+          from: owner,
+        })
+      }
+      const registeredNumbers = new Set()
+      for (let i = FROM; i <= TO; i++) {
+        const tx = await controller.register(resolver.address, w1, {
+          from: w1,
+        })
+        const event = tx.receipt.logs[0]
+        const num = parseInt(event.args.name)
+        assert.isFalse(registeredNumbers.has(num))
+        assert.isAtLeast(num, FROM)
+        assert.isAtMost(num, TO)
+        registeredNumbers.add(num)
+      }
+      assert.lengthOf(registeredNumbers, TO - FROM + 1)
+      assert.equal(0, await controller.claimsCount(w1, timestamp + 1e4))
+      // Next should fail
+      await controller.createClaims([w1], timestamp + 1e4, {
+        from: owner,
+      })
+      const op = controller.register(resolver.address, w1, {
+        from: w1,
+      })
+      await exceptions.expectFailure(op)
     })
   })
 

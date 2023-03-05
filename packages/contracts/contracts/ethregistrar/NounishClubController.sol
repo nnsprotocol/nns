@@ -1,12 +1,14 @@
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.4;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/utils/Strings.sol';
 import '../resolvers/Resolver.sol';
 import './BaseRegistrarImplementation.sol';
 
-// TenKClubController registers a random name from 00000 to 99999
+// NounishClubController registers a random name from 0 to 9999
 // for accounts that have one or more claims available.
-contract TenKClubController is Ownable {
+contract NounishClubController is Ownable {
   event NameRegistered(
     string name,
     bytes32 indexed label,
@@ -19,25 +21,30 @@ contract TenKClubController is Ownable {
   // Map of expiry timestamps for claims associated to addresses.
   mapping(address => uint256[]) private claims;
   BaseRegistrarImplementation base;
-  uint256 private maxDigits;
+  uint256 private minValue;
+  uint256 private maxValue;
 
   uint256 private namesRemaining;
   mapping(uint256 => uint256) movedNames;
 
-  constructor(BaseRegistrarImplementation _base, uint256 _maxDigits) {
+  constructor(
+    BaseRegistrarImplementation _base,
+    uint256 _min,
+    uint256 _max
+  ) {
     base = _base;
-    maxDigits = _maxDigits;
-    namesRemaining = 10**_maxDigits;
+    minValue = _min;
+    maxValue = _max;
+    namesRemaining = _max - _min + 1;
   }
 
   /**
     Registration
   */
 
-  // Register a random name from 0000 to 9999.
+  // Register a random name from min to max.
   function register(address resolver, address addr) external {
-    string memory name = _formatName(_draw());
-    _register(name, resolver, addr);
+    _register(Strings.toString(_draw()), resolver, addr);
   }
 
   // Register the given name.
@@ -89,7 +96,6 @@ contract TenKClubController is Ownable {
   /**
     Name generation
   */
-
   function _nameAt(uint256 i) private view returns (uint256) {
     if (movedNames[i] > 0) {
       return movedNames[i];
@@ -102,34 +108,18 @@ contract TenKClubController is Ownable {
   function _draw() private returns (uint256) {
     require(namesRemaining > 0, 'No names left');
 
-    // Pick i
-    uint256 pseudorandomness = uint256(
+    uint256 random = uint256(
       keccak256(abi.encodePacked(blockhash(block.number - 1), msg.sender))
     );
-
-    uint16 i = uint16(pseudorandomness % namesRemaining);
-
-    // Pick the ith card in the "deck"
-    uint256 outCard = _nameAt(i);
+    uint16 i = uint16(random % namesRemaining);
+    uint256 pickedName = _nameAt(i) + minValue;
 
     // Move the last card in the deck into position i
     movedNames[i] = _nameAt(namesRemaining - 1);
     movedNames[namesRemaining - 1] = 0;
     namesRemaining -= 1;
 
-    return outCard;
-  }
-
-  // Formats the given number as a maxDigit 0-left-padded string.
-  function _formatName(uint256 v) private view returns (string memory) {
-    bytes memory b = new bytes(maxDigits);
-    uint256 digit = 0;
-    while (digit < maxDigits) {
-      b[maxDigits - digit - 1] = SYMBOLS[v % 10];
-      v /= 10;
-      digit++;
-    }
-    return string(b);
+    return pickedName;
   }
 
   /** Claming */
@@ -185,14 +175,19 @@ contract TenKClubController is Ownable {
   // Adds the given labels to the deny list.
   function addToDenyList(uint256[] calldata tokenIds) external onlyOwner {
     for (uint256 i = 0; i < tokenIds.length; i++) {
-      denyList[tokenIds[i]] = true;
+      require(base.available(tokenIds[i]), 'name must be available');
+      if (!denyList[tokenIds[i]]) {
+        denyList[tokenIds[i]] = true;
+      }
     }
   }
 
   // Removes the given labels to the deny list.
   function removeFromDenyList(uint256[] calldata tokenIds) external onlyOwner {
     for (uint256 i = 0; i < tokenIds.length; i++) {
-      delete denyList[tokenIds[i]];
+      if (denyList[tokenIds[i]]) {
+        delete denyList[tokenIds[i]];
+      }
     }
   }
 
