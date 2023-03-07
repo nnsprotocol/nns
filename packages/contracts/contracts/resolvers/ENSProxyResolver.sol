@@ -9,7 +9,6 @@ import './profiles/IAddressResolver.sol';
 import './profiles/INameResolver.sol';
 import './profiles/IExtendedResolver.sol';
 import '../wrapper/BytesUtil.sol';
-import 'hardhat/console.sol';
 
 contract ENSProxyResolver is ERC165, IExtendedResolver {
   using BytesUtils for bytes;
