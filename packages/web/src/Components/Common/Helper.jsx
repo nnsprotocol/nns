@@ -217,16 +217,16 @@ export const EcosystemData = [
     link: "https://lilnouns.wtf",
   },
   {
-    img: driven3,
-    heading: "Gnars DAO",
-    text: "Visit",
-    link: "https://gnars.wtf",
-  },
-  {
     img: driven4,
     heading: "Guild.xyz",
     text: "Visit",
     link: "https://guild.xyz",
+  },
+  {
+    img: driven3,
+    heading: "Gnars DAO",
+    text: "Visit",
+    link: "https://gnars.wtf",
   },
   {
     img: driven5,

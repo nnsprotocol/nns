@@ -61,7 +61,7 @@ const Driven = () => {
                                 src={obj.img}
                                 alt="driven3"
                               />
-                              {i === 2 || i === 3 || i === 4 ? (
+                              {i === 3 || i === 4 ? (
                                 <button className="position-absolute start-50 top-50 translate-middle driven_btn border-0 text-decoration-none text-black fw_middium font_xxxs">
                                   coming soon
                                 </button>
