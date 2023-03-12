@@ -4,14 +4,15 @@ import FhCqJY5WYAEDJk1 from "../../assets/images/png/FhCqJY5WYAE-DJk1.png";
 import FhCqJY5WYAEDJk2 from "../../assets/images/png/FhCqJY5WYAE-DJk2.png";
 import FhCqJY5WYAEDJk3 from "../../assets/images/png/FhCqJY5WYAE-DJk3.png";
 import FhCqJY5WYAEDJk4 from "../../assets/images/png/FhCqJY5WYAE-DJk4.png";
-import driven1 from "../../assets/images/png/driven_1.png";
-import driven2 from "../../assets/images/png/driven_2.png";
-import driven3 from "../../assets/images/png/driven_3.png";
-import driven4 from "../../assets/images/png/driven_4.png";
-import driven5 from "../../assets/images/png/driven_5.png";
-import driven6 from "../../assets/images/png/driven_6.png";
-import driven7 from "../../assets/images/png/driven_7.png";
-import driven8 from "../../assets/images/png/driven_8.png";
+import nounsDao from "../../assets/images/png/ecosystem/nouns-dao.png";
+import agoraDao from "../../assets/images/png/ecosystem/agora-dao.png";
+import auctions from "../../assets/images/png/ecosystem/auctions.png";
+import gnars from "../../assets/images/png/ecosystem/gnars.png";
+import guild from "../../assets/images/png/ecosystem/guild.png";
+import lilnounsDao from "../../assets/images/png/ecosystem/lilnouns-dao.png";
+import alpsDao from "../../assets/images/png/ecosystem/alps-dao.png";
+import partyDao from "../../assets/images/png/ecosystem/party-dao.png";
+import publicNouns from "../../assets/images/png/ecosystem/public-nouns.png";
 import tings from "../../assets/images/png/tings.png";
 import wizards from "../../assets/images/svg/wizards.svg";
 import food from "../../assets/images/png/food.png";
@@ -205,52 +206,65 @@ export const slideraboutdata = [
 ];
 export const EcosystemData = [
   {
-    img: driven1,
+    img: nounsDao,
     heading: "Nouns DAO",
     text: "Visit",
     link: "https://nouns.wtf",
   },
   {
-    img: driven2,
+    img: lilnounsDao,
     heading: "Lil Nouns DAO",
     text: "Visit",
     link: "https://lilnouns.wtf",
   },
   {
-    img: driven4,
+    img: gnars,
+    heading: "Gnars",
+    text: "Visit",
+    link: "https://gnars.wtf",
+  },
+  {
+    img: guild,
     heading: "Guild.xyz",
     text: "Visit",
     link: "https://guild.xyz",
   },
   {
-    img: driven3,
-    heading: "Gnars DAO",
-    text: "Visit",
-    link: "https://gnars.wtf",
-  },
-  {
-    img: driven5,
+    img: partyDao,
     heading: "Party DAO",
     text: "Visit",
     link: "https://partybid.app",
+    comingSoon: true,
   },
   {
-    img: driven6,
+    img: agoraDao,
     heading: "Agora",
     text: "Visit",
     link: "https://nounsagora.com",
   },
   {
-    img: driven7,
+    img: Fed,
+    heading: "Federation",
+    text: "Visit",
+    link: "https://www.federation.wtf",
+  },
+  {
+    img: auctions,
     heading: "Auctions.wtf",
     text: "Visit",
     link: "https://auctions.wtf",
   },
   {
-    img: driven8,
-    heading: " Public Nouns",
+    img: publicNouns,
+    heading: "Public Nouns",
     text: "Visit",
     link: "https://publicnouns.wtf",
+  },
+  {
+    img: alpsDao,
+    heading: "Alps DAO",
+    text: "Visit",
+    link: "https://alps.wtf/",
   },
   {
     img: tings,
@@ -259,16 +273,16 @@ export const EcosystemData = [
     link: "https://tings.wtf",
   },
   {
-    img: wizards,
-    heading: "Wizards",
-    text: "Visit",
-    link: "https://wizardsdao.com",
-  },
-  {
     img: food,
     heading: "Food Nouns",
     text: "Visit",
     link: "https://foodnouns.wtf",
+  },
+  {
+    img: wizards,
+    heading: "Wizards DAO",
+    text: "Visit",
+    link: "https://wizardsdao.com",
   },
   {
     img: nounstown,
@@ -305,11 +319,5 @@ export const EcosystemData = [
     heading: "Dino Nouns",
     text: "Visit",
     link: "https://dinonouns.xyz/",
-  },
-  {
-    img: Fed,
-    heading: " Federation",
-    text: "Visit",
-    link: "https://www.federation.wtf",
-  },
+  }
 ];
