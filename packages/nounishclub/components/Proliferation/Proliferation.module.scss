@@ -1,0 +1,59 @@
+.proliferation_container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  align-items: center;
+  gap: 2rem;
+  margin: 3rem 0;
+
+  div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  h2 {
+    font-family: "Londrina Solid";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 75.3097px;
+    line-height: 89px;
+  }
+  p {
+    font-family: "Poppins";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 180%;
+    span {
+      font-family: "Poppins";
+      font-style: normal;
+      font-weight: 400;
+      font-size: 20px;
+      line-height: 180%;
+      background: linear-gradient(
+        89.79deg,
+        #9c4f96 40.36%,
+        #ff6355 50.11%,
+        #fba949 59.85%,
+        #fae442 68.41%,
+        #8bd448 79.93%,
+        #2aa8f2 97.06%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+}
+
+@media (max-width: 786px) {
+  .proliferation_container {
+    h2 {
+      font-size: 45px;
+      line-height: 53px;
+      text-align: center;
+    }
+    p {
+      text-align: center;
+    }
+  }
+}

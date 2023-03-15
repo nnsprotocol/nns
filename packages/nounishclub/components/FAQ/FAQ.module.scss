@@ -1,0 +1,67 @@
+.section_faq {
+  background-color: #1b1b1e;
+  padding-top: 8rem;
+  padding-bottom: 5rem;
+
+  .faq_top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 6rem;
+
+    h2 {
+      font-family: "Londrina Solid";
+      font-style: normal;
+      font-weight: 900;
+      font-size: 74.8037px;
+      line-height: 49px;
+      margin-bottom: 2rem;
+    }
+    p {
+      font-family: "Poppins";
+      font-style: normal;
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 100%;
+    }
+
+    .faq_img {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
+  .faq_deck {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 786px) {
+  .section_faq {
+    padding-bottom: 2rem;
+    .faq_top {
+      grid-template-columns: auto;
+
+      h2 {
+        font-size: 45px;
+        line-height: 49px;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+      p {
+        text-align: center;
+      }
+
+      .faq_img {
+        justify-content: center;
+      }
+    }
+    .faq_deck {
+      grid-template-columns: auto;
+      gap: 0;
+    }
+  }
+}

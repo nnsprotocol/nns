@@ -1,0 +1,53 @@
+.dialog_title {
+  // padding: 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  h2 {
+    color: white;
+    font-family: "Londrina Solid";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 50px;
+    line-height: 150%;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  button.discord {
+    width: 177px;
+    height: 53px;
+    color: white;
+    background-color: transparent;
+    border-width: 1px;
+    border-style: dotted;
+    border-color: grey;
+    border-image-source: linear-gradient(
+      89.72deg,
+      #9c4f96 0.23%,
+      #ff6355 17.34%,
+      #fba949 34.44%,
+      #fae442 49.48%,
+      #8bd448 69.69%,
+      #2aa8f2 99.76%
+    );
+    border-image-slice: 1;
+    margin: 1rem 0;
+    cursor: pointer;
+    font-family: "Londrina Solid";
+    font-style: normal;
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .dialog_title {
+    h2 {
+      font-size: 40px;
+      line-height: 150%;
+    }
+  }
+}
