@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Spread the culture. Join the Nounish Club.</title>
+        <title>Share the value. Join the Nounish Club.</title>
         <meta
           name="description"
           content="The Nounish Club includes all the NNS numbers from 0 to 9999. 10k names which will be distributed to anyone, for free."

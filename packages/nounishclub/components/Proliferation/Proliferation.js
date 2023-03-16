@@ -7,7 +7,7 @@ const Proliferation = () => {
     <Container>
       <div className={classes.proliferation_container}>
         <div>
-          <h2>Let the proliferation begins</h2>
+          <h2>1 number powered by 10k</h2>
         </div>
         <div>
           <Image
@@ -19,9 +19,9 @@ const Proliferation = () => {
         </div>
         <div>
           <p>
-            The <span>Nounish Club</span> is reserved to the holders of a
-            special category of NNS names: numbers. 10k of them. Only earnable
-            through Proof of Proliferation.
+            The <span>Nounish Club</span> is reserved to the holders of the
+            first 10k NNS numbers. 4 easy steps and you could get one of them
+            and all the perks it comes with.
           </p>
         </div>
       </div>

@@ -64,13 +64,13 @@ const HeroBanner = () => {
     <Container id="hero">
       <div className={classes.hero_container}>
         <h1>
-          Spread the culture.
+          Share the value.
           <br />
           Join the <span>Nounish Club.</span>
         </h1>
         <p>
-          The Nounish Club includes all the NNS numbers from 0 to 9999. 10k
-          names which will be distributed to anyone, for free.
+          An exclusive club reserved to 10k holders. Everyone does their share,
+          and everyone shares the value.
         </p>
         {/* FIXME: UNCOMMENT */}
         {/* <button

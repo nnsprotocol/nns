@@ -36,6 +36,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
+
+    a {
+      color: inherit;
+    }
   }
 }
 
@@ -62,6 +66,10 @@
     .faq_deck {
       grid-template-columns: auto;
       gap: 0;
+
+      a {
+        color: inherit;
+      }
     }
   }
 }
