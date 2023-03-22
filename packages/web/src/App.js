@@ -1,10 +1,11 @@
 import "./App.css";
-import {  useEffect } from "react";
+import { useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { useScreenFixedProvider } from "./Components/context/ScreenFixedProvider";
 import BackToTopButton from "../src/Components/Common/BackToTopButton";
 import Home from "./views/Home";
 import Faq from "./views/Faq";
+
 function App() {
   const { showOverlay } = useScreenFixedProvider();
   useEffect(() => {
@@ -13,11 +14,7 @@ function App() {
     } else {
       document.body.classList.add("font_root");
     }
-  }, 
-  [showOverlay]);
-  useEffect(() => {
-  }, []);
- 
+  }, [showOverlay]);
   return (
     <>
       <Routes>

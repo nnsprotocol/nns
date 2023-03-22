@@ -1,0 +1,27 @@
+.footer {
+  padding: 2rem 0;
+
+  .footer_top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  .footer_bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .social_media {
+      display: flex;
+      gap: 1rem;
+    }
+    p {
+      font-family: "Poppins";
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 100%;
+    }
+  }
+}

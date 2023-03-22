@@ -1,0 +1,70 @@
+.gradient_wrapper {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+}
+
+.gradient_banner {
+  position: absolute;
+  background: linear-gradient(
+    89.72deg,
+    #9c4f96 0.23%,
+    #ff6355 17.34%,
+    #fba949 34.44%,
+    #fae442 49.48%,
+    #8bd448 69.69%,
+    #2aa8f2 99.76%
+  );
+  height: 400px;
+  width: 100%;
+  clip-path: polygon(100% 0, 100% 36%, 0 100%, 0 64%);
+  -webkit-clip-path: polygon(100% 0, 100% 50%, 0 100%, 0 50%);
+  bottom: 0;
+}
+
+.img_1 {
+  background: url("../../assets/Frame.png");
+  background-repeat: no-repeat;
+  width: 80px;
+  height: 103px;
+  background-position: center;
+  position: absolute;
+  bottom: 0;
+  z-index: 100;
+  left: 8%;
+}
+
+.img_2 {
+  background: url("../../assets/Frame.png");
+  background-repeat: no-repeat;
+  width: 80px;
+  height: 103px;
+  background-position: center;
+  position: absolute;
+  top: 0;
+  right: 8%;
+  z-index: 100;
+}
+
+@media (max-width: 768px) {
+  .gradient_wrapper {
+    height: 170px;
+  }
+
+  .gradient_banner {
+    height: 170px;
+  }
+
+  .img_1 {
+    width: 32px;
+    height: 42px;
+    background-size: contain;
+    left: -1rem;
+  }
+  .img_2 {
+    width: 32px;
+    height: 42px;
+    background-size: contain;
+    right: -1rem;
+  }
+}
