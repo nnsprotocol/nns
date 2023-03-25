@@ -43,6 +43,7 @@ export default function Wrong({ open, handleClose }) {
           <h2>
             Something is wrong. <br /> Please try again.
           </h2>
+          <p>Make sure you are connected to Mainnet.</p>
           <button className={classes.discord} onClick={handleConnectWallet}>
             Ok
           </button>

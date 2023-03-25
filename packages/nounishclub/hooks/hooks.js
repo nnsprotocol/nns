@@ -1,54 +1,115 @@
-const { useMemo } = require("react");
-const { useEthers, useCall, useContractFunction } = require("@usedapp/core");
-const { contracts, resolvers } = require("../contracts/controller");
+import { useEffect, useState, useCallback } from "react";
+import { useEthers, useContractFunction, Goerli, Mainnet } from "@usedapp/core";
+import config from "../network";
 
-// useNumberOfClaims returns the number of avilable claims for the current account.
-function useNumberOfClaims(address) {
-  const { chainId } = useEthers();
-  const contract = contracts[chainId];
-  // useMemo is needed as we need to cache the current timestamp
-  // until the address or the chain changes. This is needed to avoid an
-  // infinite refresh.
-  const timestamp = useMemo(() => Date.now(), [address, chainId]);
-  const { value, error } =
-    useCall(
-      address &&
-        !!contract && {
-          contract,
-          method: "claimsCount",
-          args: [address, timestamp],
-        }
-    ) || {};
-  if (error) {
-    console.error(error.message);
-    return undefined;
+async function fetchClaims(chainId, account) {
+  const baseURL = config[chainId]?.apiURL;
+  if (!baseURL) {
+    return null;
   }
-  return value ? parseInt(value.toString()) : undefined;
+  const req = await fetch(`${baseURL}/claims/${account}`);
+  const body = await req.json();
+  return body.num_claims;
+}
+
+async function createClaims(chainId, account) {
+  const baseURL = config[chainId]?.apiURL;
+  if (!baseURL) {
+    return null;
+  }
+  const res = await fetch(`${baseURL}/claims`, {
+    method: "POST",
+    body: JSON.stringify({ sender: account, address: account }),
+  });
+  switch (res.status) {
+    case 200:
+      return await res.json();
+    case 404:
+      return null;
+    default:
+      throw new Error(`invalid status ${res.status}`);
+  }
+}
+
+// useNumberOfClaims returns the number of avilable claims for the current account or null when no wallet is connected.
+function useNumberOfClaims() {
+  const { chainId, account } = useEthers();
+  const [claims, setClaims] = useState(null);
+
+  useEffect(() => {
+    if (!account || !chainId) {
+      setClaims(null);
+      return;
+    }
+
+    fetchClaims(chainId, account)
+      .then((claims) => setClaims(claims))
+      .catch((err) => {
+        console.error(err);
+        setClaims(null);
+      });
+  }, [account, chainId]);
+
+  return claims;
 }
 
 function useClaimName() {
   const { chainId, account } = useEthers();
+  const [noClaims, setNoClaims] = useState(null);
+  const [imageURL, setImageURL] = useState(null);
+  const createOpenseaURL = config[chainId]?.openseaURL;
+  const { state, send, events } = useContractFunction(
+    config[chainId]?.controller,
+    "register",
+    {
+      transactionName: "Register",
+      chainId: chainId,
+    }
+  );
 
-  const contract = contracts[chainId];
+  const createClaimAndSend = useCallback(() => {
+    if (!account || !chainId) {
+      return;
+    }
 
-  const { state, send, events } = useContractFunction(contract, "register", {
-    transactionName: "Register",
-    chainId: chainId,
-  });
+    setImageURL(null);
+    setNoClaims(null);
+    createClaims(chainId, account).then((claim) => {
+      setNoClaims(!claim);
+      if (claim) {
+        setImageURL(claim.image_url);
+        send(
+          claim.number,
+          claim.nonce,
+          claim.expiry,
+          claim.resolver,
+          claim.address,
+          claim.signature
+        );
+      }
+    });
+  }, [chainId, account]);
 
   const registeredName =
     state.status === "Success" ? events?.[0]?.args[0] : null;
+  const tokenId = state.status === "Success" ? events?.[0]?.args[1] : null;
   const isLoading = ["Mining"].includes(state.status);
-  const error = state.errorMessage;
   const errorCode = state.errorCode;
 
+  const openseaURL = tokenId ? createOpenseaURL(tokenId) : null;
+
   return {
+    send: createClaimAndSend,
     isLoading,
-    send: () => send(resolvers[chainId], account),
-    error,
     registeredName,
     errorCode,
+    noClaims,
+    imageURL,
+    openseaURL,
   };
 }
 
-module.exports = { useNumberOfClaims, useClaimName };
+module.exports = {
+  useNumberOfClaims,
+  useClaimName,
+};

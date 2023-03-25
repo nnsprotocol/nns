@@ -5,9 +5,9 @@ const ClaimAmount = () => {
   const { account } = useEthers();
   const claims = useNumberOfClaims(account);
 
-  return (
-    <h6>Claims available: {typeof claims === "undefined" ? "..." : claims}</h6>
-  );
+  const isLoading = typeof claims !== "number";
+
+  return <h6>{isLoading ? "Loading..." : `Claims available: ${claims}`}</h6>;
 };
 
 export default ClaimAmount;

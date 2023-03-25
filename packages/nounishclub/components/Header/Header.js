@@ -1,17 +1,16 @@
+import { useEthers } from "@usedapp/core";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import classes from "./Header.module.scss";
 import { Link } from "react-scroll";
 import ChooseWallet from "../ChooseWallet/ChooseWallet";
-import { useEthers } from "@usedapp/core";
 import Wrong from "../Wrong/Wrong";
+import classes from "./Header.module.scss";
 
 const Header = () => {
   const [stickyClass, setStickyClass] = useState(false);
   const [open, setOpen] = useState(false);
   const [wrongOpen, setWrongOpen] = useState(false);
-  // FIXME: uncomment
-  // const { error } = useEthers();
+  const { error } = useEthers();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -55,10 +54,9 @@ const Header = () => {
     }
   };
 
-  // FIXME: uncomment
-  // useEffect(() => {
-  //   if (error) setWrongOpen(true);
-  // }, [error]);
+  useEffect(() => {
+    if (error) setWrongOpen(true);
+  }, [error]);
 
   return (
     // <Container>
@@ -83,13 +81,11 @@ const Header = () => {
             />
           </Link>
 
-          {/* FIXME: uncomment */}
-          {/* <ConnectButton /> */}
+          <ConnectButton />
         </div>
       </div>
-      {/* FIXME: uncomment */}
-      {/* <ChooseWallet open={open} handleClose={handleClose} /> */}
-      {/* <Wrong open={wrongOpen} handleClose={() => setWrongOpen(false)} /> */}
+      <ChooseWallet open={open} handleClose={handleClose} />
+      <Wrong open={wrongOpen} handleClose={() => setWrongOpen(false)} />
     </>
     // </Container>
   );

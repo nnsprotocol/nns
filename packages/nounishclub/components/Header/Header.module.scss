@@ -40,13 +40,7 @@
 
 @media (max-width: 768px) {
   .logo_img {
-    // FIXME: set 130px back when connect button is back.
-    // width: 130px;
-    width: 250px;
-  }
-  // FIXME: remove this when connect is back
-  .header_toolbar {
-    justify-content: center;
+    width: 130px;
   }
   .connect_button {
     width: 116.89px;

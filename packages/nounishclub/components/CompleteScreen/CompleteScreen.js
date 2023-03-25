@@ -12,7 +12,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const CompleteScreen = ({ open, handleClose, registeredName }) => {
+const CompleteScreen = ({
+  open,
+  handleClose,
+  registeredName,
+  imageURL,
+  openseaURL,
+}) => {
   return (
     <Dialog
       fullScreen
@@ -50,17 +56,19 @@ const CompleteScreen = ({ open, handleClose, registeredName }) => {
           </h2>
           <h3>{registeredName}</h3>
           <div className={classes.wallet_card_deck}>
-            <Image
-              src="/nounish.gif"
-              width={317}
-              height={317}
-              alt="animated_gif"
-            />
-            <Link
+            <Image src={imageURL} width={317} height={317} alt="animated_gif" />
+            {/* <Link
               href={`https://app.nns.xyz/name/${registeredName}.%E2%8C%90%E2%97%A8-%E2%97%A8/details`}
               className={classes.discord}
             >
               Manage
+            </Link> */}
+            <Link
+              href={twitterLink(registeredName, openseaURL)}
+              className={classes.discord}
+              target="_blank"
+            >
+              Share to the world
             </Link>
           </div>
         </div>
@@ -68,5 +76,12 @@ const CompleteScreen = ({ open, handleClose, registeredName }) => {
     </Dialog>
   );
 };
+
+function twitterLink(name, url) {
+  const text = `Just joined the Nounish Club with the number ${name} 🫡\n\n@nnsprotocol ⌐◨-◨\n\n`;
+  return `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+    text
+  )}&url=${encodeURIComponent(url)}`;
+}
 
 export default CompleteScreen;

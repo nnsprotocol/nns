@@ -39,7 +39,7 @@ const faqLeft = [
     title: "What’s the idea behind the Nounish Club?",
     details: (
       <>
-        It’s shared ownership at its best, where everyone gets access to an ever
+        It’s shared value at its best, where everyone gets access to an ever
         growing set of perks, which is freely and collectively provided by its
         most active members.
         <br />

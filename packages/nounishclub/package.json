@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "export": "next export",
-    "deploy": "netlify deploy --build --prod --site celebrated-griffin-d5a45f"
+    "deploy-prod": "netlify deploy --build --prod --site celebrated-griffin-d5a45f",
+    "deploy": "netlify deploy --build --site celebrated-griffin-d5a45f"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",

@@ -3,6 +3,8 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import namehash from 'eth-ens-namehash'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  return
+
   const { getNamedAccounts, deployments, network, ethers, userConfig } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()

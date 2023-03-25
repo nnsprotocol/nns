@@ -3,7 +3,7 @@ import Image from "next/image";
 import classes from "./HeroBanner.module.scss";
 
 import { useEthers } from "@usedapp/core";
-import { useClaimName, useNumberOfClaims } from "../../hooks/hooks";
+import { useClaimName } from "../../hooks/hooks";
 import DiscordDialog from "../DiscordDialog/DiscordDialog";
 import { useEffect, useState } from "react";
 import ChooseWallet from "../ChooseWallet/ChooseWallet";
@@ -19,16 +19,16 @@ const HeroBanner = () => {
   const [mintingOpen, setMintingOpen] = useState(false);
   const [completeOpen, setCompleteOpen] = useState(false);
 
-  // FIXME: uncomment
-  // const { account, isLoading, deactivate } = useEthers();
-  // let {
-  //   send,
-  //   isLoading: claimLoading,
-  //   error,
-  //   registeredName,
-  //   errorCode,
-  // } = useClaimName();
-  // const claims = useNumberOfClaims(account);
+  const { account, isLoading } = useEthers();
+  let {
+    send,
+    isLoading: claimLoading,
+    registeredName,
+    imageURL,
+    openseaURL,
+    errorCode,
+    noClaims,
+  } = useClaimName();
 
   const handleChooseWalletOpen = () => {
     setChooseWalletOpen(true);
@@ -42,23 +42,19 @@ const HeroBanner = () => {
     setWrongOpen(false);
   };
 
-  // FIXME: uncomment
-  // useEffect(() => {
-  //   if (claimLoading) setMintingOpen(true);
-  // }, [claimLoading]);
+  useEffect(() => {
+    if (claimLoading) setMintingOpen(true);
+  }, [claimLoading]);
 
-  // useEffect(() => {
-  //   if (error) {
-  //     if (errorCode === 4001) {
-  //       setWrongOpen(true);
-  //     } else if (errorCode === -32603) {
-  //       setOpen(true);
-  //     } else {
-  //       setWrongOpen(true);
-  //     }
-  //   }
-  //   return () => {};
-  // }, [error, deactivate, errorCode]);
+  useEffect(() => {
+    if (noClaims) {
+      setOpen(true);
+    } else if (errorCode && errorCode !== 4001) {
+      // 4001 = user denied
+      setWrongOpen(true);
+    }
+    return () => {};
+  }, [noClaims, errorCode]);
 
   return (
     <Container id="hero">
@@ -72,8 +68,7 @@ const HeroBanner = () => {
           An exclusive club reserved to 10k holders. Everyone does their share,
           and everyone shares the value.
         </p>
-        {/* FIXME: UNCOMMENT */}
-        {/* <button
+        <button
           className={classes.claim}
           onClick={() => {
             if (!account) {
@@ -125,8 +120,10 @@ const HeroBanner = () => {
             open={completeOpen}
             handleClose={() => setCompleteOpen(false)}
             registeredName={registeredName}
+            imageURL={imageURL}
+            openseaURL={openseaURL}
           />
-        )} */}
+        )}
       </div>
     </Container>
   );

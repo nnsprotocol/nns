@@ -11,7 +11,6 @@ const cardList = [
   },
   {
     image: "/wood-twitter.png",
-    // title: "Follow @nnsprotocol on Twitter",
     component: (
       <h5>
         Follow{" "}
@@ -45,7 +44,7 @@ const WhatToDo = () => {
         <h2>To get your number</h2>
         <div className={classes.card_deck}>
           {cardList.map((card, indx) => (
-            <div className={classes.card} key={card.title}>
+            <div className={classes.card} key={card.image}>
               <div className={classes.card_image}>
                 <Image
                   src={card.image}

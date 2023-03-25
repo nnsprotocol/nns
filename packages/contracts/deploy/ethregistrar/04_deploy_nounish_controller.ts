@@ -3,7 +3,7 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { getNamedAccounts, deployments, userConfig, network } = hre
+  const { getNamedAccounts, deployments, network } = hre
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
@@ -11,9 +11,24 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     'BaseRegistrarImplementationWithMetadata',
   )
 
+  let signer
+  switch (network.name) {
+    case 'goerli':
+      signer = '0x9283DE2Ef7939c297Ec6aFA608e5a6b4eE4025cc'
+      break
+    case 'mainnet':
+      signer = '0x81dd08C90a679c0c4f8feb88A06cC77c03A8f412'
+    default:
+      throw new Error('unknown network')
+  }
+
+  console.log(
+    `Start deployment of NounishClubController with 0x81dd08C90a679c0c4f8feb88A06cC77c03A8f412 as signer`,
+  )
+
   const { newlyDeployed } = await deploy('NounishClubController', {
     from: deployer,
-    args: [registrar.address, 1000, 9999],
+    args: [registrar.address, signer],
     log: true,
   })
   if (!newlyDeployed) {
