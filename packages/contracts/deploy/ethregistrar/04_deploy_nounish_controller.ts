@@ -18,12 +18,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       break
     case 'mainnet':
       signer = '0x81dd08C90a679c0c4f8feb88A06cC77c03A8f412'
+      break
     default:
       throw new Error('unknown network')
   }
 
   console.log(
-    `Start deployment of NounishClubController with 0x81dd08C90a679c0c4f8feb88A06cC77c03A8f412 as signer`,
+    `Start deployment of NounishClubController with ${signer} as signer`,
   )
 
   const { newlyDeployed } = await deploy('NounishClubController', {
