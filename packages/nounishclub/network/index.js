@@ -17,7 +17,7 @@ export default {
   },
   [Mainnet.chainId]: {
     controller: new Contract(
-      "0x7690388d4872D984890E50513069048b828A3474",
+      "0xf55Fc3DF28eF7cbB579808fbAa90969a37a6E838",
       new Interface(require("./abi/controller.json"))
     ),
     apiURL: "https://api.nns.xyz/mainnet/nounishclub",
