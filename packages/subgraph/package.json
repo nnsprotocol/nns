@@ -7,7 +7,7 @@
     "codegen": "graph codegen --output-dir src/types/",
     "setup": "yarn codegen && yarn create-local && yarn deploy-local",
     "create-local": "graph create graphprotocol/ens --node http://127.0.0.1:8020",
-    "deploy-local": "graph deploy graphprotocol/ens --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020/ --version-label 0.0.1",
+    "deploy-local": "graph deploy graphprotocol/ens --ipfs http://localhost:5001 --node http://127.0.0.1:8020/ --debug-fork QmTSdtiLmgu5xs7Dmh4KehZfrXWgsWS5iuMfJieeKTbsKJ --version-label 0.0.1",
     "remove-local": "graph remove graphprotocol/ens --node http://127.0.0.1:8020",
     "docker:setup": "yarn codegen && yarn docker:create-local && yarn docker:deploy-local",
     "docker:create-local": "graph create graphprotocol/ens --node http://ens-app_graph-node_1:8020",
@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@ensdomains/content-hash": "^2.5.3",
-    "@graphprotocol/graph-cli": "^0.23.2",
-    "@graphprotocol/graph-ts": "^0.23.1"
+    "@graphprotocol/graph-cli": "^0.43.0",
+    "@graphprotocol/graph-ts": "^0.29.3"
   }
 }

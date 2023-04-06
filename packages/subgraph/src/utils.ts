@@ -52,7 +52,6 @@ export function lookupLabel(label: ByteArray): string | null {
       )
     )
   ) {
-    log.error("DOTNOUNS", []);
     return "dotnouns";
   }
   return null;

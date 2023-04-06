@@ -163,3 +163,23 @@ dataSources:
       eventHandlers:
         - event: "NameRegistered(string,indexed bytes32,indexed address,uint256)"
           handler: handleNameRegisteredByController
+  - kind: ethereum/contract
+    name: NounishClubController
+    network: mainnet
+    source:
+      address: "0xf55fc3df28ef7cbb579808fbaa90969a37a6e838"
+      abi: NounishClubController
+      startBlock: 16906363
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/ethRegistrar.ts
+      entities:
+        - Registration
+      abis:
+        - name: NounishClubController
+          file: ./abis/NounishClubController.json
+      eventHandlers:
+        - event: "NameRegistered(string,indexed bytes32,indexed address)"
+          handler: handleNameRegisteredByNounishClubController
