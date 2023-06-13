@@ -5,7 +5,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, userConfig, network } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, owner } = await getNamedAccounts()
   const ethRegistryAddress =
     userConfig.networks?.[network.name]?.ethRegistryAddress ??
     '0x0000000000000000000000000000000000000000'
@@ -44,29 +44,29 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const controller = await ethers.getContract(
     'NNSRegistrarControllerWithReservation',
   )
-  const tx1 = await registrar.addController(controller.address, {
-    from: deployer,
-  })
+  const tx1 = await registrar
+    .connect(await ethers.getSigner(owner))
+    .addController(controller.address)
   console.log(
     `Adding controller as controller on registrar (tx: ${tx1.hash})...`,
   )
   await tx1.wait()
 
-  // if (oldController) {
-  //   const tx = await registrar.removeController(oldController!.address, {
-  //     from: deployer,
-  //   })
-  //   console.log(`Removing old controller from registrar (tx: ${tx.hash})...`)
-  //   await tx.wait()
-  // }
-
-  const tx3 = await reverseRegistrar.setController(controller.address, {
-    from: deployer,
-  })
+  const tx3 = await reverseRegistrar
+    .connect(await ethers.getSigner(owner))
+    .setController(controller.address, true)
   console.log(
     `Setting controller of ReverseRegistrar to controller (tx: ${tx3.hash})...`,
   )
   await tx3.wait()
+
+  // if (oldController) {
+  //   const tx = await registrar.removeController(oldController!.address, {
+  //     from: owner,
+  //   })
+  //   console.log(`Removing old controller from registrar (tx: ${tx.hash})...`)
+  //   await tx.wait()
+  // }
 }
 
 func.tags = ['ethregistrar', 'ETHRegistrarController']

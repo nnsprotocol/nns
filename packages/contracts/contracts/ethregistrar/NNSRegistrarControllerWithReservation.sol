@@ -40,9 +40,9 @@ contract NNSRegistrarControllerWithReservation is IETHRegistrarController, Ownab
     uint public maxCommitmentAge;
 
     bool enabled10kReservations = true;
-    bool enabledETHReservations = true;
+    bool enabledETHReservations = false;
     bool enabledNamedReservations = true;
-    uint minNameLength = 3;
+    uint minNameLength = 2;
 
     mapping(bytes32=>uint) public commitments;
 

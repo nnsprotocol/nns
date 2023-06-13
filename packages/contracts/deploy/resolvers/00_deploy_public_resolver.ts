@@ -15,7 +15,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     'NNSRegistrarControllerWithReservation',
   )
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
-  const registrar = await ethers.getContract('BaseRegistrarImplementationWithMetadata')
+  const registrar = await ethers.getContract(
+    'BaseRegistrarImplementationWithMetadata',
+  )
   const root = await ethers.getContract('Root')
 
   const { newlyDeployed } = await deploy('PublicResolver', {
@@ -58,7 +60,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const tx3 = await publicResolver
     .connect(await ethers.getSigner(owner))
-    .setInterface(namehash.hash(tld), 0x018fac06, controller.address);
+    .setInterface(namehash.hash(tld), 0x018fac06, controller.address)
   console.log(
     `Set controller as implementer of controller interface for .${tld} (tx: ${tx3.hash})...`,
   )
@@ -71,7 +73,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     `Tranferring ownership of tld back to the registrar (tx: ${tx6.hash})...`,
   )
   await tx6.wait()
-  
+
   // const ownerOfResolverTLD = await registry.owner(namehash.hash(`resolver.${tld}`));
   // if (ownerOfResolverTLD !== owner) {
   //   const tx = await registry
@@ -104,10 +106,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // await tx8.wait()
 
   // if (!newlyDeployed) {
-  const tx9 = await publicResolver.setTrustedETHController(controller.address);
-  console.log(
-    `Set trusted ETH controller on resolver (tx: ${tx9.hash})...`,
-  )
+  const tx9 = await publicResolver
+    .connect(await ethers.getSigner(owner))
+    .setTrustedETHController(controller.address)
+  console.log(`Set trusted ETH controller on resolver (tx: ${tx9.hash})...`)
   await tx9.wait()
   // }
 }

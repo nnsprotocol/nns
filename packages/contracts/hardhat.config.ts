@@ -121,8 +121,8 @@ task('save', 'Saves a specified contract as a deployed contract')
   )
 
 let real_accounts = undefined
-if (process.env.DEPLOYER_KEY && process.env.OWNER_KEY) {
-  real_accounts = [process.env.DEPLOYER_KEY, process.env.OWNER_KEY]
+if (process.env.NNS_DEPLOYER_KEY && process.env.OWNER_KEY) {
+  real_accounts = [process.env.NNS_DEPLOYER_KEY, process.env.OWNER_KEY]
 }
 let test_accounts = undefined
 if (process.env.TEST_DEPLOYER_KEY && process.env.TEST_OWNER_KEY) {
@@ -131,7 +131,7 @@ if (process.env.TEST_DEPLOYER_KEY && process.env.TEST_OWNER_KEY) {
 
 const config: HardhatUserConfig = {
   tld: '⌐◨-◨',
-  defaultNetwork: "localhost",
+  defaultNetwork: 'localhost',
   networks: {
     hardhat: {
       // Required for real DNS record tests
@@ -204,7 +204,7 @@ const config: HardhatUserConfig = {
       default: 0,
     },
     owner: {
-      default: 0,
+      default: 1,
     },
   },
   external: {
