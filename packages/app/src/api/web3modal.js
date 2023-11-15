@@ -15,15 +15,15 @@ const option = {
   network: 'mainnet', // optional
   cacheProvider: true, // optional
   providerOptions: {
-    walletconnect: {
-      package: () => import('@walletconnect/ethereum-provider'),
-      packageFactory: true,
-      options: {
-        rpc: {
-          1: rpcUrl
-        }
-      }
-    },
+    // walletconnect: {
+    //   package: () => import('@walletconnect/ethereum-provider'),
+    //   packageFactory: true,
+    //   options: {
+    //     rpc: {
+    //       1: rpcUrl
+    //     }
+    //   }
+    // },
     walletlink: {
       package: () => import('walletlink'),
       packageFactory: true,
@@ -31,7 +31,7 @@ const option = {
         appName: 'Ethereum name service',
         jsonRpcUrl: rpcUrl
       }
-    },
+    }
     // mewconnect: {
     //   package: () => import('@myetherwallet/mewconnect-web-client'),
     //   packageFactory: true,
@@ -40,17 +40,17 @@ const option = {
     //     description: ''
     //   }
     // },
-    portis: {
-      package: () => import('@portis/web3'),
-      packageFactory: true,
-      options: {
-        id: PORTIS_ID
-      }
-    },
-    torus: {
-      package: () => import('@toruslabs/torus-embed'),
-      packageFactory: true
-    }
+    // portis: {
+    //   package: () => import('@portis/web3'),
+    //   packageFactory: true,
+    //   options: {
+    //     id: PORTIS_ID
+    //   }
+    // },
+    // torus: {
+    //   package: () => import('@toruslabs/torus-embed'),
+    //   packageFactory: true
+    // }
   }
 }
 
