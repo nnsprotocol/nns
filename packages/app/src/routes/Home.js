@@ -331,13 +331,13 @@ export default ({ match }) => {
             </Network>
             {!isSafeApp && (
               <NoAccounts
-                onClick={!hasAccounts ? connectProvider : disconnectProvider}
-                buttonText={!hasAccounts ? t('c.connect') : t('c.disconnect')}
+                onClick={isReadOnly ? connectProvider : disconnectProvider}
+                buttonText={isReadOnly ? t('c.connect') : t('c.disconnect')}
               />
             )}
           </NetworkStatus>
           <Nav>
-            {accounts?.length > 0 && !isReadOnly ? (
+            {hasAccounts && !isReadOnly ? (
               <NavLink
                 active={url === '/address/' + accounts[0]}
                 to={'/address/' + accounts[0]}

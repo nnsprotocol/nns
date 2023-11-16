@@ -22,7 +22,6 @@ import {
 import { getReverseRecord } from './apollo/sideEffects'
 import { rpcUrl } from './rpcUrl'
 import { setupAnalytics } from './utils/analytics'
-import { safeInfo, setupSafeApp } from './utils/safeApps'
 
 export const setFavourites = () => {
   favouritesReactive(
@@ -76,17 +75,23 @@ export const getProvider = async reconnect => {
     //   return provider
     // }
 
-    const safe = await safeInfo()
-    if (safe) {
-      const provider = await setupSafeApp(safe)
-      return provider
-    }
+    // const safe = await safeInfo()
+    // if (safe) {
+    //   const provider = await setupSafeApp(safe)
+    //   return provider
+    // }
     if (
       window.localStorage.getItem('WEB3_CONNECT_CACHED_PROVIDER') ||
       reconnect
     ) {
       provider = await connect()
-      return provider
+      const { providerObject } = await setup({
+        customProvider: provider,
+        reloadOnAccountsChange: true,
+        enforceReadOnly: false,
+        enforceReload: true
+      })
+      return providerObject
     }
 
     const { providerObject } = await setup({

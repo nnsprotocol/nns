@@ -123,11 +123,23 @@ function NetworkInformation() {
     skip: !accounts?.length
   })
 
-  const hasAccounts = accounts?.length > 0
-
   return (
     <NetworkInformationContainer hasAccount={accounts && accounts.length > 0}>
-      {!isReadOnly ? (
+      {isReadOnly ? (
+        <AccountContainer>
+          <Account data-testid="account" className="account">
+            {t('c.readonly')}
+          </Account>
+          <NetworkStatus>
+            {network} {t('c.network')}
+          </NetworkStatus>
+          <NoAccountsModal
+            onClick={connectProvider}
+            colour={'black'}
+            buttonText={t('c.connect')}
+          />
+        </AccountContainer>
+      ) : (
         <AccountContainer>
           <Account data-testid="account" className="account">
             <span>{displayName}</span>
@@ -142,20 +154,6 @@ function NetworkInformation() {
               colour={'black'}
             />
           )}
-        </AccountContainer>
-      ) : (
-        <AccountContainer>
-          <Account data-testid="account" className="account">
-            {t('c.readonly')}
-          </Account>
-          <NetworkStatus>
-            {network} {t('c.network')}
-          </NetworkStatus>
-          <NoAccountsModal
-            onClick={connectProvider}
-            colour={'black'}
-            buttonText={t('c.connect')}
-          />
         </AccountContainer>
       )}
     </NetworkInformationContainer>

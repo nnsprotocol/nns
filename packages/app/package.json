@@ -17,12 +17,10 @@
     "@ensdomains/offchain-resolver-contracts": "^0.2.1",
     "@ensdomains/react-ens-address": "^0.0.31",
     "@ensdomains/ui": "^3.4.1",
-    "@ensdomains/web3modal": "1.10.1",
     "@gnosis.pm/safe-apps-provider": "^0.9.2",
-    "@myetherwallet/mewconnect-web-client": "^2.2.0-beta.16",
-    "@portis/web3": "^2.0.0-beta.59",
-    "@toruslabs/torus-embed": "^1.8.6",
-    "@walletconnect/ethereum-provider": "^1.8.0-rc.0",
+    "@walletconnect/ethereum-provider": "^2.10.5",
+    "@walletconnect/modal": "^2.6.2",
+    "@web3modal/ethers5": "^3.3.2",
     "assert": "npm:assert",
     "authereum": "^0.1.0",
     "bech32": "2.0.0",
@@ -35,6 +33,7 @@
     "crypto-browserify": "^3.12.0",
     "emotion": "^10.0.9",
     "esm": "^3.2.22",
+    "ethers": "5.7.2",
     "ethjs-unit": "^0.1.6",
     "ethval": "^1.3.0",
     "framer-motion": "^1.9.1",
@@ -43,12 +42,14 @@
     "i18next": "^19.3.4",
     "i18next-xhr-backend": "^3.2.2",
     "idempotent-babel-polyfill": "^7.4.4",
+    "install": "^0.13.0",
     "ipfs-http-client": "^40.1.0",
     "js-sha3": "^0.8.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.2",
     "msw": "0.35.0",
     "notification-polyfill": "^1.0.0",
+    "npm": "^10.2.3",
     "postcss-normalize": "^10.0.1",
     "react": "^16.12.0",
     "react-add-to-calendar-hoc": "^1.0.9",
@@ -173,7 +174,7 @@
     "resetMocks": false
   },
   "resolutions": {
-    "ethers": "^5.6.2",
+    "ethers": "^5.7.2",
     "wrtc": "npm:@koush/wrtc"
   }
 }
