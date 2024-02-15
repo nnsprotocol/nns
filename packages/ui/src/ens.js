@@ -88,11 +88,13 @@ export class ENS {
   }
 
   async getResolver(name) {
-    const provider = await getProvider()
-    let resolver = await provider.getResolver(name)
-    if (resolver) {
-      return resolver.address
-    }
+    const namehash = getNamehash(name)
+    return this.ENS.resolver(namehash)
+    // const provider = await getProvider()
+    // let resolver = await provider.getResolver(name)
+    // if (resolver) {
+    //   return resolver.address
+    // }
   }
 
   async _getResolverObject(name) {
