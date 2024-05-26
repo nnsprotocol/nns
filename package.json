@@ -1,14 +1,8 @@
 {
-  "private": true,
   "name": "nns",
+  "packageManager": "yarn@4.2.2",
+  "private": true,
   "workspaces": [
     "packages/*"
-  ],
-  "scripts": {},
-  "resolutions": {
-    "wrtc": "npm:@koush/wrtc"
-  },
-  "dependencies": {
-    "@mapbox/node-pre-gyp": "^1.0.9"
-  }
+  ]
 }
