@@ -2,6 +2,7 @@
 pragma solidity >=0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "./interfaces/IRegistry.sol";
 
 /*
 X register a TLD
@@ -11,13 +12,11 @@ X owner's permissions
 X change reverse
 */
 
-contract NNSRegistry is ERC721 {
+contract NNSRegistry is ERC721, IRegistry {
     address internal _mintingManager;
     mapping(uint256 => string) internal _tokenNames;
     mapping(address => uint256) internal _reverses;
-
-    event NewDomain(uint256 tokenId, string name);
-    event SetReverse(address owner, uint256 tokenId);
+    uint256 _totalSupply;
 
     constructor() ERC721("NNS", "NNS") {
         _mintingManager = _msgSender();
@@ -51,8 +50,16 @@ contract NNSRegistry is ERC721 {
         return nameOf(reverseOf(addr));
     }
 
-    function mintTLD(string memory name) external onlyMintingManager {
-        _mint(_mintingManager, _namehash(0, name), name, false);
+    function totalSupply() external view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function mintTLD(
+        string memory name
+    ) external onlyMintingManager returns (uint256) {
+        uint256 tokenId = _namehash(0, name);
+        _mint(_mintingManager, tokenId, name, false);
+        return tokenId;
     }
 
     function mint(
@@ -62,7 +69,7 @@ contract NNSRegistry is ERC721 {
     ) external onlyMintingManager {
         (uint256 tokenId, uint256 parentTokenId) = _namehash(labels);
         _requireOwned(parentTokenId);
-        _mint(to, tokenId, _uri(labels), withReverse);
+        _mint(to, tokenId, _buildName(labels), withReverse);
     }
 
     function setReverse(
@@ -78,9 +85,9 @@ contract NNSRegistry is ERC721 {
         string memory name,
         bool withReverse
     ) internal {
-        _mint(to, tokenId);
+        _safeMint(to, tokenId);
         _tokenNames[tokenId] = name;
-        emit NewDomain(tokenId, name);
+        _totalSupply++;
 
         if (withReverse) {
             _setReverse(to, tokenId);
@@ -90,7 +97,12 @@ contract NNSRegistry is ERC721 {
     function _setReverse(address addr, uint256 tokenId) internal {
         _requireOwned(tokenId);
         _reverses[addr] = tokenId;
-        emit SetReverse(addr, tokenId);
+    }
+
+    function namehash(
+        string[] calldata labels
+    ) external pure returns (uint256 hash) {
+        (hash, ) = _namehash(labels);
     }
 
     function _namehash(
@@ -118,7 +130,9 @@ contract NNSRegistry is ERC721 {
             );
     }
 
-    function _uri(string[] memory labels) private pure returns (string memory) {
+    function _buildName(
+        string[] memory labels
+    ) private pure returns (string memory) {
         bytes memory uri = bytes(labels[0]);
         for (uint256 i = 1; i < labels.length; i++) {
             uri = abi.encodePacked(uri, ".", labels[i]);
@@ -133,7 +147,6 @@ contract NNSRegistry is ERC721 {
         address owner = ownerOf(tokenId);
 
         if (owner == address(0)) {
-            // token expired.
             return false;
         }
         if (spender == owner) {
