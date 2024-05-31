@@ -18,8 +18,12 @@ contract NNSResolver is IResolver, Ownable {
         bool isFallback
     ) external onlyOwner {
         (, uint256 cldId) = registry.cld();
+        if (address(_clds[cldId]) != address(0)) {
+            revert CldAlreadyRegistered();
+        }
+
         _clds[cldId] = registry;
-        emit IResolver.CldRegistered(cldId, address(registry));
+        emit CldRegistered(cldId, address(registry));
 
         if (isFallback) {
             setFallbackCld(cldId);
@@ -32,7 +36,7 @@ contract NNSResolver is IResolver, Ownable {
             return;
         }
         _fallbackCldId = cldId;
-        emit IResolver.FallbackCldChanged(cldId);
+        emit FallbackCldChanged(cldId);
     }
 
     function fallbackCld() external view returns (uint256) {
@@ -44,10 +48,10 @@ contract NNSResolver is IResolver, Ownable {
         if (
             msg.sender != account && !reg.isApprovedForAll(account, msg.sender)
         ) {
-            revert IResolver.UnauthorizedAccount();
+            revert UnauthorizedAccount();
         }
         _defaultCldIds[account] = cldId;
-        emit IResolver.DefaultCldChanged(account, cldId);
+        emit DefaultCldChanged(account, cldId);
     }
 
     function reverseNameOf(address addr) public view returns (string memory) {

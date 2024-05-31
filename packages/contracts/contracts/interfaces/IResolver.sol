@@ -8,6 +8,7 @@ interface IResolver {
     event DefaultCldChanged(address account, uint256 cldId);
     event FallbackCldChanged(uint256 cldId);
 
+    error CldAlreadyRegistered();
     error UnauthorizedAccount();
     error InvalidCld();
 
