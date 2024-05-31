@@ -10,10 +10,9 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant COMMUNITY_ROLE = keccak256("COMMUNITY_ROLE");
 
-    mapping(uint256 => string) internal _tokenNames;
-    mapping(address => uint256) internal _reverses;
-    // Mapping of tokenId to expiry timestamp
-    mapping(uint256 => uint256) internal _expiries;
+    mapping(uint256 tokenId => string) internal _tokenNames;
+    mapping(address tokenId => uint256) internal _reverses;
+    mapping(uint256 tokenId => uint256) internal _expiries;
 
     uint256 _totalSupply;
 
@@ -65,20 +64,23 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         return _totalSupply;
     }
 
-    function mintOrUnlock(
+    function register(
         address to,
         string calldata name,
+        uint256 duration,
         bool withReverse
     ) external onlyRole(MINTER_ROLE) returns (uint256) {
         uint256 tokenId = _namehash(0, name);
-        if (_ownerOf(tokenId) == address(0)) {
-            _mint(to, tokenId, name, withReverse);
-        } else if (isExpired(tokenId)) {
-            _unlock(to, tokenId, withReverse);
-        } else {
-            revert("exists and not expired");
+        if (isExpired(tokenId)) {
+            _burn(tokenId);
+            _totalSupply--;
         }
+        _mint(to, tokenId, name, duration, withReverse);
         return tokenId;
+    }
+
+    function renew(uint256 duration) external returns (uint256 tokenId) {
+        revert("not implemented");
     }
 
     function setReverse(
@@ -92,20 +94,19 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         address to,
         uint256 tokenId,
         string memory name,
+        uint256 duration,
         bool withReverse
     ) internal {
         _safeMint(to, tokenId);
         _tokenNames[tokenId] = name;
         _totalSupply++;
-
-        if (withReverse) {
-            _setReverse(to, tokenId);
+        uint256 expiry = 0;
+        if (duration > 0) {
+            expiry = block.timestamp + duration;
+            _setExpiry(tokenId, expiry);
         }
-    }
+        emit NameRegistered(tokenId, name, to, expiry);
 
-    function _unlock(address to, uint256 tokenId, bool withReverse) internal {
-        require(isExpired(tokenId));
-        _transfer(_ownerOf(tokenId), to, tokenId);
         if (withReverse) {
             _setReverse(to, tokenId);
         }
@@ -114,6 +115,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     function _setReverse(address addr, uint256 tokenId) internal {
         _requireOwned(tokenId);
         _reverses[addr] = tokenId;
+        emit ReverseNameChanged(addr, tokenId);
     }
 
     function namehash(
@@ -189,13 +191,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         return _expiries[tokenId] != 0 && _expiries[tokenId] < block.timestamp;
     }
 
-    function setExpiry(
-        uint256 tokenId,
-        uint256 expiry
-    ) external onlyRole(MINTER_ROLE) {
-        _requireOwned(tokenId);
-        require(expiry > block.timestamp, "Registry: EXPIRY_IN_PAST");
-
+    function _setExpiry(uint256 tokenId, uint256 expiry) internal {
         _expiries[tokenId] = expiry;
     }
 
@@ -207,18 +203,18 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         }
     }
 
-    function _update(
-        address to,
-        uint256 tokenId,
-        address auth
-    ) internal virtual override returns (address) {
-        if (isExpired(tokenId)) {
-            return address(0);
-        }
-        address prevOwner = super._update(to, tokenId, auth);
-        _reset(prevOwner, tokenId);
-        return prevOwner;
-    }
+    // function _update(
+    //     address to,
+    //     uint256 tokenId,
+    //     address auth
+    // ) internal virtual override returns (address) {
+    //     if (isExpired(tokenId)) {
+    //         return address(0);
+    //     }
+    //     address prevOwner = super._update(to, tokenId, auth);
+    //     _reset(prevOwner, tokenId);
+    //     return prevOwner;
+    // }
 
     function _reset(address owner, uint256 tokenId) internal {
         if (_reverses[owner] == tokenId) {

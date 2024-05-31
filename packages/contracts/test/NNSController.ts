@@ -262,6 +262,20 @@ describe("NNSController", () => {
         .to.emit(ctx.controller, "PricingOracleChanged")
         .withArgs(cldId, oracleAddress);
     });
+
+    it("setting the same oracle twice has no impact", async () => {
+      const oracleAddress = await newOracle();
+
+      await ctx.controller
+        .connect(communityManager)
+        .setPricingOracle(cldId, oracleAddress);
+
+      const tx = await ctx.controller
+        .connect(communityManager)
+        .setPricingOracle(cldId, oracleAddress);
+
+      await expect(tx).not.to.emit(ctx.controller, "PricingOracleChanged");
+    });
   });
 
   describe("register non expiring domain", () => {

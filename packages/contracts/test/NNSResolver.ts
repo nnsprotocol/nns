@@ -200,23 +200,23 @@ describe("NNSResolver", () => {
 
       // w1 and w2 have 2 domains each CLD, one set as the reverse.
 
-      await ctx.cldA.connect(ctx.owner).mintOrUnlock(ctx.w1, "w1-a", true);
-      await ctx.cldA.connect(ctx.owner).mintOrUnlock(ctx.w1, "w1-no-a", false);
+      await ctx.cldA.connect(ctx.owner).register(ctx.w1, "w1-a", 0, true);
+      await ctx.cldA.connect(ctx.owner).register(ctx.w1, "w1-no-a", 0, false);
 
-      await ctx.cldB.connect(ctx.owner).mintOrUnlock(ctx.w1, "w1-b", true);
-      await ctx.cldB.connect(ctx.owner).mintOrUnlock(ctx.w1, "w1-no-b", false);
+      await ctx.cldB.connect(ctx.owner).register(ctx.w1, "w1-b", 0, true);
+      await ctx.cldB.connect(ctx.owner).register(ctx.w1, "w1-no-b", 0, false);
 
-      await ctx.cldC.connect(ctx.owner).mintOrUnlock(ctx.w1, "w1-c", true);
-      await ctx.cldC.connect(ctx.owner).mintOrUnlock(ctx.w1, "w1-no-c", false);
+      await ctx.cldC.connect(ctx.owner).register(ctx.w1, "w1-c", 0, true);
+      await ctx.cldC.connect(ctx.owner).register(ctx.w1, "w1-no-c", 0, false);
 
-      await ctx.cldA.connect(ctx.owner).mintOrUnlock(ctx.w2, "w2-a", true);
-      await ctx.cldA.connect(ctx.owner).mintOrUnlock(ctx.w2, "w2-no-a", false);
+      await ctx.cldA.connect(ctx.owner).register(ctx.w2, "w2-a", 0, true);
+      await ctx.cldA.connect(ctx.owner).register(ctx.w2, "w2-no-a", 0, false);
 
-      await ctx.cldB.connect(ctx.owner).mintOrUnlock(ctx.w2, "w2-b", true);
-      await ctx.cldB.connect(ctx.owner).mintOrUnlock(ctx.w2, "w2-no-b", false);
+      await ctx.cldB.connect(ctx.owner).register(ctx.w2, "w2-b", 0, true);
+      await ctx.cldB.connect(ctx.owner).register(ctx.w2, "w2-no-b", 0, false);
 
-      await ctx.cldC.connect(ctx.owner).mintOrUnlock(ctx.w2, "w2-c", true);
-      await ctx.cldC.connect(ctx.owner).mintOrUnlock(ctx.w2, "w2-no-c", false);
+      await ctx.cldC.connect(ctx.owner).register(ctx.w2, "w2-c", 0, true);
+      await ctx.cldC.connect(ctx.owner).register(ctx.w2, "w2-no-c", 0, false);
     });
 
     describe("reverse of address", () => {

@@ -102,10 +102,12 @@ contract NNSController is IController, Ownable {
             payable(msg.sender).transfer(msg.value - price);
         }
 
-        uint256 tokenId = registry.mintOrUnlock(to, name, withReverse);
+        uint256 duration = 0;
         if (expires) {
-            registry.setExpiry(tokenId, block.timestamp + (365 days) * periods);
+            duration = (365 days) * periods;
         }
+        registry.register(to, name, duration, withReverse);
+
         _rewarder.collect{value: price}(cldId, referer);
     }
 
