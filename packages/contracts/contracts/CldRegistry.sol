@@ -145,10 +145,6 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         uint256 tokenId
     ) public view returns (bool) {
         address owner = ownerOf(tokenId);
-
-        if (owner == address(0)) {
-            return false;
-        }
         if (spender == owner) {
             return true;
         }
@@ -198,9 +194,10 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     function ownerOf(
         uint256 tokenId
     ) public view virtual override(IERC721, ERC721) returns (address owner) {
-        if (!isExpired(tokenId)) {
-            owner = super.ownerOf(tokenId);
+        if (isExpired(tokenId)) {
+            revert ERC721NonexistentToken(tokenId);
         }
+        owner = super.ownerOf(tokenId);
     }
 
     // function _update(

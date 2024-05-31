@@ -1,6 +1,7 @@
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ContractTransactionResponse, namehash } from "ethers";
+import { ContractTransactionResponse, N, namehash } from "ethers";
 import { ethers } from "hardhat";
 
 async function setup() {
@@ -23,6 +24,58 @@ async function setup() {
 }
 
 type Context = Awaited<ReturnType<typeof setup>>;
+
+async function registerNonName(ctx: Context, owner: HardhatEthersSigner) {
+  const name = Math.random().toString();
+  const tokenId = namehash(name);
+  await ctx.cld.connect(ctx.minter).register(ctx.w1, name, 10, false);
+  await time.increase(100);
+  return { name, tokenId };
+}
+
+function generateRandomString(length: number) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+type RegistrationType = "expired" | "perpetual" | "not-expired";
+
+async function registerName(
+  ctx: Context,
+  owner: HardhatEthersSigner,
+  opt?: {
+    type?: RegistrationType;
+    withReverse?: boolean;
+  }
+) {
+  const name = generateRandomString(10).toLowerCase();
+  const tokenId = namehash(name);
+
+  let duration: number;
+  switch (opt?.type || "perpetual") {
+    case "expired":
+      duration = 10;
+      break;
+    case "perpetual":
+      duration = 0;
+      break;
+    case "not-expired":
+      duration = 10000000;
+      break;
+  }
+
+  await ctx.cld
+    .connect(ctx.minter)
+    .register(owner, name, duration, opt?.withReverse || false);
+  await time.increase(100);
+  return { name, tokenId };
+}
 
 describe("CLDRegistry", () => {
   describe("cld", () => {
@@ -200,6 +253,121 @@ describe("CLDRegistry", () => {
           ctx.cld,
           "ERC721InvalidSender"
         );
+      });
+    });
+  });
+
+  describe("ownerOf", async () => {
+    it("returns the owner when the domain does not expire", async () => {
+      const ctx = await setup();
+      const { tokenId, name } = await registerName(ctx, ctx.w1, {
+        type: "perpetual",
+      });
+      const owner = await ctx.cld.ownerOf(tokenId);
+      expect(owner).to.eq(ctx.w1);
+    });
+
+    it("returns the owner when the domain is not expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const owner = await ctx.cld.ownerOf(tokenId);
+      expect(owner).to.eq(ctx.w1);
+    });
+
+    it("reverts when the token doesn't exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.ownerOf(namehash("idonotexist"));
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld.ownerOf(tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+  });
+
+  describe("isApprovedOrOwner", () => {
+    it("reverts when the token does not exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.isApprovedOrOwner(ctx.w1, namehash("idontexist"));
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld.isApprovedOrOwner(ctx.w1, tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    (["not-expired", "perpetual"] as RegistrationType[]).forEach((type) => {
+      describe(type, () => {
+        it("returns true when for the owner", async () => {
+          const ctx = await setup();
+          const { tokenId } = await registerName(ctx, ctx.w1, {
+            type,
+          });
+          const ok = await ctx.cld.isApprovedOrOwner(ctx.w1, tokenId);
+          expect(ok).to.be.true;
+        });
+
+        it("returns true for the owner", async () => {
+          const ctx = await setup();
+          const { tokenId } = await registerName(ctx, ctx.w1, {
+            type,
+          });
+          const ok = await ctx.cld.isApprovedOrOwner(ctx.w1, tokenId);
+          expect(ok).to.be.true;
+        });
+
+        it("returns true for someone approved for the token", async () => {
+          const ctx = await setup();
+          const { tokenId } = await registerName(ctx, ctx.w1, {
+            type,
+          });
+          await ctx.cld.connect(ctx.w1).approve(ctx.w2, tokenId);
+          const ok = await ctx.cld.isApprovedOrOwner(ctx.w2, tokenId);
+          expect(ok).to.be.true;
+        });
+
+        it("returns true for someone approved for all", async () => {
+          const ctx = await setup();
+          const { tokenId } = await registerName(ctx, ctx.w1, {
+            type,
+          });
+          await ctx.cld.connect(ctx.w1).setApprovalForAll(ctx.w3, true);
+          const ok = await ctx.cld.isApprovedOrOwner(ctx.w3, tokenId);
+          expect(ok).to.be.true;
+        });
+
+        it("returns false for someone else", async () => {
+          const ctx = await setup();
+          const { tokenId } = await registerName(ctx, ctx.w1, {
+            type,
+          });
+          const ok = await ctx.cld.isApprovedOrOwner(ctx.w3, tokenId);
+          expect(ok).to.be.false;
+        });
       });
     });
   });
