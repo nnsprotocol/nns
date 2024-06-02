@@ -28,6 +28,8 @@ interface IResolver {
         uint256 cldId
     ) external view returns (uint256 tokenId);
 
+    function recordOf(uint256 cldId, uint256 tokenId, uint256 key) external returns (string memory);
+
     function registerCld(IRegistry registry, bool isFallback) external;
 
     function setDefaultCld(address account, uint256 cldId) external;

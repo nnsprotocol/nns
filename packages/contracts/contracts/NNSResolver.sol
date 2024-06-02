@@ -79,6 +79,14 @@ contract NNSResolver is IResolver, Ownable {
         return _requireRegistryOf(cldId).reverseOf(addr);
     }
 
+    function recordOf(uint256 cldId, uint256 tokenId, uint256 key) external view returns (string memory) {
+        return _requireRegistryOf(cldId).recordOf(tokenId, key);
+    }
+
+    function recordsOf(uint256 cldId, uint256 tokenId, uint256[] calldata keys) external view returns (string[] memory values) {
+        return _requireRegistryOf(cldId).recordsOf(tokenId, keys);
+    }
+
     function _requireRegistryOf(
         uint256 cldId
     ) internal view returns (IRegistry) {

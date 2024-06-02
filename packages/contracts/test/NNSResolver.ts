@@ -276,4 +276,57 @@ describe("NNSResolver", () => {
       });
     });
   });
+
+  describe("records", () => {
+    let ctx: Context;
+    let tokenIdA: string;
+    let tokenIdB: string;
+
+    before(async () => {
+      ctx = await setup();
+      await ctx.resolver.connect(ctx.owner).registerCld(ctx.cldA, true);
+      await ctx.resolver.connect(ctx.owner).registerCld(ctx.cldB, false);
+
+      tokenIdA = namehash("w1-a");
+      tokenIdB = namehash("w1-b");
+
+      await ctx.cldA.connect(ctx.owner).register(ctx.w1, "w1-a", 0, true);
+      await ctx.cldB.connect(ctx.owner).register(ctx.w1, "w1-b", 0, true);
+
+      await ctx.cldA.connect(ctx.w1).setRecord(tokenIdA, 1, "AAA");
+      await ctx.cldB.connect(ctx.w1).setRecord(tokenIdB, 2, "BBB");
+    });
+
+    it("recordOf - reverts when the cldId is not registered", async () => {
+      const tx = ctx.resolver.connect(ctx.owner).recordOf(ctx.cldDId, 1, 1);
+      await expect(tx).to.be.revertedWithCustomError(
+        ctx.resolver,
+        "InvalidCld"
+      );
+    });
+
+    it("recordsOf - reverts when the cldId is not registered", async () => {
+      const tx = ctx.resolver
+        .connect(ctx.owner)
+        .recordsOf(ctx.cldDId, tokenIdA, [1]);
+      await expect(tx).to.be.revertedWithCustomError(
+        ctx.resolver,
+        "InvalidCld"
+      );
+    });
+
+    it("recordOf - returns the record from the cld", async () => {
+      const value = await ctx.resolver
+        .connect(ctx.owner)
+        .recordOf(ctx.cldAId, tokenIdA, 1);
+      expect(value).to.eq("AAA");
+    });
+
+    it("recordsOf - returns the records from the cld", async () => {
+      const values = await ctx.resolver
+        .connect(ctx.owner)
+        .recordsOf(ctx.cldBId, tokenIdB, [2]);
+      expect(values[0]).to.eq("BBB");
+    });
+  });
 });
