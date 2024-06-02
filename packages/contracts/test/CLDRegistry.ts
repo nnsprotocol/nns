@@ -2,7 +2,7 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ContractTransactionResponse, N, namehash } from "ethers";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 
 async function setup() {
   const [deployer, w1, w2, w3, minter, community] = await ethers.getSigners();
@@ -113,6 +113,12 @@ describe("CLDRegistry", () => {
       );
     });
 
+    it("reverts when the name is empty", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.connect(ctx.minter).register(ctx.w1, "", 0, false);
+      await expect(tx).to.revertedWithCustomError(ctx.cld, "InvalidName");
+    });
+
     describe("register of a non-expiring new domain with reverse", () => {
       let tx: ContractTransactionResponse;
       const domainName = "hello";
@@ -155,9 +161,9 @@ describe("CLDRegistry", () => {
         expect(expired).to.eq(false);
       });
 
-      it("emits a ReverseNameChanged event", async () => {
+      it("emits a ReverseChanged event", async () => {
         await expect(tx)
-          .to.emit(ctx.cld, "ReverseNameChanged")
+          .to.emit(ctx.cld, "ReverseChanged")
           .withArgs(ctx.w1, tokenId);
       });
 
@@ -232,9 +238,9 @@ describe("CLDRegistry", () => {
         expect(expiry).to.eq(expiry);
       });
 
-      it("emits a ReverseNameChanged event", async () => {
+      it("emits a ReverseChanged event", async () => {
         await expect(tx)
-          .to.emit(ctx.cld, "ReverseNameChanged")
+          .to.emit(ctx.cld, "ReverseChanged")
           .withArgs(ctx.w2, tokenId);
       });
 
@@ -253,6 +259,104 @@ describe("CLDRegistry", () => {
           ctx.cld,
           "ERC721InvalidSender"
         );
+      });
+    });
+  });
+
+  describe("renew", () => {
+    it("reverts when not called by the minter", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.connect(ctx.w1).renew(namehash("name"), 100);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "AccessControlUnauthorizedAccount"
+      );
+    });
+
+    it("reverts when the token never expires", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "perpetual",
+      });
+
+      const tx = ctx.cld.connect(ctx.minter).renew(tokenId, 100);
+      await expect(tx).to.revertedWithCustomError(ctx.cld, "NonExpiringToken");
+    });
+
+    it("reverts when the token never expires", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "perpetual",
+      });
+
+      const tx = ctx.cld.connect(ctx.minter).renew(tokenId, 100);
+      await expect(tx).to.revertedWithCustomError(ctx.cld, "NonExpiringToken");
+    });
+
+    describe("token not yet expired", async () => {
+      let ctx: Context;
+      let tx: ContractTransactionResponse;
+      let originalExpiry: bigint;
+      let tokenId: string;
+      const EXTENSION_DURATION = 12345n;
+
+      it("does not revert", async () => {
+        ctx = await setup();
+        const d = await registerName(ctx, ctx.w1, {
+          type: "not-expired",
+        });
+        tokenId = d.tokenId;
+
+        originalExpiry = await ctx.cld.expiryOf(d.tokenId);
+
+        tx = await ctx.cld
+          .connect(ctx.minter)
+          .renew(d.tokenId, EXTENSION_DURATION);
+      });
+
+      it("extends the expiry by the given duration", async () => {
+        const newExpiry = await ctx.cld.expiryOf(tokenId);
+        expect(newExpiry).to.eq(originalExpiry + EXTENSION_DURATION);
+      });
+
+      it("emits a NameRenewed event", async () => {
+        await expect(tx)
+          .to.emit(ctx.cld, "NameRenewed")
+          .withArgs(tokenId, EXTENSION_DURATION + originalExpiry);
+      });
+    });
+
+    describe("token already expired", async () => {
+      let ctx: Context;
+      let tx: ContractTransactionResponse;
+      let extensionTimestamp: number;
+      let tokenId: string;
+      const EXTENSION_DURATION = 12345;
+
+      it("does not revert", async () => {
+        ctx = await setup();
+        const d = await registerName(ctx, ctx.w1, {
+          type: "expired",
+        });
+        tokenId = d.tokenId;
+
+        extensionTimestamp = (await time.latest()) + 100;
+        await time.setNextBlockTimestamp(extensionTimestamp);
+
+        tx = await ctx.cld
+          .connect(ctx.minter)
+          .renew(d.tokenId, EXTENSION_DURATION);
+      });
+
+      it("extends the expiry by the given duration", async () => {
+        const newExpiry = await ctx.cld.expiryOf(tokenId);
+        expect(newExpiry).to.eq(extensionTimestamp + EXTENSION_DURATION);
+      });
+
+      it("emits a NameRenewed event", async () => {
+        await expect(tx)
+          .to.emit(ctx.cld, "NameRenewed")
+          .withArgs(tokenId, extensionTimestamp + EXTENSION_DURATION);
       });
     });
   });
@@ -371,4 +475,471 @@ describe("CLDRegistry", () => {
       });
     });
   });
+
+  describe("tokenURI", () => {
+    it("reverts when the token does not exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.tokenURI(namehash("idontexist"));
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld.tokenURI(tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("returns the expected uri", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const uri = await ctx.cld.tokenURI(tokenId);
+
+      const registry = (await ctx.cld.getAddress()).toLowerCase();
+      const chainId = network.config.chainId;
+      const tokenIdDec = BigInt(tokenId).toString(10);
+
+      expect(uri).to.eq(
+        `https://metadata.nns.xyz/${chainId}/${registry}/${tokenIdDec}`
+      );
+    });
+  });
+
+  describe("nameOf", () => {
+    it("reverts when the token token does not exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.nameOf(namehash("idontexist"));
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld.nameOf(tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("returns the registered name when never expires", async () => {
+      const ctx = await setup();
+      const { tokenId, name } = await registerName(ctx, ctx.w1, {
+        type: "perpetual",
+      });
+      const n = await ctx.cld.nameOf(tokenId);
+      expect(n).to.eq(`${name}.${ctx.name}`);
+    });
+
+    it("returns the registered name when not expired", async () => {
+      const ctx = await setup();
+      const { tokenId, name } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const n = await ctx.cld.nameOf(tokenId);
+      expect(n).to.eq(`${name}.${ctx.name}`);
+    });
+  });
+
+  describe("reverseOf", () => {
+    it("returns zero when there is no reverse set", async () => {
+      const ctx = await setup();
+      const tokenId = await ctx.cld.reverseOf(ctx.w1);
+      expect(tokenId).to.eq(0);
+    });
+
+    it("returns zero when the token set as reverse has expired", async () => {
+      const ctx = await setup();
+      await registerName(ctx, ctx.w1, {
+        type: "expired",
+        withReverse: true,
+      });
+      const reverseTokenId = await ctx.cld.reverseOf(ctx.w1);
+      expect(reverseTokenId).to.eq(0);
+    });
+
+    it("returns the reverse tokenId when the token never expires", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "perpetual",
+        withReverse: true,
+      });
+      const revTokenId = await ctx.cld.reverseOf(ctx.w1);
+      expect(revTokenId).to.eq(tokenId);
+    });
+
+    it("returns the reverse tokenId when the token has not expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+        withReverse: true,
+      });
+      const revTokenId = await ctx.cld.reverseOf(ctx.w1);
+      expect(revTokenId).to.eq(tokenId);
+    });
+  });
+
+  describe("reverseNameOf", () => {
+    it("returns an empty string when there is no reverse set", async () => {
+      const ctx = await setup();
+      const revName = await ctx.cld.reverseNameOf(ctx.w1);
+      expect(revName).to.eq("");
+    });
+
+    it("returns an empty string when the token set as reverse has expired", async () => {
+      const ctx = await setup();
+      await registerName(ctx, ctx.w1, {
+        type: "expired",
+        withReverse: true,
+      });
+      const revName = await ctx.cld.reverseNameOf(ctx.w1);
+      expect(revName).to.eq("");
+    });
+
+    it("returns the name of the reverse token when the token never expires", async () => {
+      const ctx = await setup();
+      const { name } = await registerName(ctx, ctx.w1, {
+        type: "perpetual",
+        withReverse: true,
+      });
+      const revName = await ctx.cld.reverseNameOf(ctx.w1);
+      expect(revName).to.eq(`${name}.${ctx.name}`);
+    });
+
+    it("returns the reverse tokenId when the token has not expired", async () => {
+      const ctx = await setup();
+      const { name } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+        withReverse: true,
+      });
+      const revName = await ctx.cld.reverseNameOf(ctx.w1);
+      expect(revName).to.eq(`${name}.${ctx.name}`);
+    });
+  });
+
+  describe("setReverse", () => {
+    it("reverts when the token does not exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld
+        .connect(ctx.w1)
+        .setReverse(ctx.w1, namehash("idontexist"));
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld.connect(ctx.w1).setReverse(ctx.w1, tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when sender is not the owner or approved", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const tx = ctx.cld.connect(ctx.w2).setReverse(ctx.w1, tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721InsufficientApproval"
+      );
+    });
+
+    it("reverts when sender is approved for another token", async () => {
+      const ctx = await setup();
+      const another = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).approve(ctx.w2, another.tokenId);
+      const tx = ctx.cld.connect(ctx.w2).setReverse(ctx.w1, tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721InsufficientApproval"
+      );
+    });
+
+    it("does not revert when approved for the token", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).approve(ctx.w2, tokenId);
+      await ctx.cld.connect(ctx.w2).setReverse(ctx.w1, tokenId);
+    });
+
+    it("does not revert when approved for all", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).setApprovalForAll(ctx.w2, true);
+      await ctx.cld.connect(ctx.w2).setReverse(ctx.w1, tokenId);
+    });
+
+    describe("success", () => {
+      let ctx: Context;
+      let tx: ContractTransactionResponse;
+      let domain: Awaited<ReturnType<typeof registerName>>;
+      it("does not revert", async () => {
+        ctx = await setup();
+        // register multiple names just to make sure
+        await registerName(ctx, ctx.w1, {
+          type: "not-expired",
+          withReverse: false,
+        });
+        await registerName(ctx, ctx.w1, {
+          type: "not-expired",
+          withReverse: false,
+        });
+        domain = await registerName(ctx, ctx.w1, {
+          type: "not-expired",
+          withReverse: false,
+        });
+        tx = await ctx.cld.connect(ctx.w1).setReverse(ctx.w1, domain.tokenId);
+      });
+
+      it("emits a ReverseChanged event", async () => {
+        await expect(tx)
+          .to.emit(ctx.cld, "ReverseChanged")
+          .withArgs(ctx.w1, domain.tokenId);
+      });
+
+      it("sets the given token as the reverse", async () => {
+        const revTokenId = await ctx.cld.reverseOf(ctx.w1);
+        expect(revTokenId).to.eq(domain.tokenId);
+      });
+    });
+  });
+
+  describe("deleteReverse", () => {
+    it("reverts when sender is not the owner or approved for all", async () => {
+      const ctx = await setup();
+      await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+        withReverse: true,
+      });
+      const tx = ctx.cld.connect(ctx.w2).deleteReverse(ctx.w1);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721InsufficientApproval"
+      );
+    });
+
+    it("reverts when there is no reverse set", async () => {
+      const ctx = await setup();
+      await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+        withReverse: false,
+      });
+      const tx = ctx.cld.connect(ctx.w1).deleteReverse(ctx.w1);
+      await expect(tx)
+        .to.revertedWithCustomError(ctx.cld, "NoReverseSet")
+        .withArgs(ctx.w1);
+    });
+
+    it("does not revert when approved for all", async () => {
+      const ctx = await setup();
+      await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+        withReverse: true,
+      });
+      await ctx.cld.connect(ctx.w1).setApprovalForAll(ctx.w2, true);
+      await ctx.cld.connect(ctx.w2).deleteReverse(ctx.w1);
+    });
+
+    it("does not revert when sender is the same", async () => {
+      const ctx = await setup();
+      await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+        withReverse: true,
+      });
+      await ctx.cld.connect(ctx.w1).deleteReverse(ctx.w1);
+    });
+
+    describe("success", () => {
+      let ctx: Context;
+      let tx: ContractTransactionResponse;
+      it("does not revert", async () => {
+        ctx = await setup();
+        await registerName(ctx, ctx.w1, {
+          type: "not-expired",
+          withReverse: true,
+        });
+        tx = await ctx.cld.connect(ctx.w1).deleteReverse(ctx.w1);
+      });
+
+      it("emits a ReverseDeleted event", async () => {
+        await expect(tx).to.emit(ctx.cld, "ReverseDeleted").withArgs(ctx.w1);
+      });
+
+      it("clears the reverse", async () => {
+        const revTokenId = await ctx.cld.reverseOf(ctx.w1);
+        expect(revTokenId).to.eq(0);
+      });
+    });
+  });
+
+  describe("approve", async () => {
+    it("reverts when the token doesn't exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld
+        .connect(ctx.w1)
+        .approve(ctx.w2, namehash("idonotexist"));
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld.connect(ctx.w1).approve(ctx.w2, tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("approves when not expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).approve(ctx.w2, tokenId);
+      const addr = await ctx.cld.getApproved(tokenId);
+      expect(addr).to.eq(ctx.w2.address);
+    });
+
+    it("approves when never expires", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "perpetual",
+      });
+      await ctx.cld.connect(ctx.w1).approve(ctx.w2, tokenId);
+      const addr = await ctx.cld.getApproved(tokenId);
+      expect(addr).to.eq(ctx.w2.address);
+    });
+  });
+
+  describe("getApproved", () => {
+    it("reverts when the token does not exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.getApproved(namehash("idontexist"));
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld.getApproved(tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("does not revert when the token is valid", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const addr = await ctx.cld.getApproved(tokenId);
+      expect(addr).to.eq(ethers.ZeroAddress);
+    });
+  });
+
+  describe("transferFrom", () => {
+    it("reverts when the token does not exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld
+        .connect(ctx.w1)
+        .transferFrom(ctx.w1, ctx.w2, namehash("idontexist"));
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld.connect(ctx.w1).transferFrom(ctx.w1, ctx.w2, tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    describe("success", () => {
+      let ctx: Context;
+      let tx: ContractTransactionResponse;
+      let tokenId: string;
+
+      it("does not revert when the token is valid", async () => {
+        ctx = await setup();
+        const d = await registerName(ctx, ctx.w1, {
+          type: "not-expired",
+          withReverse: true,
+        });
+        tokenId = d.tokenId;
+        tx = await ctx.cld
+          .connect(ctx.w1)
+          .transferFrom(ctx.w1, ctx.w2, tokenId);
+        const owner = await ctx.cld.ownerOf(tokenId);
+        expect(owner).to.eq(ctx.w2.address);
+      });
+
+      it("transfers the token to the new owner", async () => {
+        const owner = await ctx.cld.ownerOf(tokenId);
+        expect(owner).to.eq(ctx.w2.address);
+      });
+
+      it("emits a Transfer event", async () => {
+        await expect(tx).to.emit(ctx.cld, "Transfer");
+      });
+
+      it("clears the reverse name", async () => {
+        const reverse = await ctx.cld.reverseOf(ctx.w1);
+        expect(reverse).to.eq(0);
+      });
+    });
+  });
+
+  describe("setRecord", () => {});
 });

@@ -2,15 +2,22 @@
 pragma solidity >=0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./IRecordStorage.sol";
 
-interface IRegistry is IERC721 {
-    event ReverseNameChanged(address account, uint256 tokenId);
+interface IRegistry is IERC721, IRecordStorage {
+    event ReverseChanged(address account, uint256 tokenId);
+    event ReverseDeleted(address account);
     event NameRegistered(
         uint256 tokenId,
         string name,
         address owner,
         uint256 expiry
     );
+    event NameRenewed(uint256 tokenId, uint256 expiry);
+
+    error NonExpiringToken(uint256 tokenId);
+    error InvalidName(string name);
+    error NoReverseSet(address account);
 
     function totalSupply() external view returns (uint256);
 
@@ -29,7 +36,7 @@ interface IRegistry is IERC721 {
         bool withReverse
     ) external returns (uint256 tokenId);
 
-    function renew(uint256 duration) external returns (uint256 tokenId);
+    function renew(uint256 tokenId, uint256 duration) external;
 
     function namehash(string calldata name) external pure returns (uint256);
 
