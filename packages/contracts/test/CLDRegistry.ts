@@ -25,14 +25,6 @@ async function setup() {
 
 type Context = Awaited<ReturnType<typeof setup>>;
 
-async function registerNonName(ctx: Context, owner: HardhatEthersSigner) {
-  const name = Math.random().toString();
-  const tokenId = namehash(name);
-  await ctx.cld.connect(ctx.minter).register(ctx.w1, name, 10, false);
-  await time.increase(100);
-  return { name, tokenId };
-}
-
 function generateRandomString(length: number) {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -918,6 +910,10 @@ describe("CLDRegistry", () => {
           withReverse: true,
         });
         tokenId = d.tokenId;
+        await ctx.cld
+          .connect(ctx.w1)
+          .setRecord(tokenId, namehash("record"), "value");
+
         tx = await ctx.cld
           .connect(ctx.w1)
           .transferFrom(ctx.w1, ctx.w2, tokenId);
@@ -938,8 +934,255 @@ describe("CLDRegistry", () => {
         const reverse = await ctx.cld.reverseOf(ctx.w1);
         expect(reverse).to.eq(0);
       });
+
+      it("clears the records", async () => {
+        const v = await ctx.cld.recordOf(tokenId, namehash("record"));
+        expect(v).to.eq("");
+      });
     });
   });
 
-  describe("setRecord", () => {});
+  describe("setRecord/recordOf", () => {
+    it("reverts when the token does not exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld
+        .connect(ctx.w1)
+        .setRecord(namehash("idontexist"), namehash("key"), "hello");
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld
+        .connect(ctx.w1)
+        .setRecord(tokenId, namehash("key"), "hello");
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when sender is not the owner or approved", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const tx = ctx.cld
+        .connect(ctx.w2)
+        .setRecord(tokenId, namehash("key"), "hello");
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721InsufficientApproval"
+      );
+    });
+
+    it("does not revert when approved for the token", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).approve(ctx.w2, tokenId);
+      await ctx.cld
+        .connect(ctx.w2)
+        .setRecord(tokenId, namehash("key"), "hello");
+    });
+
+    it("does not revert when approved for all", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).setApprovalForAll(ctx.w2, true);
+      await ctx.cld
+        .connect(ctx.w2)
+        .setRecord(tokenId, namehash("key"), "hello");
+    });
+
+    describe("success", () => {
+      let ctx: Context;
+      let tx: ContractTransactionResponse;
+      let domain: Awaited<ReturnType<typeof registerName>>;
+      const key = namehash("recordkey");
+      const value = "hello";
+
+      it("does not revert", async () => {
+        ctx = await setup();
+        domain = await registerName(ctx, ctx.w1, {
+          type: "not-expired",
+          withReverse: false,
+        });
+        tx = await ctx.cld
+          .connect(ctx.w1)
+          .setRecord(domain.tokenId, key, value);
+      });
+
+      it("emits a RecordSet event", async () => {
+        await expect(tx)
+          .to.emit(ctx.cld, "RecordSet")
+          .withArgs(domain.tokenId, key, value);
+      });
+
+      it("stores the record", async () => {
+        const v = await ctx.cld.recordOf(domain.tokenId, key);
+        expect(v).to.eq(value);
+      });
+    });
+  });
+
+  describe("setRecords/recordsOf", () => {
+    it("reverts when sender is not the owner or approved", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const tx = ctx.cld
+        .connect(ctx.w2)
+        .setRecords(tokenId, [namehash("key")], ["hello"]);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721InsufficientApproval"
+      );
+    });
+
+    it("does not revert when approved for the token", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).approve(ctx.w2, tokenId);
+      await ctx.cld
+        .connect(ctx.w2)
+        .setRecords(tokenId, [namehash("key")], ["hello"]);
+    });
+
+    it("does not revert when approved for all", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).setApprovalForAll(ctx.w2, true);
+      await ctx.cld
+        .connect(ctx.w2)
+        .setRecords(tokenId, [namehash("key")], ["hello"]);
+    });
+
+    describe("success", () => {
+      let ctx: Context;
+      let tx: ContractTransactionResponse;
+      let domain: Awaited<ReturnType<typeof registerName>>;
+      const keys = [namehash("r1"), namehash("r2")];
+      const values = ["v1", "v2"];
+
+      it("does not revert", async () => {
+        ctx = await setup();
+        domain = await registerName(ctx, ctx.w1, {
+          type: "not-expired",
+          withReverse: false,
+        });
+        tx = await ctx.cld
+          .connect(ctx.w1)
+          .setRecords(domain.tokenId, keys, values);
+      });
+
+      keys.forEach((key, i) => {
+        it(`emits a RecordSet event for key: ${i}`, async () => {
+          await expect(tx)
+            .to.emit(ctx.cld, "RecordSet")
+            .withArgs(domain.tokenId, key, values[i]);
+        });
+
+        it(`stores the record for key: ${i}`, async () => {
+          const v = await ctx.cld.recordOf(domain.tokenId, key);
+          expect(v).to.eq(values[i]);
+        });
+      });
+
+      it("returns all records at once", async () => {
+        const vs = await ctx.cld.recordsOf(domain.tokenId, [
+          ...keys,
+          namehash("newkey"),
+        ]);
+        expect(vs.length).to.eq(3);
+        expect(vs[0]).to.eq(values[0]);
+        expect(vs[1]).to.eq(values[1]);
+        expect(vs[2]).to.eq("");
+      });
+    });
+  });
+
+  describe("resetRecords", () => {
+    it("reverts when sender is not the owner or approved", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const tx = ctx.cld.connect(ctx.w2).resetRecords(tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721InsufficientApproval"
+      );
+    });
+
+    it("does not revert when approved for the token", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).approve(ctx.w2, tokenId);
+      await ctx.cld.connect(ctx.w2).resetRecords(tokenId);
+    });
+
+    it("does not revert when approved for all", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      await ctx.cld.connect(ctx.w1).setApprovalForAll(ctx.w2, true);
+      await ctx.cld.connect(ctx.w2).resetRecords(tokenId);
+    });
+
+    describe("success", () => {
+      let ctx: Context;
+      let tx: ContractTransactionResponse;
+      let domain: Awaited<ReturnType<typeof registerName>>;
+
+      it("does not revert", async () => {
+        ctx = await setup();
+        domain = await registerName(ctx, ctx.w1, {
+          type: "not-expired",
+          withReverse: true,
+        });
+        await ctx.cld
+          .connect(ctx.w1)
+          .setRecords(
+            domain.tokenId,
+            [namehash("a"), namehash("b")],
+            ["x", "y"]
+          );
+
+        tx = await ctx.cld.connect(ctx.w1).resetRecords(domain.tokenId);
+      });
+
+      it("emits a RecordsReset event", async () => {
+        await expect(tx)
+          .to.emit(ctx.cld, "RecordsReset")
+          .withArgs(domain.tokenId);
+      });
+
+      it("resets all records", async () => {
+        const v = await ctx.cld.recordsOf(domain.tokenId, [
+          namehash("a"),
+          namehash("b"),
+        ]);
+        expect(v[0]).to.eq("");
+        expect(v[1]).to.eq("");
+      });
+    });
+  });
 });
