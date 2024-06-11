@@ -1,0 +1,7 @@
+{
+  "name": "subgraph",
+  "packageManager": "yarn@4.2.2",
+  "devDependencies": {
+    "@graphprotocol/graph-cli": "^0.73.0"
+  }
+}

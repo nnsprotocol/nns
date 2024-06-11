@@ -1,0 +1,68 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Contract
+    network: mainnet
+    source:
+      address: "0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03"
+      abi: Contract
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - DelegateChanged
+        - DelegateVotesChanged
+        - DescriptorLocked
+        - DescriptorUpdated
+        - MinterLocked
+        - MinterUpdated
+        - NounBurned
+        - NounCreated
+        - NoundersDAOUpdated
+        - OwnershipTransferred
+        - SeederLocked
+        - SeederUpdated
+        - Transfer
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: DelegateChanged(indexed address,indexed address,indexed address)
+          handler: handleDelegateChanged
+        - event: DelegateVotesChanged(indexed address,uint256,uint256)
+          handler: handleDelegateVotesChanged
+        - event: DescriptorLocked()
+          handler: handleDescriptorLocked
+        - event: DescriptorUpdated(address)
+          handler: handleDescriptorUpdated
+        - event: MinterLocked()
+          handler: handleMinterLocked
+        - event: MinterUpdated(address)
+          handler: handleMinterUpdated
+        - event: NounBurned(indexed uint256)
+          handler: handleNounBurned
+        - event: NounCreated(indexed uint256,(uint48,uint48,uint48,uint48,uint48))
+          handler: handleNounCreated
+        - event: NoundersDAOUpdated(address)
+          handler: handleNoundersDAOUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SeederLocked()
+          handler: handleSeederLocked
+        - event: SeederUpdated(address)
+          handler: handleSeederUpdated
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/contract.ts
