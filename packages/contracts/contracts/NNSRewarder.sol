@@ -15,48 +15,99 @@ contract NNSRewarder is IRewarder, Ownable {
     address _protocol;
     mapping(address => uint256) private _walletBalances;
 
-    uint256 private _cldTokenBalance;
-    mapping(uint256 => mapping(uint256 => uint256)) _withdrawPerToken;
-
-    mapping(uint256 => uint8) _communityRewards;
-    mapping(uint256 => address) _communityPayables;
-    mapping(uint256 => uint8) _referralRewards;
-    mapping(uint256 => IRegistry) _registries;
+    mapping(uint256 cldId => uint8) _communityRewards;
+    mapping(uint256 cldId => address) _communityPayables;
+    mapping(uint256 cldId => uint8) _referralRewards;
+    mapping(uint256 cldId => IRegistry) _registries;
     IRegistry _registrySplitRewards;
 
     IERC20 _rewardToken;
     ISwapRouter internal _swapRouter;
     IERC20 internal _weth9;
 
+    uint256 internal _holdersBalance;
+    HolderRewardsSnapshot internal _holderRewardsSnapshot;
+    mapping(uint256 block => mapping(uint256 tokenId => bool)) _claimedTokens;
+
+    uint256 internal _minSnapshotInterval;
+
+    function holderRewardsSnapshot()
+        external
+        view
+        returns (HolderRewardsSnapshot memory)
+    {
+        return _holderRewardsSnapshot;
+    }
+
+    function takeHolderRewardsSnapshot() external {
+        if (
+            _holderRewardsSnapshot.blockTimestamp + _minSnapshotInterval >
+            block.timestamp
+        ) {
+            revert HoldersSnapshotTooEarly();
+        }
+
+        (
+            _holderRewardsSnapshot,
+            _holdersBalance
+        ) = _calculateHolderRewardsSnapshot();
+        emit HolderRewardsSnapshotCreated(_holderRewardsSnapshot);
+    }
+
+    function _calculateHolderRewardsSnapshot()
+        internal
+        view
+        returns (HolderRewardsSnapshot memory snapshot, uint256 reminder)
+    {
+        uint256 balance = _holdersBalance + _holderRewardsSnapshot.unclaimed;
+        uint256 supply = _registrySplitRewards.totalSupply();
+        uint256 reward = balance / supply;
+        snapshot = HolderRewardsSnapshot(
+            reward,
+            supply,
+            balance,
+            block.number,
+            block.timestamp
+        );
+        reminder = balance % supply;
+    }
+
+    function previewHolderRewardsSnapshot()
+        external
+        view
+        returns (HolderRewardsSnapshot memory)
+    {
+        (
+            HolderRewardsSnapshot memory snapshot,
+
+        ) = _calculateHolderRewardsSnapshot();
+        return snapshot;
+    }
+
     constructor(
         ISwapRouter swapRouter,
         IERC20 rewardToken,
-        IERC20 weth9
+        IERC20 weth9,
+        address protocol,
+        uint256 minSnapshotInterval
     ) Ownable(msg.sender) {
         _swapRouter = swapRouter;
         _rewardToken = rewardToken;
         _weth9 = weth9;
+        _protocol = protocol;
+        _minSnapshotInterval = minSnapshotInterval;
     }
 
     function configurationOf(
         uint256 cldId
-    ) external view returns (IRewarder.CldConfiguration memory) {
+    ) external view returns (CldConfiguration memory c) {
         IRegistry registry = _registries[cldId];
         if (address(registry) == address(0)) {
-            return
-                IRewarder.CldConfiguration(
-                    0,
-                    0,
-                    0,
-                    0,
-                    false,
-                    address(0),
-                    IRegistry(address(0))
-                );
+            return c;
         }
 
         return
-            IRewarder.CldConfiguration(
+            CldConfiguration(
                 _referralRewards[cldId],
                 _communityRewards[cldId],
                 _ecosytemShare(cldId),
@@ -74,9 +125,14 @@ contract NNSRewarder is IRewarder, Ownable {
         uint8 communityShare,
         bool isCldSplitRewards
     ) external onlyOwner {
-        require(referralShare + communityShare + PROTOCOL_SHARE <= 100);
+        if (referralShare + communityShare + PROTOCOL_SHARE > 100) {
+            revert InvalidShares();
+        }
 
         (, uint256 cldId) = registry.cld();
+        if (address(_registries[cldId]) != address(0)) {
+            revert CldAlreadyRegistered(cldId);
+        }
 
         _communityPayables[cldId] = payout;
         _communityRewards[cldId] = communityShare;
@@ -85,7 +141,7 @@ contract NNSRewarder is IRewarder, Ownable {
         if (isCldSplitRewards) {
             _registrySplitRewards = registry;
         }
-        emit IRewarder.CldRegistered(
+        emit CldRegistered(
             cldId,
             payout,
             referralShare,
@@ -94,7 +150,12 @@ contract NNSRewarder is IRewarder, Ownable {
         );
     }
 
-    function collect(uint256 cldId, address referer) external payable {
+    function collect(
+        uint256 cldId,
+        address referer
+    ) external payable onlyOwner {
+        _requireRegistryOf(cldId);
+
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
             .ExactInputSingleParams(
                 address(_weth9),
@@ -115,91 +176,135 @@ contract NNSRewarder is IRewarder, Ownable {
         if (referer == address(0)) {
             referer = _communityPayables[cldId];
         }
-        _walletBalances[referer] +=
-            (totalAmount * _referralRewards[cldId]) /
-            100;
+        uint256 refererAmount = (totalAmount * _referralRewards[cldId]) / 100;
+        _walletBalances[referer] += refererAmount;
+        emit BalanceChanged(referer, refererAmount, _walletBalances[referer]);
 
         // Community
-        _walletBalances[_communityPayables[cldId]] +=
-            (totalAmount * _communityRewards[cldId]) /
+        uint256 communityAmount = (totalAmount * _communityRewards[cldId]) /
             100;
+        _walletBalances[_communityPayables[cldId]] += communityAmount;
+        emit BalanceChanged(
+            _communityPayables[cldId],
+            communityAmount,
+            _walletBalances[_communityPayables[cldId]]
+        );
 
         // Protocol
-        _walletBalances[_protocol] += (totalAmount * PROTOCOL_SHARE) / 100;
+        uint256 protocolAmount = (totalAmount * PROTOCOL_SHARE) / 100;
+        _walletBalances[_protocol] += protocolAmount;
+        emit BalanceChanged(
+            _protocol,
+            protocolAmount,
+            _walletBalances[_protocol]
+        );
 
         // Ecosystem + Users
-        uint8 ecosystem = _ecosytemShare(cldId);
-        uint256 usersEcosystemAmount = (totalAmount * ecosystem) / 100 / 2;
+        uint256 ecosystemAmount = (totalAmount * _ecosytemShare(cldId)) / 100;
 
-        _cldTokenBalance +=
-            usersEcosystemAmount /
-            _registrySplitRewards.totalSupply();
+        uint256 usersAmount = totalAmount -
+            refererAmount -
+            communityAmount -
+            ecosystemAmount -
+            protocolAmount;
+        if (usersAmount > 0) {
+            _holdersBalance += usersAmount;
+            emit HoldersBalanceChanged(usersAmount, _holdersBalance);
+        }
 
         emit Collected(cldId, referer, msg.value, totalAmount);
     }
 
     function _ecosytemShare(uint256 cldId) internal view returns (uint8) {
         return
-            100 -
-            _communityRewards[cldId] -
-            _referralRewards[cldId] -
-            PROTOCOL_SHARE;
+            (100 -
+                _communityRewards[cldId] -
+                _referralRewards[cldId] -
+                PROTOCOL_SHARE) / 2;
     }
 
-    function withdraw(
-        uint256[] calldata cldIds,
-        uint256[] calldata tokenIds
-    ) external {
-        _withdraw(msg.sender, cldIds, tokenIds);
+    function withdraw(address account, uint256[] calldata tokenIds) external {
+        _withdraw(account, tokenIds);
     }
 
     function withdrawForCommunity(
         uint256 cldId,
-        uint256[] calldata cldIds,
         uint256[] calldata tokenIds
     ) external {
-        _withdraw(_communityPayables[cldId], cldIds, tokenIds);
+        _withdraw(_communityPayables[cldId], tokenIds);
     }
 
-    function _withdraw(
-        address account,
-        uint256[] calldata cldIds,
-        uint256[] calldata tokenIds
-    ) internal {
-        require(cldIds.length == tokenIds.length);
-        require(account != address(0));
+    function _withdraw(address account, uint256[] calldata tokenIds) internal {
+        if (account == address(0)) {
+            revert InvalidAccount(account);
+        }
         uint256 amount = balanceOf(account);
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            amount += _processTokenReward(account, cldIds[i], tokenIds[i]);
+            amount += _processTokenReward(account, tokenIds[i]);
         }
-        require(amount > 0);
+        if (amount == 0) {
+            revert NothingToWithdraw();
+        }
         _walletBalances[account] = 0;
         SafeERC20.safeTransfer(_rewardToken, account, amount);
+        emit Withdrawn(account, tokenIds, amount);
     }
 
     function _processTokenReward(
         address account,
-        uint256 cldId,
         uint256 tokenId
     ) internal returns (uint256) {
-        IRegistry registry = _registries[cldId];
-        require(address(registry) != address(0));
-        require(registry.ownerOf(tokenId) == account);
-        uint256 amount = balanceOf(cldId, tokenId);
-        if (amount > 0) {
-            _withdrawPerToken[cldId][tokenId] += amount;
+        if (_claimedTokens[_holderRewardsSnapshot.blockNumber][tokenId]) {
+            return 0;
         }
-        return amount;
+        if (_registrySplitRewards.ownerOf(tokenId) != account) {
+            (, uint256 cldId) = _registrySplitRewards.cld();
+            revert TokenNotOwned(
+                account,
+                cldId,
+                address(_registrySplitRewards),
+                tokenId
+            );
+        }
+        uint256 mintBlock = _registrySplitRewards.mintBlockNumberOf(tokenId);
+        if (mintBlock > _holderRewardsSnapshot.blockNumber) {
+            revert TokenNotInSnapshot(
+                tokenId,
+                mintBlock,
+                _holderRewardsSnapshot.blockNumber
+            );
+        }
+        _holderRewardsSnapshot.unclaimed -= _holderRewardsSnapshot.reward;
+        _claimedTokens[_holderRewardsSnapshot.blockNumber][tokenId] = true;
+        return _holderRewardsSnapshot.reward;
     }
 
     function balanceOf(address account) public view returns (uint256) {
         return _walletBalances[account];
     }
 
-    function balanceOf(
-        uint256 cldId,
-        uint256 tokenId
-    ) public view returns (uint256) {
-        return _cldTokenBalance - _withdrawPerToken[cldId][tokenId];
+    function balanceOf(uint256 tokenId) public view returns (uint256) {
+        uint256 tokenBlock = _registrySplitRewards.mintBlockNumberOf(tokenId);
+        if (tokenBlock > _holderRewardsSnapshot.blockNumber) {
+            return 0;
+        }
+        if (_claimedTokens[_holderRewardsSnapshot.blockNumber][tokenId]) {
+            return 0;
+        }
+        return _holderRewardsSnapshot.reward;
+    }
+
+    function balanceOfHolders() external view returns (uint256) {
+        return _holdersBalance;
+    }
+
+    function _requireRegistryOf(
+        uint256 cldId
+    ) internal view returns (IRegistry) {
+        IRegistry registry = _registries[cldId];
+        if (address(registry) == address(0)) {
+            revert InvalidCld(cldId);
+        }
+        return registry;
     }
 }

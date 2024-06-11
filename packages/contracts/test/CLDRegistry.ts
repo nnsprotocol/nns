@@ -65,8 +65,9 @@ async function registerName(
   await ctx.cld
     .connect(ctx.minter)
     .register(owner, name, duration, opt?.withReverse || false);
+  const mintBlock = await time.latestBlock();
   await time.increase(100);
-  return { name, tokenId };
+  return { name, tokenId, mintBlock };
 }
 
 describe("CLDRegistry", () => {
@@ -902,6 +903,7 @@ describe("CLDRegistry", () => {
       let ctx: Context;
       let tx: ContractTransactionResponse;
       let tokenId: string;
+      let mintBlock: number;
 
       it("does not revert when the token is valid", async () => {
         ctx = await setup();
@@ -909,6 +911,7 @@ describe("CLDRegistry", () => {
           type: "not-expired",
           withReverse: true,
         });
+        mintBlock = d.mintBlock;
         tokenId = d.tokenId;
         await ctx.cld
           .connect(ctx.w1)
@@ -938,6 +941,16 @@ describe("CLDRegistry", () => {
       it("clears the records", async () => {
         const v = await ctx.cld.recordOf(tokenId, namehash("record"));
         expect(v).to.eq("");
+      });
+
+      it("does not change the total supply", async () => {
+        const totalSupply = await ctx.cld.totalSupply();
+        expect(totalSupply).to.eq(1);
+      });
+
+      it("does not change the mint block", async () => {
+        const block = await ctx.cld.mintBlockNumberOf(tokenId);
+        expect(block).to.eq(mintBlock);
       });
     });
   });
@@ -1183,6 +1196,47 @@ describe("CLDRegistry", () => {
         expect(v[0]).to.eq("");
         expect(v[1]).to.eq("");
       });
+    });
+  });
+
+  describe("mintBlockNumberOf", async () => {
+    it("reverts when the token doesn't exist", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.mintBlockNumberOf(namehash("idonotexist"));
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("reverts when the token has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const tx = ctx.cld.mintBlockNumberOf(tokenId);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
+    });
+
+    it("returns the mint block when the domain does not expire", async () => {
+      const ctx = await setup();
+      const { tokenId, mintBlock } = await registerName(ctx, ctx.w1, {
+        type: "perpetual",
+      });
+      const block = await ctx.cld.mintBlockNumberOf(tokenId);
+      expect(block).to.eq(mintBlock);
+    });
+
+    it("returns the mint block when the domain is not expired", async () => {
+      const ctx = await setup();
+      const { tokenId, mintBlock } = await registerName(ctx, ctx.w1, {
+        type: "not-expired",
+      });
+      const block = await ctx.cld.mintBlockNumberOf(tokenId);
+      expect(block).to.eq(mintBlock);
     });
   });
 });

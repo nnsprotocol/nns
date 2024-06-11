@@ -52,4 +52,6 @@ interface IRegistry is IERC721, IRecordStorage {
     function expiryOf(uint256 tokenId) external view returns (uint256);
 
     function isExpired(uint256 tokenId) external view returns (bool);
+
+    function mintBlockNumberOf(uint256 tokenId) external view returns (uint256);
 }

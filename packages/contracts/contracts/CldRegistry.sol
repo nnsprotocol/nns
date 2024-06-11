@@ -17,6 +17,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     mapping(uint256 tokenId => string) internal _tokenNames;
     mapping(address tokenId => uint256) internal _reverses;
     mapping(uint256 tokenId => uint256) internal _expiries;
+    mapping(uint256 tokenId => uint256) internal _mintBlockNumbers;
 
     mapping(uint256 tokenId => uint256) internal _recordPresets;
     mapping(uint256 recordPresetId => mapping(uint256 key => string))
@@ -86,7 +87,6 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         uint256 tokenId = _namehash(0, name);
         if (isExpired(tokenId)) {
             _burn(tokenId);
-            _totalSupply--;
         }
         _mint(to, tokenId, name, duration, withReverse);
         return tokenId;
@@ -137,7 +137,6 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     ) internal {
         _safeMint(to, tokenId);
         _tokenNames[tokenId] = name;
-        _totalSupply++;
         uint256 expiry = 0;
         if (duration > 0) {
             expiry = block.timestamp + duration;
@@ -256,13 +255,6 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         }
     }
 
-    function _reset(address owner, uint256 tokenId) internal {
-        if (_reverses[owner] == tokenId) {
-            _deleteReverse(owner);
-        }
-        _resetRecords(tokenId);
-    }
-
     function approve(
         address to,
         uint256 tokenId
@@ -293,9 +285,28 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         address auth
     ) internal virtual override returns (address) {
         address prevOwner = super._update(to, tokenId, auth);
-        if (prevOwner != address(0)) {
-            _reset(prevOwner, tokenId);
+
+        // Mint
+        if (prevOwner == address(0)) {
+            _totalSupply++;
+            _mintBlockNumbers[tokenId] = block.number;
         }
+
+        // Burn
+        if (to == address(0)) {
+            _totalSupply--;
+            delete _tokenNames[tokenId];
+            delete _mintBlockNumbers[tokenId];
+        }
+
+        // Transfer
+        if (prevOwner != address(0)) {
+            _resetRecords(tokenId);
+            if (_reverses[prevOwner] == tokenId) {
+                _deleteReverse(prevOwner);
+            }
+        }
+
         return prevOwner;
     }
 
@@ -381,5 +392,13 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         uint256 tokenId
     ) internal view virtual returns (uint256) {
         return _recordPresets[tokenId] == 0 ? tokenId : _recordPresets[tokenId];
+    }
+
+    function mintBlockNumberOf(
+        uint256 tokenId
+    ) external view returns (uint256) {
+        _requireOwned(tokenId);
+        _requireNotExpired(tokenId);
+        return _mintBlockNumbers[tokenId];
     }
 }
