@@ -84,7 +84,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         uint256 duration,
         bool withReverse
     ) external onlyRole(MINTER_ROLE) returns (uint256) {
-        uint256 tokenId = _namehash(0, name);
+        uint256 tokenId = _namehash(_cldId, name);
         if (isExpired(tokenId)) {
             _burn(tokenId);
         }
@@ -108,7 +108,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         }
         uint256 newExpiry = start + duration;
         _setExpiry(tokenId, newExpiry);
-        emit NameRenewed(tokenId, newExpiry);
+        emit NameRenewed(_cldId, tokenId, newExpiry);
     }
 
     function setReverse(
@@ -142,7 +142,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
             expiry = block.timestamp + duration;
             _setExpiry(tokenId, expiry);
         }
-        emit NameRegistered(tokenId, name, to, expiry);
+        emit NameRegistered(_cldId, tokenId, name, to, expiry);
 
         if (withReverse) {
             _setReverse(to, tokenId);
@@ -151,13 +151,15 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
 
     function _setReverse(address addr, uint256 tokenId) internal {
         _requireOwned(tokenId);
+        uint256 oldTokenId = _reverses[addr];
         _reverses[addr] = tokenId;
-        emit ReverseChanged(addr, tokenId);
+        emit ReverseChanged(_cldId, addr, oldTokenId, tokenId);
     }
 
     function _deleteReverse(address addr) internal {
+        uint256 oldTokenId = _reverses[addr];
         delete _reverses[addr];
-        emit ReverseDeleted(addr);
+        emit ReverseChanged(_cldId, addr, oldTokenId, 0);
     }
 
     function namehash(
@@ -378,14 +380,14 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         _requireOwned(tokenId);
         _requireNotExpired(tokenId);
         _records[_presetOf(tokenId)][keyHash] = value;
-        emit RecordSet(tokenId, keyHash, value);
+        emit RecordSet(_cldId, tokenId, keyHash, value);
     }
 
     function _resetRecords(uint256 tokenId) internal {
         _recordPresets[tokenId] = uint256(
             keccak256(abi.encodePacked(_presetOf(tokenId)))
         );
-        emit RecordsReset(tokenId);
+        emit RecordsReset(_cldId, tokenId);
     }
 
     function _presetOf(

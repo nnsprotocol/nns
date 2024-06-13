@@ -235,7 +235,7 @@ describe("NNSResolver", () => {
           ctx.w1
         );
         expect(cldId).to.eq(ctx.cldAId);
-        expect(tokenId).to.eq(namehash("w1-a"));
+        expect(tokenId).to.eq(namehash("w1-a.a"));
       });
 
       describe("custom default", () => {
@@ -253,7 +253,7 @@ describe("NNSResolver", () => {
             ctx.w1
           );
           expect(cldId).to.eq(ctx.cldBId);
-          expect(tokenId).to.eq(namehash("w1-b"));
+          expect(tokenId).to.eq(namehash("w1-b.b"));
         });
       });
     });
@@ -272,7 +272,7 @@ describe("NNSResolver", () => {
           ctx.w1,
           ctx.cldCId
         );
-        expect(tokenId).to.eq(namehash("w1-c"));
+        expect(tokenId).to.eq(namehash("w1-c.c"));
       });
     });
   });
@@ -287,8 +287,8 @@ describe("NNSResolver", () => {
       await ctx.resolver.connect(ctx.owner).registerCld(ctx.cldA, true);
       await ctx.resolver.connect(ctx.owner).registerCld(ctx.cldB, false);
 
-      tokenIdA = namehash("w1-a");
-      tokenIdB = namehash("w1-b");
+      tokenIdA = namehash("w1-a.a");
+      tokenIdB = namehash("w1-b.b");
 
       await ctx.cldA.connect(ctx.owner).register(ctx.w1, "w1-a", 0, true);
       await ctx.cldB.connect(ctx.owner).register(ctx.w1, "w1-b", 0, true);

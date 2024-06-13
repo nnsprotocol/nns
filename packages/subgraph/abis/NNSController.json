@@ -1,0 +1,316 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "contract IRewarder",
+        "name": "rewarder",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IResolver",
+        "name": "resolver",
+        "type": "address"
+      },
+      {
+        "internalType": "contract ICldFactory",
+        "name": "cldFactory",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "CldAlreadyExists",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "required",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "provided",
+        "type": "uint256"
+      }
+    ],
+    "name": "InsufficientTransferAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidCld",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidLabel",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidPricingOracle",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidRegistrationPeriod",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "cldId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "registry",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "hasExpiringNames",
+        "type": "bool"
+      }
+    ],
+    "name": "CldRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "cldId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "oracle",
+        "type": "address"
+      }
+    ],
+    "name": "PricingOracleChanged",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "string[]",
+        "name": "labels",
+        "type": "string[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "withReverse",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "referer",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "periods",
+        "type": "uint8"
+      }
+    ],
+    "name": "register",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "uint8",
+        "name": "communityReward",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "referralReward",
+        "type": "uint8"
+      },
+      {
+        "internalType": "contract IPricingOracle",
+        "name": "pricingOracle",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "communityPayable",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "communityManager",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasExpiringNames",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isDefaultCldResolver",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isSplitShareCld",
+        "type": "bool"
+      }
+    ],
+    "name": "registerCld",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "cldId",
+        "type": "uint256"
+      }
+    ],
+    "name": "registryOf",
+    "outputs": [
+      {
+        "internalType": "contract IRegistry",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "cldId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "contract IPricingOracle",
+        "name": "oracle",
+        "type": "address"
+      }
+    ],
+    "name": "setPricingOracle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

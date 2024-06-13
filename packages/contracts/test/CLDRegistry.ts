@@ -1,7 +1,7 @@
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ContractTransactionResponse, N, namehash } from "ethers";
+import { ContractTransactionResponse, namehash } from "ethers";
 import { ethers, network } from "hardhat";
 
 async function setup() {
@@ -10,6 +10,7 @@ async function setup() {
   const name = "noggles";
   const cldFact = await ethers.getContractFactory("CldRegistry");
   const cld = await cldFact.deploy(name, `${name}-SYMBOL`, minter, community);
+  const cldId = namehash(name);
 
   return {
     deployer,
@@ -19,6 +20,7 @@ async function setup() {
     minter,
     community,
     cld,
+    cldId,
     name,
   };
 }
@@ -47,7 +49,7 @@ async function registerName(
   }
 ) {
   const name = generateRandomString(10).toLowerCase();
-  const tokenId = namehash(name);
+  const tokenId = namehash(`${name}.${ctx.name}`);
 
   let duration: number;
   switch (opt?.type || "perpetual") {
@@ -115,11 +117,12 @@ describe("CLDRegistry", () => {
     describe("register of a non-expiring new domain with reverse", () => {
       let tx: ContractTransactionResponse;
       const domainName = "hello";
-      const tokenId = namehash(domainName);
+      let tokenId: string;
 
       let ctx: Context;
       before(async () => {
         ctx = await setup();
+        tokenId = namehash(`${domainName}.${ctx.name}`);
       });
 
       it("does not revert", async () => {
@@ -157,13 +160,13 @@ describe("CLDRegistry", () => {
       it("emits a ReverseChanged event", async () => {
         await expect(tx)
           .to.emit(ctx.cld, "ReverseChanged")
-          .withArgs(ctx.w1, tokenId);
+          .withArgs(ctx.cldId, ctx.w1, 0, tokenId);
       });
 
       it("emits a NameRegistered event", async () => {
         await expect(tx)
           .to.emit(ctx.cld, "NameRegistered")
-          .withArgs(tokenId, domainName, ctx.w1, 0);
+          .withArgs(ctx.cldId, tokenId, domainName, ctx.w1, 0);
       });
 
       it("reverts when registering the same name twice", async () => {
@@ -182,9 +185,8 @@ describe("CLDRegistry", () => {
       let ctx: Context;
       let tx: ContractTransactionResponse;
       const domainName = "expiring";
-      const tokenId = namehash(domainName);
+      let tokenId: string;
       let registerTimestamp: number;
-      let expiry: number;
 
       before(async () => {
         ctx = await setup();
@@ -192,7 +194,9 @@ describe("CLDRegistry", () => {
           .connect(ctx.minter)
           .register(ctx.w1, domainName, 10, true);
 
-        expiry = await time.increase(100);
+        tokenId = namehash(`${domainName}.${ctx.name}`);
+
+        await time.increase(100);
       });
 
       it("ensures name is expired", async () => {
@@ -234,13 +238,19 @@ describe("CLDRegistry", () => {
       it("emits a ReverseChanged event", async () => {
         await expect(tx)
           .to.emit(ctx.cld, "ReverseChanged")
-          .withArgs(ctx.w2, tokenId);
+          .withArgs(ctx.cldId, ctx.w2, 0, tokenId);
       });
 
       it("emits a NameRegistered event", async () => {
         await expect(tx)
           .to.emit(ctx.cld, "NameRegistered")
-          .withArgs(tokenId, domainName, ctx.w2, registerTimestamp + 80);
+          .withArgs(
+            ctx.cldId,
+            tokenId,
+            domainName,
+            ctx.w2,
+            registerTimestamp + 80
+          );
       });
 
       it("reverts when registering a non expired name", async () => {
@@ -315,7 +325,7 @@ describe("CLDRegistry", () => {
       it("emits a NameRenewed event", async () => {
         await expect(tx)
           .to.emit(ctx.cld, "NameRenewed")
-          .withArgs(tokenId, EXTENSION_DURATION + originalExpiry);
+          .withArgs(ctx.cldId, tokenId, EXTENSION_DURATION + originalExpiry);
       });
     });
 
@@ -349,7 +359,11 @@ describe("CLDRegistry", () => {
       it("emits a NameRenewed event", async () => {
         await expect(tx)
           .to.emit(ctx.cld, "NameRenewed")
-          .withArgs(tokenId, extensionTimestamp + EXTENSION_DURATION);
+          .withArgs(
+            ctx.cldId,
+            tokenId,
+            extensionTimestamp + EXTENSION_DURATION
+          );
       });
     });
   });
@@ -699,6 +713,7 @@ describe("CLDRegistry", () => {
       let ctx: Context;
       let tx: ContractTransactionResponse;
       let domain: Awaited<ReturnType<typeof registerName>>;
+      let oldTokenId: string;
       it("does not revert", async () => {
         ctx = await setup();
         // register multiple names just to make sure
@@ -706,10 +721,11 @@ describe("CLDRegistry", () => {
           type: "not-expired",
           withReverse: false,
         });
-        await registerName(ctx, ctx.w1, {
+        const old = await registerName(ctx, ctx.w1, {
           type: "not-expired",
-          withReverse: false,
+          withReverse: true,
         });
+        oldTokenId = old.tokenId;
         domain = await registerName(ctx, ctx.w1, {
           type: "not-expired",
           withReverse: false,
@@ -720,7 +736,7 @@ describe("CLDRegistry", () => {
       it("emits a ReverseChanged event", async () => {
         await expect(tx)
           .to.emit(ctx.cld, "ReverseChanged")
-          .withArgs(ctx.w1, domain.tokenId);
+          .withArgs(ctx.cldId, ctx.w1, oldTokenId, domain.tokenId);
       });
 
       it("sets the given token as the reverse", async () => {
@@ -778,17 +794,21 @@ describe("CLDRegistry", () => {
     describe("success", () => {
       let ctx: Context;
       let tx: ContractTransactionResponse;
+      let tokenId: string;
       it("does not revert", async () => {
         ctx = await setup();
-        await registerName(ctx, ctx.w1, {
+        const domain = await registerName(ctx, ctx.w1, {
           type: "not-expired",
           withReverse: true,
         });
+        tokenId = domain.tokenId;
         tx = await ctx.cld.connect(ctx.w1).deleteReverse(ctx.w1);
       });
 
-      it("emits a ReverseDeleted event", async () => {
-        await expect(tx).to.emit(ctx.cld, "ReverseDeleted").withArgs(ctx.w1);
+      it("emits a ReverseChanged event", async () => {
+        await expect(tx)
+          .to.emit(ctx.cld, "ReverseChanged")
+          .withArgs(ctx.cldId, ctx.w1, tokenId, 0);
       });
 
       it("clears the reverse", async () => {
@@ -1038,7 +1058,7 @@ describe("CLDRegistry", () => {
       it("emits a RecordSet event", async () => {
         await expect(tx)
           .to.emit(ctx.cld, "RecordSet")
-          .withArgs(domain.tokenId, key, value);
+          .withArgs(ctx.cldId, domain.tokenId, key, value);
       });
 
       it("stores the record", async () => {
@@ -1107,7 +1127,7 @@ describe("CLDRegistry", () => {
         it(`emits a RecordSet event for key: ${i}`, async () => {
           await expect(tx)
             .to.emit(ctx.cld, "RecordSet")
-            .withArgs(domain.tokenId, key, values[i]);
+            .withArgs(ctx.cldId, domain.tokenId, key, values[i]);
         });
 
         it(`stores the record for key: ${i}`, async () => {
@@ -1185,7 +1205,7 @@ describe("CLDRegistry", () => {
       it("emits a RecordsReset event", async () => {
         await expect(tx)
           .to.emit(ctx.cld, "RecordsReset")
-          .withArgs(domain.tokenId);
+          .withArgs(ctx.cldId, domain.tokenId);
       });
 
       it("resets all records", async () => {

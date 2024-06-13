@@ -98,9 +98,6 @@ contract NNSController is IController, Ownable {
         if (msg.value < price) {
             revert InsufficientTransferAmount(price, msg.value);
         }
-        if (msg.value >= price) {
-            payable(msg.sender).transfer(msg.value - price);
-        }
 
         uint256 duration = 0;
         if (expires) {
@@ -109,6 +106,10 @@ contract NNSController is IController, Ownable {
         registry.register(to, name, duration, withReverse);
 
         _rewarder.collect{value: price}(cldId, referer);
+
+        if (msg.value >= price) {
+            payable(msg.sender).transfer(msg.value - price);
+        }
     }
 
     function _namehash(

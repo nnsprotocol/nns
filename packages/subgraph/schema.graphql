@@ -1,0 +1,20 @@
+type Account @entity {
+  id: ID!
+  domains: [Domain!]! @derivedFrom(field: "owner")
+}
+
+type Registry @entity {
+  id: ID!
+  name: String!
+  address: Bytes!
+  domains: [Domain!]! @derivedFrom(field: "registry")
+}
+
+type Domain @entity {
+  id: ID!
+  tokenId: BigInt!
+  name: String!
+  registry: Registry!
+  owner: Account!
+  resolvedAddress: Bytes
+}

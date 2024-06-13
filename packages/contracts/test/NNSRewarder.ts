@@ -329,7 +329,7 @@ describe("NNSRewarder", () => {
     });
 
     it("has zero balance before snapshots are taken", async () => {
-      const b = await ctx.rewarder["balanceOf(uint256)"](namehash("d1"));
+      const b = await ctx.rewarder["balanceOf(uint256)"](namehash("d1.a"));
       expect(b).to.eq(0);
     });
 
@@ -350,7 +350,7 @@ describe("NNSRewarder", () => {
       const reminder = usersBalance % Number(snapshot.supply);
       expect(await ctx.rewarder.balanceOfHolders()).to.eq(reminder);
 
-      const b = await ctx.rewarder["balanceOf(uint256)"](namehash("d1"));
+      const b = await ctx.rewarder["balanceOf(uint256)"](namehash("d1.a"));
       expect(b).to.eq(expReward);
     });
 
@@ -434,7 +434,7 @@ describe("NNSRewarder", () => {
       });
 
       const target = ctx.w5;
-      const tokenId = namehash("hello");
+      const tokenId = namehash("hello.a");
       await ctx.cldA.register(target, "hello", 0, true);
       await ctx.rewarder.takeHolderRewardsSnapshot();
 
@@ -446,7 +446,7 @@ describe("NNSRewarder", () => {
 
     it("reverts when the tokenId was minted after the snapshot was taken", async () => {
       const ctx = await setup();
-      await ctx.cldA.register(ctx.w1, "xxxx", 0, true);
+      await ctx.cldA.register(ctx.w1, "xxxx.a", 0, true);
       await ctx.rewarder.registerCld(
         ctx.cldA,
         ethers.ZeroAddress,
@@ -462,7 +462,7 @@ describe("NNSRewarder", () => {
       const snapshotBlock = await time.latestBlock();
 
       const target = ctx.w5;
-      const tokenId = namehash("hello");
+      const tokenId = namehash("hello.a");
       await ctx.cldA.register(target, "hello", 0, true);
       const mintBlock = await time.latestBlock();
 
@@ -474,7 +474,7 @@ describe("NNSRewarder", () => {
 
     it("transfers the balance to the owner", async () => {
       const ctx = await setup();
-      await ctx.cldA.register(ctx.w1, "xxxx", 0, true);
+      await ctx.cldA.register(ctx.w1, "xxxx.a", 0, true);
       await ctx.rewarder.registerCld(
         ctx.cldA,
         ethers.ZeroAddress,
@@ -487,7 +487,7 @@ describe("NNSRewarder", () => {
         value: 2345,
       });
       const target = ctx.w5;
-      const tokenId = namehash("hello");
+      const tokenId = namehash("hello.a");
       await ctx.cldA.register(target, "hello", 0, true);
       await ctx.rewarder.takeHolderRewardsSnapshot();
       const snapshot = await ctx.rewarder.holderRewardsSnapshot();
@@ -508,7 +508,7 @@ describe("NNSRewarder", () => {
 
     it("doesn't transfer the balance twice", async () => {
       const ctx = await setup();
-      await ctx.cldA.register(ctx.w1, "xxxx", 0, true);
+      await ctx.cldA.register(ctx.w1, "xxxx.a", 0, true);
       await ctx.rewarder.registerCld(
         ctx.cldA,
         ethers.ZeroAddress,
@@ -521,7 +521,7 @@ describe("NNSRewarder", () => {
         value: 2345,
       });
       const target = ctx.w5;
-      const tokenId = namehash("hello");
+      const tokenId = namehash("hello.a");
       await ctx.cldA.register(target, "hello", 0, true);
       await ctx.rewarder.takeHolderRewardsSnapshot();
 
@@ -570,10 +570,10 @@ describe("NNSRewarder", () => {
       const expTokenBalance = 4n * snapshot.reward;
 
       await ctx.rewarder.withdraw(target, [
-        namehash("claim1"),
-        namehash("claim2"),
-        namehash("claim3"),
-        namehash("claim4"),
+        namehash("claim1.a"),
+        namehash("claim2.a"),
+        namehash("claim3.a"),
+        namehash("claim4.a"),
       ]);
 
       const b = await ctx.erc20.balanceOf(target.address);

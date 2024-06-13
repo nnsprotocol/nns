@@ -5,15 +5,20 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./IRecordStorage.sol";
 
 interface IRegistry is IERC721, IRecordStorage {
-    event ReverseChanged(address account, uint256 tokenId);
-    event ReverseDeleted(address account);
+    event ReverseChanged(
+        uint256 cldId,
+        address account,
+        uint256 fromTokenId,
+        uint256 toTokenId
+    );
     event NameRegistered(
+        uint256 cldId,
         uint256 tokenId,
         string name,
         address owner,
         uint256 expiry
     );
-    event NameRenewed(uint256 tokenId, uint256 expiry);
+    event NameRenewed(uint256 cldId, uint256 tokenId, uint256 expiry);
 
     error NonExpiringToken(uint256 tokenId);
     error InvalidName(string name);

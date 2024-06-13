@@ -15,7 +15,7 @@ async function setup() {
   const swapRouter = await swapRouterF.deploy(erc20);
 
   const rewarderF = await ethers.getContractFactory("NNSRewarder");
-  const rewarder = await rewarderF.deploy(swapRouter, erc20, erc20);
+  const rewarder = await rewarderF.deploy(swapRouter, erc20, erc20, w5, 0);
 
   const resolverF = await ethers.getContractFactory("NNSResolver");
   const resolver = await resolverF.deploy();
@@ -147,7 +147,7 @@ describe("NNSController", () => {
       it("registers the cld with the rewarder", async () => {
         await expect(tx)
           .to.emit(ctx.rewarder, "CldRegistered")
-          .withArgs(cldId, ctx.w3.address, 7, 10, 100 - 5 - 10 - 7);
+          .withArgs(cldId, ctx.w3.address, 7, 10, (100 - 5 - 10 - 7) / 2);
       });
 
       it("registers the cld with the resolver", async () => {
@@ -282,7 +282,7 @@ describe("NNSController", () => {
     const cldName = "nouns";
     const cldId = namehash(cldName);
     const name = "apbigcod";
-    const tokenId = namehash(name);
+    const tokenId = namehash(`${name}.${cldName}`);
     let communityManager: SignerWithAddress;
     let ctx: Context;
     let registry: CldRegistry;
@@ -424,7 +424,7 @@ describe("NNSController", () => {
     const cldName = "nouns";
     const cldId = namehash(cldName);
     const name = "apbigcod";
-    const tokenId = namehash(name);
+    const tokenId = namehash(`${name}.${cldName}`);
     let communityManager: SignerWithAddress;
     let ctx: Context;
     let registry: CldRegistry;
@@ -518,7 +518,7 @@ describe("NNSController", () => {
       });
 
       describe("domain is minted", () => {
-        it("is expires", async () => {
+        it("expires", async () => {
           const expiry = await registry.expiryOf(tokenId);
           expect(expiry).to.eq(mintTimestamp + 3 * 365 * 24 * 3600);
         });

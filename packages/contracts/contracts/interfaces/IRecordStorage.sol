@@ -14,8 +14,13 @@ interface IRecordReader {
 }
 
 interface IRecordStorage is IRecordReader {
-    event RecordsReset(uint256 tokenId);
-    event RecordSet(uint256 tokenId, uint256 keyHash, string value);
+    event RecordsReset(uint256 cldId, uint256 tokenId);
+    event RecordSet(
+        uint256 cldId,
+        uint256 tokenId,
+        uint256 keyHash,
+        string value
+    );
 
     function setRecord(
         uint256 tokenId,

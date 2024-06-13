@@ -87,7 +87,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/abi@npm:5.7.0, @ethersproject/abi@npm:^5.0.9, @ethersproject/abi@npm:^5.1.2, @ethersproject/abi@npm:^5.7.0":
+"@ethersproject/abi@npm:5.7.0, @ethersproject/abi@npm:^5.0.9, @ethersproject/abi@npm:^5.1.2, @ethersproject/abi@npm:^5.5.0, @ethersproject/abi@npm:^5.7.0":
   version: 5.7.0
   resolution: "@ethersproject/abi@npm:5.7.0"
   dependencies:
@@ -523,7 +523,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@graphprotocol/graph-cli@npm:^0.73.0":
+"@graphprotocol/graph-cli@npm:0.73.0":
   version: 0.73.0
   resolution: "@graphprotocol/graph-cli@npm:0.73.0"
   dependencies:
@@ -558,6 +558,24 @@ __metadata:
   bin:
     graph: bin/run
   checksum: 10c0/a73898e4cb41e46d5140d59b107bcd3c5e677b265e90f6af9c9c0f4cbff22e7fd377d823350622eeddf88b0223daad02bbd8c5fdfc4060d62edb9ab740c8ebdd
+  languageName: node
+  linkType: hard
+
+"@graphprotocol/graph-ts@npm:0.32.0":
+  version: 0.32.0
+  resolution: "@graphprotocol/graph-ts@npm:0.32.0"
+  dependencies:
+    assemblyscript: "npm:0.19.10"
+  checksum: 10c0/39fb9c444db158a7b6d96a6fc43b337c7c3776c14e27822f57d385548eb0adec06158e158b16a5b39df22eb14662d4c9c96864ccb24da90a91c8b7e573c48668
+  languageName: node
+  linkType: hard
+
+"@graphprotocol/graph-ts@npm:^0.27.0":
+  version: 0.27.0
+  resolution: "@graphprotocol/graph-ts@npm:0.27.0"
+  dependencies:
+    assemblyscript: "npm:0.19.10"
+  checksum: 10c0/f7ea4c14fd001f5186e9db35a78c66e68d2530c9b05b9c38adb40a2bff7c95a5f4a5eae75e4ad0a9918f38442ed11cfcb397ae4b9e1f71e5cecfe43cb508e6c6
   languageName: node
   linkType: hard
 
@@ -1968,7 +1986,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-colors@npm:^4.1.1":
+"ansi-colors@npm:^4.1.0, ansi-colors@npm:^4.1.1":
   version: 4.1.3
   resolution: "ansi-colors@npm:4.1.3"
   checksum: 10c0/ec87a2f59902f74e61eada7f6e6fe20094a628dab765cfdbd03c3477599368768cffccdb5d3bb19a1b6c99126783a143b1fee31aab729b31ffe5836c7e5e28b9
@@ -2165,7 +2183,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"assemblyscript@npm:0.19.23":
+"assemblyscript@npm:0.19.10":
+  version: 0.19.10
+  resolution: "assemblyscript@npm:0.19.10"
+  dependencies:
+    binaryen: "npm:101.0.0-nightly.20210723"
+    long: "npm:^4.0.0"
+  bin:
+    asc: bin/asc
+    asinit: bin/asinit
+  checksum: 10c0/5bf56c356ee39dc1b508c48750d67d6e581f85638be8b280e1f3bf1904a735aafd17c2645755d306b3d9ed651f41aeb3e3fdb64da65a87061d6d3496ca007b6e
+  languageName: node
+  linkType: hard
+
+"assemblyscript@npm:0.19.23, assemblyscript@npm:^0.19.20":
   version: 0.19.23
   resolution: "assemblyscript@npm:0.19.23"
   dependencies:
@@ -2293,6 +2324,15 @@ __metadata:
     rimraf: "npm:^3.0.2"
     tar: "npm:^6.1.0"
   checksum: 10c0/f616657b3c80f75c00b6eff0d35e34119cadd221285180d44c96458d4104eb5564877cba062f554a32ef74773ace0897a77b48408becad907f17c98cb7bc84fc
+  languageName: node
+  linkType: hard
+
+"binaryen@npm:101.0.0-nightly.20210723":
+  version: 101.0.0-nightly.20210723
+  resolution: "binaryen@npm:101.0.0-nightly.20210723"
+  bin:
+    wasm-opt: bin/wasm-opt
+  checksum: 10c0/fc5325079276e39ece0713a86492a834f22cdb8626e86709a4d205ea4910c0392372e1751b70ac5b29b80dc1bb9e0ebcfb358956f6534f010445c6f98d3b7dd2
   languageName: node
   linkType: hard
 
@@ -2979,6 +3019,7 @@ __metadata:
     chai: "npm:^4.2.0"
     ethers: "npm:^6.12.1"
     hardhat: "npm:^2.22.5"
+    hardhat-abi-exporter: "npm:^2.10.1"
     hardhat-gas-reporter: "npm:^1.0.8"
     solidity-coverage: "npm:^0.8.12"
     ts-node: "npm:^10.9.2"
@@ -3162,6 +3203,20 @@ __metadata:
   version: 1.0.0
   resolution: "delayed-stream@npm:1.0.0"
   checksum: 10c0/d758899da03392e6712f042bec80aa293bbe9e9ff1b2634baae6a360113e708b91326594c8a486d475c69d6259afb7efacdc3537bfcda1c6c648e390ce601b19
+  languageName: node
+  linkType: hard
+
+"delete-empty@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "delete-empty@npm:3.0.0"
+  dependencies:
+    ansi-colors: "npm:^4.1.0"
+    minimist: "npm:^1.2.0"
+    path-starts-with: "npm:^2.0.0"
+    rimraf: "npm:^2.6.2"
+  bin:
+    delete-empty: bin/cli.js
+  checksum: 10c0/2aeb3fc315b0602edbbedf82845c91e357a3e6a057f850b4c197fdb4c1c2213830f4f2fe6c03d4908a65b89f3beae0fd2f64608e2c0ca76626afcb79cb1a31b9
   languageName: node
   linkType: hard
 
@@ -4390,6 +4445,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hardhat-abi-exporter@npm:^2.10.1":
+  version: 2.10.1
+  resolution: "hardhat-abi-exporter@npm:2.10.1"
+  dependencies:
+    "@ethersproject/abi": "npm:^5.5.0"
+    delete-empty: "npm:^3.0.0"
+  peerDependencies:
+    hardhat: ^2.0.0
+  checksum: 10c0/f9d23494b9a970d3e16d18727d9f47645e5ad0f5540381bfff7e88bc022285f8b441ecd590f69d88aa3e42464bdd56cfb14d514d1158e015a394399f33026b1a
+  languageName: node
+  linkType: hard
+
 "hardhat-gas-reporter@npm:^1.0.8":
   version: 1.0.10
   resolution: "hardhat-gas-reporter@npm:1.0.10"
@@ -5614,6 +5681,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"matchstick-as@npm:0.5.0":
+  version: 0.5.0
+  resolution: "matchstick-as@npm:0.5.0"
+  dependencies:
+    "@graphprotocol/graph-ts": "npm:^0.27.0"
+    assemblyscript: "npm:^0.19.20"
+    wabt: "npm:1.0.24"
+  checksum: 10c0/36e41bbbc0c7052df2c5cc4e956c8637ab78bff0d67955993fe123375efc71ad621572d7a39649991612e3c0622f3f856b1e20e8a8448ee994c844abbe83190b
+  languageName: node
+  linkType: hard
+
 "md5.js@npm:^1.3.4":
   version: 1.3.5
   resolution: "md5.js@npm:1.3.5"
@@ -5754,7 +5832,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimist@npm:^1.2.5, minimist@npm:^1.2.6":
+"minimist@npm:^1.2.0, minimist@npm:^1.2.5, minimist@npm:^1.2.6":
   version: 1.2.8
   resolution: "minimist@npm:1.2.8"
   checksum: 10c0/19d3fcdca050087b84c2029841a093691a91259a47def2f18222f41e7645a0b7c44ef4b40e88a1e58a40c84d2ef0ee6047c55594d298146d0eb3f6b737c20ce6
@@ -6402,6 +6480,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"path-starts-with@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "path-starts-with@npm:2.0.1"
+  checksum: 10c0/23b88fdd2b014fcd0b70e2254e4c2961cd5e9d7b20a480e42a334d78b066964b919bf190afe27b179d5669b42028954aea45b6856320ab6321e978b2c6e99b97
+  languageName: node
+  linkType: hard
+
 "path-type@npm:^4.0.0":
   version: 4.0.0
   resolution: "path-type@npm:4.0.0"
@@ -6874,7 +6959,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^2.2.8, rimraf@npm:^2.6.3":
+"rimraf@npm:^2.2.8, rimraf@npm:^2.6.2, rimraf@npm:^2.6.3":
   version: 2.7.1
   resolution: "rimraf@npm:2.7.1"
   dependencies:
@@ -7480,7 +7565,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "subgraph@workspace:packages/subgraph"
   dependencies:
-    "@graphprotocol/graph-cli": "npm:^0.73.0"
+    "@graphprotocol/graph-cli": "npm:0.73.0"
+    "@graphprotocol/graph-ts": "npm:0.32.0"
+    matchstick-as: "npm:0.5.0"
   languageName: unknown
   linkType: soft
 
@@ -8050,6 +8137,23 @@ __metadata:
   version: 6.0.0
   resolution: "varint@npm:6.0.0"
   checksum: 10c0/737fc37088a62ed3bd21466e318d21ca7ac4991d0f25546f518f017703be4ed0f9df1c5559f1dd533dddba4435a1b758fd9230e4772c1a930ef72b42f5c750fd
+  languageName: node
+  linkType: hard
+
+"wabt@npm:1.0.24":
+  version: 1.0.24
+  resolution: "wabt@npm:1.0.24"
+  bin:
+    wasm-decompile: bin/wasm-decompile
+    wasm-interp: bin/wasm-interp
+    wasm-objdump: bin/wasm-objdump
+    wasm-opcodecnt: bin/wasm-opcodecnt
+    wasm-strip: bin/wasm-strip
+    wasm-validate: bin/wasm-validate
+    wasm2c: bin/wasm2c
+    wasm2wat: bin/wasm2wat
+    wat2wasm: bin/wat2wasm
+  checksum: 10c0/d3fa20e3c783a3f0d0c293ffb98fab9047ee941cb00ba71922802d2acc8a1f8c5d133fb0e966f21ebc92a72ae5cb4b65b986566de0b1eac184e14fba6a5b0cdc
   languageName: node
   linkType: hard
 
