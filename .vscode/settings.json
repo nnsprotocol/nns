@@ -1,3 +1,10 @@
 {
-  "solidity.defaultCompiler": "localNodeModule"
+  "solidity.defaultCompiler": "localNodeModule",
+  "cssVariables.lookupFiles": [
+    "**/*.css",
+    "**/*.scss",
+    "**/*.sass",
+    "**/*.less",
+    "node_modules/@mantine/core/styles.css"
+  ]
 }

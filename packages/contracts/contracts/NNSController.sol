@@ -83,6 +83,10 @@ contract NNSController is IController, Ownable {
         }
         string memory name = labels[0];
         string memory cld = labels[1];
+        // TODO: add test
+        if (bytes(name).length == 0) {
+            revert InvalidLabel();
+        }
 
         uint256 cldId = _namehash(0, cld);
         IRegistry registry = _requireRegistryOf(cldId);
