@@ -34,6 +34,10 @@ interface IRegistry is IERC721, IRecordStorage {
 
     function reverseNameOf(address addr) external view returns (string memory);
 
+    function setReverse(uint256 tokenId) external;
+
+    function deleteReverse(address addr) external;
+
     function register(
         address to,
         string calldata name,
@@ -42,8 +46,6 @@ interface IRegistry is IERC721, IRecordStorage {
     ) external returns (uint256 tokenId);
 
     function renew(uint256 tokenId, uint256 duration) external;
-
-    function namehash(string calldata name) external pure returns (uint256);
 
     function isApprovedOrOwner(
         address addr,

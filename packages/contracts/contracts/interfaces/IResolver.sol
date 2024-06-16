@@ -16,7 +16,8 @@ interface IResolver {
 
     function reverseNameOf(
         address addr,
-        uint256 cldId
+        uint256[] calldata cldIds,
+        bool fallbackToDefault
     ) external view returns (string memory);
 
     function reverseOf(
@@ -25,10 +26,15 @@ interface IResolver {
 
     function reverseOf(
         address addr,
-        uint256 cldId
-    ) external view returns (uint256 tokenId);
+        uint256[] calldata cldIds,
+        bool fallbackToDefault
+    ) external view returns (uint256 cldId, uint256 tokenId);
 
-    function recordOf(uint256 cldId, uint256 tokenId, uint256 key) external returns (string memory);
+    function recordOf(
+        uint256 cldId,
+        uint256 tokenId,
+        uint256 key
+    ) external returns (string memory);
 
     function registerCld(IRegistry registry, bool isFallback) external;
 

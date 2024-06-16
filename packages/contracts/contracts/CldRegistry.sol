@@ -68,7 +68,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
 
     function reverseNameOf(address addr) public view returns (string memory) {
         uint256 tokenId = reverseOf(addr);
-        if (tokenId == 0 || isExpired(0)) {
+        if (tokenId == 0) {
             return "";
         }
         return nameOf(reverseOf(addr));
@@ -88,6 +88,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         if (isExpired(tokenId)) {
             _burn(tokenId);
         }
+        // TODO: set crypto record
         _mint(to, tokenId, name, duration, withReverse);
         return tokenId;
     }
@@ -111,11 +112,8 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         emit NameRenewed(_cldId, tokenId, newExpiry);
     }
 
-    function setReverse(
-        address addr,
-        uint256 tokenId
-    ) external onlyApprovedOrOwner(tokenId) {
-        _setReverse(addr, tokenId);
+    function setReverse(uint256 tokenId) external onlyApprovedOrOwner(tokenId) {
+        _setReverse(_msgSender(), tokenId);
     }
 
     function deleteReverse(address addr) external {
@@ -160,12 +158,6 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         uint256 oldTokenId = _reverses[addr];
         delete _reverses[addr];
         emit ReverseChanged(_cldId, addr, oldTokenId, 0);
-    }
-
-    function namehash(
-        string calldata name
-    ) external pure returns (uint256 hash) {
-        return _namehash(0, name);
     }
 
     function _namehash(

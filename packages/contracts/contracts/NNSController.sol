@@ -157,4 +157,16 @@ contract NNSController is IController, Ownable {
         }
         return registry;
     }
+
+    function isExpiringCLD(uint256 cldId) external view returns (bool) {
+        _requireRegistryOf(cldId);
+        return _expiringClds[cldId];
+    }
+
+    function pricingOracleOf(
+        uint256 cldId
+    ) external view returns (IPricingOracle) {
+        _requireRegistryOf(cldId);
+        return _pricingOracles[cldId];
+    }
 }

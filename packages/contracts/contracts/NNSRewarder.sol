@@ -267,7 +267,7 @@ contract NNSRewarder is IRewarder, Ownable {
             );
         }
         uint256 mintBlock = _registrySplitRewards.mintBlockNumberOf(tokenId);
-        if (mintBlock > _holderRewardsSnapshot.blockNumber) {
+        if (mintBlock >= _holderRewardsSnapshot.blockNumber) {
             revert TokenNotInSnapshot(
                 tokenId,
                 mintBlock,

@@ -525,4 +525,77 @@ describe("NNSController", () => {
       });
     });
   });
+
+  describe("isExpiringCLD", () => {
+    it("reverts when the cld is invalid", async () => {
+      const ctx = await setup();
+      const tx = ctx.controller.isExpiringCLD(namehash("INVALID"));
+      await expect(tx).to.revertedWithCustomError(ctx.controller, "InvalidCld");
+    });
+
+    it("returns true when the cld is expiring", async () => {
+      const ctx = await setup();
+      const expires = true;
+      const name = "test";
+      await ctx.controller.registerCld(
+        name,
+        10,
+        7,
+        ctx.pricer,
+        ctx.w3,
+        ctx.w2,
+        expires,
+        true,
+        true
+      );
+      const isExpiring = await ctx.controller.isExpiringCLD(namehash(name));
+      expect(isExpiring).to.be.true;
+    });
+
+    it("returns false when the cld is not expiring", async () => {
+      const ctx = await setup();
+      const expires = false;
+      const name = "test";
+      await ctx.controller.registerCld(
+        name,
+        10,
+        7,
+        ctx.pricer,
+        ctx.w3,
+        ctx.w2,
+        expires,
+        true,
+        true
+      );
+      const isExpiring = await ctx.controller.isExpiringCLD(namehash(name));
+      expect(isExpiring).to.be.false;
+    });
+  });
+
+  describe("isExpiringCLD", () => {
+    it("reverts when the cld is invalid", async () => {
+      const ctx = await setup();
+      const tx = ctx.controller.pricingOracleOf(namehash("INVALID"));
+      await expect(tx).to.revertedWithCustomError(ctx.controller, "InvalidCld");
+    });
+
+    it("returns the pricing oracle when set", async () => {
+      const ctx = await setup();
+      const expires = true;
+      const name = "test";
+      await ctx.controller.registerCld(
+        name,
+        10,
+        7,
+        ctx.pricer,
+        ctx.w3,
+        ctx.w2,
+        false,
+        true,
+        true
+      );
+      const oracle = await ctx.controller.pricingOracleOf(namehash(name));
+      expect(oracle).to.eq(ctx.pricer);
+    });
+  });
 });

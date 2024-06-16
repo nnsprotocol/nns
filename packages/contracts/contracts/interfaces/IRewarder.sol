@@ -40,6 +40,16 @@ interface IRewarder {
     error HoldersSnapshotTooEarly();
     error NothingToWithdraw();
 
+    struct CldConfiguration {
+        uint8 referralShare;
+        uint8 communityShare;
+        uint8 ecosystemShare;
+        uint8 protocolShare;
+        bool isCldSplitRewards;
+        address payoutTarget;
+        IRegistry registry;
+    }
+
     function balanceOf(address account) external view returns (uint256);
 
     function balanceOf(uint256 tokenId) external view returns (uint256);
@@ -53,16 +63,6 @@ interface IRewarder {
         uint8 communityShare,
         bool isCldSplitRewards
     ) external;
-
-    struct CldConfiguration {
-        uint8 referralShare;
-        uint8 communityShare;
-        uint8 ecosystemShare;
-        uint8 protocolShare;
-        bool isCldSplitRewards;
-        address payoutTarget;
-        IRegistry registry;
-    }
 
     function configurationOf(
         uint256 cldId

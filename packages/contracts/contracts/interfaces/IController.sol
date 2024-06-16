@@ -44,4 +44,10 @@ interface IController {
     ) external payable;
 
     function setPricingOracle(uint256 cldId, IPricingOracle oracle) external;
+
+    function pricingOracleOf(
+        uint256 cldId
+    ) external view returns (IPricingOracle);
+
+    function isExpiringCLD(uint256 cldId) external view returns (bool);
 }

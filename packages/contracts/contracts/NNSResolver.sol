@@ -55,35 +55,65 @@ contract NNSResolver is IResolver, Ownable {
     }
 
     function reverseNameOf(address addr) public view returns (string memory) {
-        return reverseNameOf(addr, _defaultCldOf(addr));
+        return _requireRegistryOf(_defaultCldOf(addr)).reverseNameOf(addr);
     }
 
     function reverseNameOf(
         address addr,
-        uint256 cldId
+        uint256[] calldata cldIds,
+        bool fallbackToDefault
     ) public view returns (string memory) {
-        return _requireRegistryOf(cldId).reverseNameOf(addr);
+        for (uint256 i = 0; i < cldIds.length; i++) {
+            IRegistry reg = _requireRegistryOf(cldIds[i]);
+            string memory name = reg.reverseNameOf(addr);
+            if (bytes(name).length != 0) {
+                return name;
+            }
+        }
+        if (fallbackToDefault) {
+            return reverseNameOf(addr);
+        }
+        return "";
     }
 
     function reverseOf(
         address addr
-    ) external view returns (uint256 cldId, uint256 tokenId) {
+    ) public view returns (uint256 cldId, uint256 tokenId) {
         cldId = _defaultCldOf(addr);
         return (cldId, _requireRegistryOf(cldId).reverseOf(addr));
     }
 
     function reverseOf(
         address addr,
-        uint256 cldId
-    ) external view returns (uint256 tokenId) {
-        return _requireRegistryOf(cldId).reverseOf(addr);
+        uint256[] calldata cldIds,
+        bool fallbackToDefault
+    ) external view returns (uint256 cldId, uint256 tokenId) {
+        for (uint256 i = 0; i < cldIds.length; i++) {
+            IRegistry reg = _requireRegistryOf(cldIds[i]);
+            tokenId = reg.reverseOf(addr);
+            if (tokenId != 0) {
+                return (cldIds[i], tokenId);
+            }
+        }
+        if (fallbackToDefault) {
+            return reverseOf(addr);
+        }
+        return (0, 0);
     }
 
-    function recordOf(uint256 cldId, uint256 tokenId, uint256 key) external view returns (string memory) {
+    function recordOf(
+        uint256 cldId,
+        uint256 tokenId,
+        uint256 key
+    ) external view returns (string memory) {
         return _requireRegistryOf(cldId).recordOf(tokenId, key);
     }
 
-    function recordsOf(uint256 cldId, uint256 tokenId, uint256[] calldata keys) external view returns (string[] memory values) {
+    function recordsOf(
+        uint256 cldId,
+        uint256 tokenId,
+        uint256[] calldata keys
+    ) external view returns (string[] memory values) {
         return _requireRegistryOf(cldId).recordsOf(tokenId, keys);
     }
 

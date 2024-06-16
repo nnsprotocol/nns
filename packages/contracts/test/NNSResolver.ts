@@ -197,6 +197,7 @@ describe("NNSResolver", () => {
       await ctx.resolver.connect(ctx.owner).registerCld(ctx.cldA, true);
       await ctx.resolver.connect(ctx.owner).registerCld(ctx.cldB, false);
       await ctx.resolver.connect(ctx.owner).registerCld(ctx.cldC, false);
+      await ctx.resolver.connect(ctx.owner).registerCld(ctx.cldD, false);
 
       // w1 and w2 have 2 domains each CLD, one set as the reverse.
 
@@ -258,21 +259,54 @@ describe("NNSResolver", () => {
       });
     });
 
-    describe("reverse of address in cld", () => {
-      it("should resolve to the name on the given cld", async () => {
-        const name = await ctx.resolver["reverseNameOf(address,uint256)"](
+    describe("reverse of address in clds", () => {
+      it("should resolve to the name on the first clds that has one", async () => {
+        const name = await ctx.resolver[
+          "reverseNameOf(address,uint256[],bool)"
+        ](
           ctx.w1,
-          ctx.cldCId
+          [ctx.cldDId, ctx.cldCId, ctx.cldAId], // D has no reverse
+          false
         );
         expect(name).to.eq("w1-c.c");
       });
 
-      it("should resolve to the tokenid on the fallback cld", async () => {
-        const tokenId = await ctx.resolver["reverseOf(address,uint256)"](
-          ctx.w1,
-          ctx.cldCId
-        );
+      it("should resolve to the name on the fallback CLD when no found", async () => {
+        const name = await ctx.resolver[
+          "reverseNameOf(address,uint256[],bool)"
+        ](ctx.w1, [ctx.cldDId], true);
+        expect(name).to.eq("w1-b.b");
+      });
+
+      it("should return an empty string when no lookup can be found", async () => {
+        const name = await ctx.resolver[
+          "reverseNameOf(address,uint256[],bool)"
+        ](ctx.w1, [ctx.cldDId], false);
+        expect(name).to.eq("");
+      });
+
+      it("should resolve to the tokenid on the first clds that has one", async () => {
+        const { tokenId, cldId } = await ctx.resolver[
+          "reverseOf(address,uint256[],bool)"
+        ](ctx.w1, [ctx.cldDId, ctx.cldCId, ctx.cldAId], false);
         expect(tokenId).to.eq(namehash("w1-c.c"));
+        expect(cldId).to.eq(ctx.cldCId);
+      });
+
+      it("should resolve to the tokenId on the fallback CLD when no found", async () => {
+        const { tokenId, cldId } = await ctx.resolver[
+          "reverseOf(address,uint256[],bool)"
+        ](ctx.w1, [ctx.cldDId], true);
+        expect(tokenId).to.eq(namehash("w1-b.b"));
+        expect(cldId).to.eq(ctx.cldBId);
+      });
+
+      it("should return zero when no lookup can be found", async () => {
+        const { tokenId, cldId } = await ctx.resolver[
+          "reverseOf(address,uint256[],bool)"
+        ](ctx.w1, [ctx.cldDId], false);
+        expect(tokenId).to.eq(0);
+        expect(cldId).to.eq(0);
       });
     });
   });

@@ -642,9 +642,7 @@ describe("CLDRegistry", () => {
   describe("setReverse", () => {
     it("reverts when the token does not exist", async () => {
       const ctx = await setup();
-      const tx = ctx.cld
-        .connect(ctx.w1)
-        .setReverse(ctx.w1, namehash("idontexist"));
+      const tx = ctx.cld.connect(ctx.w1).setReverse(namehash("idontexist"));
       await expect(tx).to.revertedWithCustomError(
         ctx.cld,
         "ERC721NonexistentToken"
@@ -656,7 +654,7 @@ describe("CLDRegistry", () => {
       const { tokenId } = await registerName(ctx, ctx.w1, {
         type: "expired",
       });
-      const tx = ctx.cld.connect(ctx.w1).setReverse(ctx.w1, tokenId);
+      const tx = ctx.cld.connect(ctx.w1).setReverse(tokenId);
       await expect(tx).to.revertedWithCustomError(
         ctx.cld,
         "ERC721NonexistentToken"
@@ -668,7 +666,7 @@ describe("CLDRegistry", () => {
       const { tokenId } = await registerName(ctx, ctx.w1, {
         type: "not-expired",
       });
-      const tx = ctx.cld.connect(ctx.w2).setReverse(ctx.w1, tokenId);
+      const tx = ctx.cld.connect(ctx.w2).setReverse(tokenId);
       await expect(tx).to.revertedWithCustomError(
         ctx.cld,
         "ERC721InsufficientApproval"
@@ -684,7 +682,7 @@ describe("CLDRegistry", () => {
         type: "not-expired",
       });
       await ctx.cld.connect(ctx.w1).approve(ctx.w2, another.tokenId);
-      const tx = ctx.cld.connect(ctx.w2).setReverse(ctx.w1, tokenId);
+      const tx = ctx.cld.connect(ctx.w2).setReverse(tokenId);
       await expect(tx).to.revertedWithCustomError(
         ctx.cld,
         "ERC721InsufficientApproval"
@@ -697,7 +695,7 @@ describe("CLDRegistry", () => {
         type: "not-expired",
       });
       await ctx.cld.connect(ctx.w1).approve(ctx.w2, tokenId);
-      await ctx.cld.connect(ctx.w2).setReverse(ctx.w1, tokenId);
+      await ctx.cld.connect(ctx.w2).setReverse(tokenId);
     });
 
     it("does not revert when approved for all", async () => {
@@ -706,7 +704,7 @@ describe("CLDRegistry", () => {
         type: "not-expired",
       });
       await ctx.cld.connect(ctx.w1).setApprovalForAll(ctx.w2, true);
-      await ctx.cld.connect(ctx.w2).setReverse(ctx.w1, tokenId);
+      await ctx.cld.connect(ctx.w2).setReverse(tokenId);
     });
 
     describe("success", () => {
@@ -730,7 +728,7 @@ describe("CLDRegistry", () => {
           type: "not-expired",
           withReverse: false,
         });
-        tx = await ctx.cld.connect(ctx.w1).setReverse(ctx.w1, domain.tokenId);
+        tx = await ctx.cld.connect(ctx.w1).setReverse(domain.tokenId);
       });
 
       it("emits a ReverseChanged event", async () => {
@@ -1257,6 +1255,41 @@ describe("CLDRegistry", () => {
       });
       const block = await ctx.cld.mintBlockNumberOf(tokenId);
       expect(block).to.eq(mintBlock);
+    });
+  });
+
+  describe("community role", async () => {
+    it("is initially set to the given address", async () => {
+      const ctx = await setup();
+      const hasRole = await ctx.cld.hasCommunityRole(ctx.community);
+      expect(hasRole).to.be.true;
+    });
+
+    it("reverts when someone transfers the role", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.connect(ctx.w1).transferCommunityRole(ctx.w2);
+      await expect(tx).to.be.revertedWithCustomError(
+        ctx.cld,
+        "AccessControlUnauthorizedAccount"
+      );
+    });
+
+    it("reverts when the minter transfers the role", async () => {
+      const ctx = await setup();
+      const tx = ctx.cld.connect(ctx.minter).transferCommunityRole(ctx.w2);
+      await expect(tx).to.be.revertedWithCustomError(
+        ctx.cld,
+        "AccessControlUnauthorizedAccount"
+      );
+    });
+
+    it("transfers the role", async () => {
+      const ctx = await setup();
+      await ctx.cld.connect(ctx.community).transferCommunityRole(ctx.w2);
+      const hasRoleOld = await ctx.cld.hasCommunityRole(ctx.community);
+      expect(hasRoleOld).to.be.false;
+      const hasRoleNew = await ctx.cld.hasCommunityRole(ctx.w2);
+      expect(hasRoleNew).to.be.true;
     });
   });
 });
