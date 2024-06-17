@@ -3005,10 +3005,47 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tabler/icons-react@npm:^3.6.0":
+  version: 3.6.0
+  resolution: "@tabler/icons-react@npm:3.6.0"
+  dependencies:
+    "@tabler/icons": "npm:3.6.0"
+  peerDependencies:
+    react: ">= 16"
+  checksum: 10c0/55a5acdddc2cbda07d8531fbc33359fc778c0887172fa0ad5944085dea95db5018988964f1105f39ff95ea34a7a434e1d29c723459d0344c28c7a57ccc655eec
+  languageName: node
+  linkType: hard
+
+"@tabler/icons@npm:3.6.0":
+  version: 3.6.0
+  resolution: "@tabler/icons@npm:3.6.0"
+  checksum: 10c0/08e4442cf1a08f31e5bf03863b2e94d1a57c5e150a19acba6f2cd2dd56a031bd35757bfc69effe7592ca1f62d530b12e25f65596a9ddc9311eff3e1e89e36f85
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-core@npm:5.45.0":
   version: 5.45.0
   resolution: "@tanstack/query-core@npm:5.45.0"
   checksum: 10c0/b1adb0e44a6294f8fc63d1f3915e657e29799ae761012a49430f2694f9fd4f7041984949f61d412ad43e5aaba3ea880ab89b3d2c309cb2860a2913029e9062e9
+  languageName: node
+  linkType: hard
+
+"@tanstack/query-devtools@npm:5.37.1":
+  version: 5.37.1
+  resolution: "@tanstack/query-devtools@npm:5.37.1"
+  checksum: 10c0/c52c320972e2b430da69f18295ddb2c62ea5c3c1b83481b225be799f7e955e32782d68871bddc141acc468cf4d7ad5dcdd2c88ff3edc90021d28e57252dfab8b
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query-devtools@npm:^5.45.1":
+  version: 5.45.1
+  resolution: "@tanstack/react-query-devtools@npm:5.45.1"
+  dependencies:
+    "@tanstack/query-devtools": "npm:5.37.1"
+  peerDependencies:
+    "@tanstack/react-query": ^5.45.1
+    react: ^18 || ^19
+  checksum: 10c0/db419ea421df0bdeeb89b3cd47edbd3e0b6107874897727fb2252ff3b6cf4a35d479bdb12d8497e441f471bc34aa6afa2fc262cdb023719b809c41832ef0f6b4
   languageName: node
   linkType: hard
 
@@ -13101,7 +13138,9 @@ __metadata:
     "@mantine/modals": "npm:^7.10.2"
     "@mantine/notifications": "npm:^7.10.2"
     "@rainbow-me/rainbowkit": "npm:^2.1.2"
+    "@tabler/icons-react": "npm:^3.6.0"
     "@tanstack/react-query": "npm:^5.45.0"
+    "@tanstack/react-query-devtools": "npm:^5.45.1"
     "@types/react": "npm:^18.2.66"
     "@types/react-dom": "npm:^18.2.22"
     "@typescript-eslint/eslint-plugin": "npm:^7.2.0"
