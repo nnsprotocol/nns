@@ -55,7 +55,7 @@ contract NNSResolver is IResolver, Ownable {
     }
 
     function reverseNameOf(address addr) public view returns (string memory) {
-        return _requireRegistryOf(_defaultCldOf(addr)).reverseNameOf(addr);
+        return _requireRegistryOf(defaultCldOf(addr)).reverseNameOf(addr);
     }
 
     function reverseNameOf(
@@ -79,7 +79,7 @@ contract NNSResolver is IResolver, Ownable {
     function reverseOf(
         address addr
     ) public view returns (uint256 cldId, uint256 tokenId) {
-        cldId = _defaultCldOf(addr);
+        cldId = defaultCldOf(addr);
         return (cldId, _requireRegistryOf(cldId).reverseOf(addr));
     }
 
@@ -127,7 +127,7 @@ contract NNSResolver is IResolver, Ownable {
         return registry;
     }
 
-    function _defaultCldOf(address addr) internal view returns (uint256) {
+    function defaultCldOf(address addr) public view returns (uint256) {
         uint256 cldId = _defaultCldIds[addr];
         if (cldId == 0) {
             cldId = _fallbackCldId;

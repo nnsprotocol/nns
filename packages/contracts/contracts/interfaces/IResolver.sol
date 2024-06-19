@@ -43,4 +43,6 @@ interface IResolver {
     function setFallbackCld(uint256 cldId) external;
 
     function fallbackCld() external view returns (uint256);
+
+    function defaultCldOf(address account) external view returns (uint256);
 }

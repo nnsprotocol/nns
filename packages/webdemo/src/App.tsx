@@ -1,32 +1,41 @@
 import {
-  Anchor,
   AppShell,
   Badge,
   Burger,
-  Button,
-  Flex,
   Group,
   NavLink,
-  Select,
   Space,
-  Table,
   Text,
-  TextInput,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 
-import { useAccount, useWriteContract } from "wagmi";
-import { Registry, useDomains, useRegistries } from "./services/graph";
+import { useAccount } from "wagmi";
+import { Domain, useDomains } from "./services/graph";
 
 import { useDisclosure } from "@mantine/hooks";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { IconChevronRight, IconSquareRoundedPlus } from "@tabler/icons-react";
-import { FormEvent, useState } from "react";
-import { formatUnits, keccak256, toHex } from "viem";
-import CONTROLLER_ABI from "./services/abi/IController";
-import { CONTROLLER_ADDRESS, useDomainPrice } from "./services/controller";
+import {
+  IconChevronRight,
+  IconSquareRoundedPlus,
+  IconArrowBackUp,
+} from "@tabler/icons-react";
+import { useState } from "react";
+import { keccak256, toHex } from "viem";
+import Register from "./Register";
+import DomainMgmt from "./DomainMgmt";
+import ReverseMgmt from "./ReverseMgmt";
 
-type NavItem = "register" | bigint;
+type NavItem =
+  | {
+      type: "register";
+    }
+  | {
+      type: "reverse";
+    }
+  | {
+      type: "domain";
+      domain: Domain;
+    };
 
 const badgeColor = (name: string) => {
   const hash = BigInt(keccak256(toHex(name.split(".")[1])));
@@ -36,7 +45,7 @@ const badgeColor = (name: string) => {
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
-  const [navItem, setNavItem] = useState<NavItem | null>("register");
+  const [navItem, setNavItem] = useState<NavItem>({ type: "reverse" });
   const account = useAccount();
   const domains = useDomains({ owner: account.address });
 
@@ -58,21 +67,22 @@ function App() {
         <NavLink
           label="Register"
           leftSection={<IconSquareRoundedPlus size="1rem" stroke={1.5} />}
-          rightSection={
-            <IconChevronRight
-              size="0.8rem"
-              stroke={1.5}
-              className="mantine-rotate-rtl"
-            />
-          }
-          onClick={() => setNavItem("register")}
-          active={navItem === "register"}
+          rightSection={<IconChevronRight size="0.8rem" stroke={1.5} />}
+          onClick={() => setNavItem({ type: "register" })}
+          active={navItem?.type === "register"}
+        />
+        <NavLink
+          label="Reverse"
+          leftSection={<IconArrowBackUp size="1rem" stroke={1.5} />}
+          rightSection={<IconChevronRight size="0.8rem" stroke={1.5} />}
+          onClick={() => setNavItem({ type: "reverse" })}
+          active={navItem?.type === "reverse"}
         />
 
         <Space h="md" />
         <Text fw={700}>Your Domains</Text>
         <Space h="sm" />
-        {domains.data?.map((d) => (
+        {(domains.data || []).map((d) => (
           <NavLink
             label={d.name}
             leftSection={
@@ -87,124 +97,19 @@ function App() {
                 className="mantine-rotate-rtl"
               />
             }
-            onClick={() => setNavItem(BigInt(d.id))}
-            active={navItem === BigInt(d.id)}
+            onClick={() => setNavItem({ type: "domain", domain: d })}
+            active={navItem.type === "domain" && navItem.domain.id === d.id}
           />
         ))}
       </AppShell.Navbar>
       <AppShell.Main>
-        {navItem === "register" ? <Register /> : null}
+        {navItem.type === "register" ? <Register /> : null}
+        {navItem.type === "reverse" ? <ReverseMgmt /> : null}
+        {navItem.type === "domain" ? (
+          <DomainMgmt tokenId={navItem.domain.id} />
+        ) : null}
       </AppShell.Main>
     </AppShell>
-  );
-}
-
-function Register() {
-  const registries = useRegistries();
-  const [name, setName] = useState("");
-  const [registry, setRegistry] = useState<Registry | null>(null);
-  const account = useAccount();
-
-  const price = useDomainPrice({
-    cldId: registry?.id,
-    name,
-  });
-
-  const register = useWriteContract();
-  function handleSubmit(form: FormEvent<HTMLFormElement>) {
-    form.preventDefault();
-    if (
-      !registry ||
-      !name ||
-      register.isPending ||
-      !account.address ||
-      !price
-    ) {
-      return;
-    }
-
-    register.writeContract({
-      abi: CONTROLLER_ABI,
-      address: CONTROLLER_ADDRESS,
-      functionName: "register",
-      value: (price.eth * 11n) / 10n,
-      args: [
-        account.address,
-        [name, registry.name],
-        true,
-        "0x0000000000000000000000000000000000000000",
-        0,
-      ],
-    });
-  }
-
-  return (
-    <Flex direction="column" mih={50}>
-      <form onSubmit={handleSubmit}>
-        <Flex
-          mih={50}
-          justify="flex-start"
-          align="flex-start"
-          direction="row"
-          wrap="wrap"
-        >
-          <TextInput
-            required
-            name="name"
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          .
-          <Select
-            required
-            name="registry"
-            placeholder="Pick value"
-            data={registries.data?.map((r) => r.name) || []}
-            value={registry?.name || ""}
-            onChange={(r) => {
-              setRegistry(
-                registries.data?.find((reg) => reg.name === r) || null
-              );
-            }}
-          />
-          <Button loading={register.isPending} type="submit">
-            Register
-          </Button>
-        </Flex>
-      </form>
-      {price && <Text size="xl">Price: ${formatUnits(price.usd, 18)}</Text>}
-      {register.data && (
-        <Anchor href={`https://sepolia.basescan.org/tx/${register.data}`}>
-          View Tx
-        </Anchor>
-      )}
-      <Domains />
-    </Flex>
-  );
-}
-
-function Domains() {
-  const account = useAccount();
-  const domains = useDomains({ owner: account.address });
-
-  const rows = domains.data?.map((d) => (
-    <Table.Tr key={d.id}>
-      <Table.Td>{d.name}</Table.Td>
-      <Table.Td>{d.resolvedAddress || "none"}</Table.Td>
-    </Table.Tr>
-  ));
-
-  return (
-    <Table>
-      <Table.Thead>
-        <Table.Tr>
-          <Table.Th>Name</Table.Th>
-          <Table.Th>Reverse</Table.Th>
-        </Table.Tr>
-      </Table.Thead>
-      <Table.Tbody>{rows}</Table.Tbody>
-    </Table>
   );
 }
 

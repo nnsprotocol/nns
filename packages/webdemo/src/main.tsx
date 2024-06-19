@@ -18,9 +18,12 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useColorScheme } from "@mantine/hooks";
 
 // this is needed to make react-query-devtools work
-BigInt.prototype["toJSON"] = function () {
-  return this.toString();
-};
+if (import.meta.env.DEV) {
+  // @ts-ignore
+  BigInt.prototype["toJSON"] = function () {
+    return this.toString();
+  };
+}
 
 const config = getDefaultConfig({
   appName: "NNS v2",

@@ -132,10 +132,34 @@ export default [
         name: "addr",
         type: "address",
       },
+    ],
+    name: "reverseNameOf",
+    outputs: [
       {
-        internalType: "uint256",
-        name: "cldId",
-        type: "uint256",
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "addr",
+        type: "address",
+      },
+      {
+        internalType: "uint256[]",
+        name: "cldIds",
+        type: "uint256[]",
+      },
+      {
+        internalType: "bool",
+        name: "fallbackToDefault",
+        type: "bool",
       },
     ],
     name: "reverseNameOf",
@@ -156,24 +180,15 @@ export default [
         name: "addr",
         type: "address",
       },
-    ],
-    name: "reverseNameOf",
-    outputs: [
       {
-        internalType: "string",
-        name: "",
-        type: "string",
+        internalType: "uint256[]",
+        name: "cldIds",
+        type: "uint256[]",
       },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
       {
-        internalType: "address",
-        name: "addr",
-        type: "address",
+        internalType: "bool",
+        name: "fallbackToDefault",
+        type: "bool",
       },
     ],
     name: "reverseOf",
@@ -199,14 +214,14 @@ export default [
         name: "addr",
         type: "address",
       },
+    ],
+    name: "reverseOf",
+    outputs: [
       {
         internalType: "uint256",
         name: "cldId",
         type: "uint256",
       },
-    ],
-    name: "reverseOf",
-    outputs: [
       {
         internalType: "uint256",
         name: "tokenId",
