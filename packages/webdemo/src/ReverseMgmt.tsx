@@ -9,28 +9,19 @@ import {
   Switch,
   TextInput,
 } from "@mantine/core";
-import { useState } from "react";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
-import RESOLVER_ABI from "./services/abi/IResolver";
-import { Registry, useRegistries } from "./services/graph";
-import { RESOLVER_ADDRESS } from "./services/resolver";
+import { useMemo, useState } from "react";
 import { Address, isAddress } from "viem";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import REGISTRY_ABI from "./services/abi/IRegistry";
+import RESOLVER_ABI from "./services/abi/IResolver";
+import { Domain, Registry, useDomains, useRegistries } from "./services/graph";
+import { RESOLVER_ADDRESS } from "./services/resolver";
 
 export default function ReverseMgmt() {
   const registries = useRegistries();
   const account = useAccount();
-  const [registry, setRegistry] = useState<Registry | null>(null);
   const [defaultRegistry, setDefaultRegistry] = useState<Registry | null>(null);
 
-  const cldReverse = useReadContract({
-    abi: RESOLVER_ABI,
-    address: RESOLVER_ADDRESS,
-    functionName: "reverseNameOf",
-    args: [account.address!, [BigInt(registry?.id || "0x0")], false],
-    query: {
-      enabled: Boolean(registry) && Boolean(account),
-    },
-  });
   const defaultReverse = useReadContract({
     abi: RESOLVER_ABI,
     address: RESOLVER_ADDRESS,
@@ -94,23 +85,7 @@ export default function ReverseMgmt() {
           </Button>
         </Group>
       </Card>
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Group align="end" grow>
-          <Select
-            label="Choose a CLD to see your primary name"
-            name="registry"
-            placeholder="Pick value"
-            data={registries.data?.map((r) => r.name) || []}
-            value={registry?.name || ""}
-            onChange={(r) => {
-              setRegistry(
-                registries.data?.find((reg) => reg.name === r) || null
-              );
-            }}
-          />
-          <TextInput disabled value={cldReverse.data || "..."} />
-        </Group>
-      </Card>
+      <PrimaryNameCLD registries={registries.data || []} />
       <ResolveAddress registries={registries.data || []} />
     </Stack>
   );
@@ -170,6 +145,90 @@ function ResolveAddress(props: { registries: Registry[] }) {
           onChange={(e) => setFallback(e.target.checked)}
         />
       </Group>
+    </Card>
+  );
+}
+
+function PrimaryNameCLD(props: { registries: Registry[] }) {
+  const account = useAccount();
+  const [registry, setRegistry] = useState<Registry | null>(null);
+  const [domain, setDomain] = useState<Domain | null>(null);
+  const domains = useDomains({
+    owner: account.address,
+  });
+  const reverse = useReadContract({
+    abi: RESOLVER_ABI,
+    address: RESOLVER_ADDRESS,
+    functionName: "reverseNameOf",
+    args: [account.address!, [BigInt(registry?.id || "0x0")], false],
+    query: {
+      enabled: Boolean(registry) && Boolean(account.address),
+    },
+  });
+
+  const domainsInCld = useMemo(() => {
+    return domains.data?.filter((d) => d.registry.id === registry?.id) || [];
+  }, [domains.data, registry]);
+
+  const setReverse = useWriteContract({
+    mutation: {
+      onSuccess() {
+        setTimeout(() => {
+          reverse.refetch();
+        }, 2000);
+      },
+    },
+  });
+
+  return (
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Stack>
+        <Group align="end" grow>
+          <Select
+            label="Change primary name in CLD"
+            name="registry"
+            placeholder="Pick value"
+            data={props.registries.map((r) => r.name) || []}
+            value={registry?.name || ""}
+            onChange={(r) => {
+              setRegistry(
+                props.registries.find((reg) => reg.name === r) || null
+              );
+              setDomain(null);
+            }}
+          />
+          <TextInput disabled value={reverse.data || "..."} />
+        </Group>
+        <Group align="end" grow>
+          <Select
+            label="Choose a domain to change"
+            name="domain"
+            disabled={!Boolean(registry) || !Boolean(domains.data)}
+            placeholder="Pick value"
+            data={domainsInCld?.map((r) => r.name) || []}
+            value={domain?.name || ""}
+            onChange={(r) => {
+              setDomain(domainsInCld.find((d) => d.name === r) || null);
+            }}
+          />
+          <Button
+            disabled={!Boolean(registry) || !Boolean(domain)}
+            loading={setReverse.isPending}
+            onClick={() => {
+              {
+                setReverse.writeContract({
+                  abi: REGISTRY_ABI,
+                  address: domain!.registry.address!,
+                  functionName: "setReverse",
+                  args: [BigInt(domain?.id || 0)],
+                });
+              }
+            }}
+          >
+            Change
+          </Button>
+        </Group>
+      </Stack>
     </Card>
   );
 }

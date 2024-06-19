@@ -38,6 +38,8 @@ interface IController {
     function register(
         address to,
         string[] calldata labels,
+        string[] calldata recordKeys,
+        string[] calldata recordValues,
         bool withReverse,
         address referer,
         uint8 periods

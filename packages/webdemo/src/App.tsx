@@ -18,9 +18,10 @@ import {
   IconChevronRight,
   IconSquareRoundedPlus,
   IconArrowBackUp,
+  IconCrown,
 } from "@tabler/icons-react";
 import { useState } from "react";
-import { keccak256, toHex } from "viem";
+import { isAddress, isAddressEqual, keccak256, toHex } from "viem";
 import Register from "./Register";
 import DomainMgmt from "./DomainMgmt";
 import ReverseMgmt from "./ReverseMgmt";
@@ -84,7 +85,16 @@ function App() {
         <Space h="sm" />
         {(domains.data || []).map((d) => (
           <NavLink
-            label={d.name}
+            label={
+              <Group>
+                {d.name}
+                {isAddress(d.resolvedAddress || "") &&
+                  account.address &&
+                  isAddressEqual(d.resolvedAddress!, account.address) && (
+                    <IconCrown stroke={1.5} color="gold" />
+                  )}
+              </Group>
+            }
             leftSection={
               <Badge color={badgeColor(d.name)} size="xs">
                 {"." + d.name.split(".")[1]}
