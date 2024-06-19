@@ -1,5 +1,5 @@
 [build]
-command = "yarn frames:build"
+command = "yarn webdemo:build"
 publish = "packages/webdemo/dist"
 ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF packages/webdemo"
 
