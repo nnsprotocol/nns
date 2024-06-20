@@ -42,30 +42,51 @@ export type Domain = {
   resolvedAddress: Address | null;
   registry: {
     id: Hash;
+    name: string;
     address: Address;
   };
   owner: {
     id: Address;
   };
+  approval?: {
+    id: Address;
+  };
 };
 
-export async function fetchDomains(opt: { owner: Address }) {
+type DomainsFilter = { owner?: Address } | { delegatee?: Address };
+
+const DOMAIN_SELECT = `
+id
+name
+resolvedAddress
+registry {
+  id
+  address
+  name
+}
+owner {
+  id
+}
+approval {
+  id
+}
+`;
+
+export async function fetchDomains(opt: DomainsFilter) {
+  let where = "";
+  if ("owner" in opt && opt.owner) {
+    where = `{ owner_: { id: "${opt.owner.toLowerCase()}" } }`;
+  } else if ("delegatee" in opt && opt.delegatee) {
+    where = `{ approval_: { id: "${opt.delegatee.toLowerCase()}" } }`;
+  }
+
   const response = await fetch(GRAPH_URL, {
     method: "POST",
     body: JSON.stringify({
       query: `
         {
-          domains(where: { owner_: { id: "${opt.owner.toLowerCase()}" } }) {
-            id
-            name
-            resolvedAddress
-            registry {
-              id
-              address
-            }
-            owner {
-              id
-            }
+          domains(where: ${where}) {
+            ${DOMAIN_SELECT}
           }
         }
       `,
@@ -75,11 +96,17 @@ export async function fetchDomains(opt: { owner: Address }) {
   return (data.domains || []) as Domain[];
 }
 
-export function useDomains(opt: { owner?: Address }) {
+export function useDomains(opt: DomainsFilter) {
+  let queryKey = ["domains"];
+  if ("owner" in opt && opt.owner) {
+    queryKey.push("owner", opt.owner);
+  } else if ("delegatee" in opt && opt.delegatee) {
+    queryKey.push("delegatee", opt.delegatee);
+  }
   return useQuery({
-    queryKey: ["domains"],
-    queryFn: () => fetchDomains({ owner: opt.owner! }),
-    enabled: Boolean(opt.owner),
+    queryKey,
+    queryFn: () => fetchDomains(opt),
+    enabled: queryKey.length > 1,
   });
 }
 
@@ -90,16 +117,7 @@ export async function fetchDomain(opt: { id: Hash }) {
       query: `
         {
           domains(where: { id: "${opt.id.toLowerCase()}" }) {
-            id
-            name
-            resolvedAddress
-            registry {
-              id
-              address
-            }
-            owner {
-              id
-            }
+            ${DOMAIN_SELECT}
           }
         }
       `,

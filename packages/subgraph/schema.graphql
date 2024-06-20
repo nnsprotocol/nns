@@ -1,6 +1,15 @@
 type Account @entity {
   id: ID!
   domains: [Domain!]! @derivedFrom(field: "owner")
+  approvedDomains: [Domain!]! @derivedFrom(field: "approval")
+}
+
+type DomainOperator @entity {
+  id: ID!
+  registry: Registry!
+  owner: Account!
+  operator: Account!
+  approved: Boolean!
 }
 
 type Registry @entity {
@@ -8,6 +17,12 @@ type Registry @entity {
   name: String!
   address: Bytes!
   domains: [Domain!]! @derivedFrom(field: "registry")
+  operators: [DomainOperator!]! @derivedFrom(field: "registry")
+}
+
+type RegistryAddressIdLookup @entity {
+  id: ID! # address
+  cldId: BigInt!
 }
 
 type Domain @entity {
@@ -16,5 +31,6 @@ type Domain @entity {
   name: String!
   registry: Registry!
   owner: Account!
+  approval: Account
   resolvedAddress: Bytes
 }

@@ -44,3 +44,7 @@ templates:
           handler: handleNameRegistered
         - event: ReverseChanged(uint256,address,uint256,uint256)
           handler: handleReverseChanged
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll

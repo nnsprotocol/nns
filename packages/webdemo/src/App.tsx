@@ -15,15 +15,15 @@ import { Domain, useDomains } from "./services/graph";
 import { useDisclosure } from "@mantine/hooks";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
-  IconChevronRight,
-  IconSquareRoundedPlus,
   IconArrowBackUp,
+  IconChevronRight,
   IconCrown,
+  IconSquareRoundedPlus,
 } from "@tabler/icons-react";
 import { useState } from "react";
-import { isAddress, isAddressEqual, keccak256, toHex } from "viem";
-import Register from "./Register";
+import { Address, isAddress, isAddressEqual, keccak256, toHex } from "viem";
 import DomainMgmt from "./DomainMgmt";
+import Register from "./Register";
 import ReverseMgmt from "./ReverseMgmt";
 
 type NavItem =
@@ -48,7 +48,8 @@ function App() {
   const [opened, { toggle }] = useDisclosure();
   const [navItem, setNavItem] = useState<NavItem>({ type: "reverse" });
   const account = useAccount();
-  const domains = useDomains({ owner: account.address });
+  const ownedDomains = useDomains({ owner: account.address });
+  const delegatedDomains = useDomains({ delegatee: account.address });
 
   return (
     <AppShell
@@ -83,30 +84,23 @@ function App() {
         <Space h="md" />
         <Text fw={700}>Your Domains</Text>
         <Space h="sm" />
-        {(domains.data || []).map((d) => (
-          <NavLink
-            label={
-              <Group>
-                {d.name}
-                {isAddress(d.resolvedAddress || "") &&
-                  account.address &&
-                  isAddressEqual(d.resolvedAddress!, account.address) && (
-                    <IconCrown stroke={1.5} color="gold" />
-                  )}
-              </Group>
-            }
-            leftSection={
-              <Badge color={badgeColor(d.name)} size="xs">
-                {"." + d.name.split(".")[1]}
-              </Badge>
-            }
-            rightSection={
-              <IconChevronRight
-                size="0.8rem"
-                stroke={1.5}
-                className="mantine-rotate-rtl"
-              />
-            }
+        {(ownedDomains.data || []).map((d) => (
+          <DomainNavLink
+            key={"owned-" + d.id}
+            domain={d}
+            account={account.address}
+            onClick={() => setNavItem({ type: "domain", domain: d })}
+            active={navItem.type === "domain" && navItem.domain.id === d.id}
+          />
+        ))}
+        <Space h="sm" />
+        <Text fw={700}>Delegated Domains</Text>
+        <Space h="sm" />
+        {(delegatedDomains.data || []).map((d) => (
+          <DomainNavLink
+            key={"delegated-" + d.id}
+            domain={d}
+            account={account.address}
             onClick={() => setNavItem({ type: "domain", domain: d })}
             active={navItem.type === "domain" && navItem.domain.id === d.id}
           />
@@ -120,6 +114,42 @@ function App() {
         ) : null}
       </AppShell.Main>
     </AppShell>
+  );
+}
+
+function DomainNavLink(props: {
+  domain: Domain;
+  account?: Address;
+  onClick: () => void;
+  active: boolean;
+}) {
+  return (
+    <NavLink
+      label={
+        <Group>
+          {props.domain.name}
+          {isAddress(props.domain.resolvedAddress || "") &&
+            props.account &&
+            isAddressEqual(props.domain.resolvedAddress!, props.account) && (
+              <IconCrown stroke={1.5} color="gold" />
+            )}
+        </Group>
+      }
+      leftSection={
+        <Badge color={badgeColor(props.domain.name)} size="xs">
+          {"." + props.domain.name.split(".")[1]}
+        </Badge>
+      }
+      rightSection={
+        <IconChevronRight
+          size="0.8rem"
+          stroke={1.5}
+          className="mantine-rotate-rtl"
+        />
+      }
+      onClick={props.onClick}
+      active={props.active}
+    />
   );
 }
 
