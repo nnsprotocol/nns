@@ -1,6 +1,7 @@
-import { Alert, Button, Select, Stack, TextInput } from "@mantine/core";
+import { Alert, Button, Select, Stack, Switch, TextInput } from "@mantine/core";
 import { FormEvent, useState } from "react";
 import { formatUnits, isAddress } from "viem";
+import { normalize } from "viem/ens";
 import { useAccount, useWriteContract } from "wagmi";
 import CONTROLLER_ABI from "./services/abi/IController";
 import { CONTROLLER_ADDRESS, useDomainPrice } from "./services/controller";
@@ -11,6 +12,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [registry, setRegistry] = useState<Registry | null>(null);
   const [referer, setReferer] = useState<string>("");
+  const [registerAsPrimaryName, setRegisterAsPrimaryName] = useState(true);
   const account = useAccount();
   const domain = useDomain({
     name,
@@ -42,8 +44,8 @@ export default function Register() {
       value: (price.eth * 11n) / 10n,
       args: [
         account.address,
-        [name, registry.name],
-        true,
+        [normalize(name), registry.name],
+        registerAsPrimaryName,
         isAddress(referer)
           ? referer
           : "0x0000000000000000000000000000000000000000",
@@ -80,6 +82,12 @@ export default function Register() {
           placeholder="Referer's Wallet"
           value={referer}
           onChange={(e) => setReferer(e.target.value)}
+        />
+        <Switch
+          label="Set as primary name"
+          name="reverse"
+          checked={registerAsPrimaryName}
+          onChange={(e) => setRegisterAsPrimaryName(e.currentTarget.checked)}
         />
         <TextInput
           contentEditable={false}

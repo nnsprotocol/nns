@@ -10,7 +10,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useMemo, useState } from "react";
-import { Address, isAddress } from "viem";
+import { Address, isAddress, namehash } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import REGISTRY_ABI from "./services/abi/IRegistry";
 import RESOLVER_ABI from "./services/abi/IResolver";
@@ -87,6 +87,7 @@ export default function ReverseMgmt() {
       </Card>
       <PrimaryNameCLD registries={registries.data || []} />
       <ResolveAddress registries={registries.data || []} />
+      <ResolveName registries={registries.data || []} />
     </Stack>
   );
 }
@@ -229,6 +230,50 @@ function PrimaryNameCLD(props: { registries: Registry[] }) {
           </Button>
         </Group>
       </Stack>
+    </Card>
+  );
+}
+
+function ResolveName(props: { registries: Registry[] }) {
+  const [name, setName] = useState("");
+
+  const tokenId = useMemo(() => {
+    return namehash(name);
+  }, [name]);
+
+  const registryAddress = useMemo(() => {
+    const bits = name.split(".");
+    if (bits.length !== 2) {
+      return;
+    }
+    const [_, cld] = bits;
+    const registry = props.registries.find((r) => r.name === cld);
+    return registry?.address;
+  }, [name]);
+
+  const record = useReadContract({
+    abi: REGISTRY_ABI,
+    address: registryAddress,
+    functionName: "recordOf",
+    args: [BigInt(tokenId), BigInt(namehash("crypto.ETH.address"))],
+  });
+
+  return (
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Group align="end" grow>
+        <TextInput
+          label="Resolve a name"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <TextInput
+          label="Resolved address"
+          placeholder="No address found"
+          disabled
+          value={record.data}
+        />
+      </Group>
     </Card>
   );
 }

@@ -48,3 +48,9 @@ templates:
           handler: handleApproval
         - event: ApprovalForAll(indexed address,indexed address,bool)
           handler: handleApprovalForAll
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: RecordSet(uint256,uint256,uint256,string)
+          handler: handleRecordSet
+        - event: RecordsReset(uint256,uint256)
+          handler: handleRecordsReset

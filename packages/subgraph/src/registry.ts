@@ -1,22 +1,26 @@
-import { Address, BigInt, log } from "@graphprotocol/graph-ts";
+import { Address, BigInt, log, store } from "@graphprotocol/graph-ts";
 import {
   Account,
   Domain,
   DomainOperator,
+  DomainRecord,
   Registry,
-  RegistryAddressIdLookup,
 } from "../generated/schema";
 import {
   Approval,
   ApprovalForAll,
+  CldRegistry,
   NameRegistered,
+  RecordSet,
+  RecordsReset,
   ReverseChanged,
+  Transfer,
 } from "../generated/templates/Registry/CldRegistry";
 
 function fetchAccount(address: Address): Account {
-  let account = Account.load(address.toHexString().toLowerCase());
+  let account = Account.load(address.toHexString());
   if (account == null) {
-    account = new Account(address.toHexString().toLowerCase());
+    account = new Account(address.toHexString());
     account.save();
   }
   return account;
@@ -32,7 +36,7 @@ function fetchDomain(tokenId: BigInt): Domain {
 }
 
 function fetchRegistry(cldId: BigInt): Registry {
-  const registry = Registry.load(cldId.toHexString().toLowerCase());
+  const registry = Registry.load(cldId.toHexString());
   if (registry == null) {
     log.error("Registry not found: {}", [cldId.toHexString()]);
     throw new Error("Registry not found");
@@ -41,12 +45,9 @@ function fetchRegistry(cldId: BigInt): Registry {
 }
 
 function fetchRegistryByAddress(address: Address): Registry {
-  const lup = RegistryAddressIdLookup.load(address.toHexString().toLowerCase());
-  if (lup == null) {
-    log.error("Registry not found: {}", [address.toHexString()]);
-    throw new Error("Registry lookup not found");
-  }
-  return fetchRegistry(lup.cldId);
+  const registry = CldRegistry.bind(address);
+  const v = registry.cld();
+  return fetchRegistry(v.getId());
 }
 
 export function handleNameRegistered(event: NameRegistered): void {
@@ -64,7 +65,7 @@ export function handleNameRegistered(event: NameRegistered): void {
 }
 
 function domainId(tokenId: BigInt): string {
-  return tokenId.toHexString().toLowerCase();
+  return tokenId.toHexString();
 }
 
 export function handleReverseChanged(event: ReverseChanged): void {
@@ -107,4 +108,63 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
   delegation.operator = operator.id;
   delegation.approved = event.params.approved;
   delegation.save();
+}
+
+export function handleTransfer(event: Transfer): void {
+  if (event.params.from.equals(Address.zero())) {
+    // newly minted domain. This is handled by handleNameRegistered.
+    return;
+  }
+
+  let domain = fetchDomain(event.params.tokenId);
+  let to = fetchAccount(event.params.to);
+  domain.owner = to.id;
+  domain.approval = null;
+  domain.resolvedAddress = null;
+  domain.save();
+}
+
+function domainRecordId(domainId: BigInt, key: BigInt): string {
+  return domainId.toHexString() + "-" + key.toHexString();
+}
+
+function deleteDomainRecord(recordId: string): void {
+  store.remove("DomainRecord", recordId);
+}
+
+export function handleRecordSet(event: RecordSet): void {
+  let domain = fetchDomain(event.params.tokenId);
+
+  const recordId = domainRecordId(domain.tokenId, event.params.keyHash);
+  let record = DomainRecord.load(recordId);
+  if (record === null && event.params.value.length === 0) {
+    return;
+  }
+  if (record === null && event.params.value.length > 0) {
+    record = new DomainRecord(recordId);
+    record.domain = domain.id;
+    record.key = event.params.keyHash;
+    record.value = event.params.value;
+    record.save();
+    return;
+  }
+  if (record === null) {
+    return;
+  }
+
+  if (event.params.value.length === 0) {
+    deleteDomainRecord(recordId);
+    return;
+  }
+
+  record.value = event.params.value;
+  record.save();
+}
+
+export function handleRecordsReset(event: RecordsReset): void {
+  let domain = fetchDomain(event.params.tokenId);
+  const records = domain.records.load();
+  for (let i = 0; i < records.length; i++) {
+    deleteDomainRecord(records[i].id);
+  }
 }

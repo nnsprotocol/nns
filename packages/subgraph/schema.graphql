@@ -20,9 +20,11 @@ type Registry @entity {
   operators: [DomainOperator!]! @derivedFrom(field: "registry")
 }
 
-type RegistryAddressIdLookup @entity {
-  id: ID! # address
-  cldId: BigInt!
+type DomainRecord @entity {
+  id: ID!
+  key: BigInt!
+  value: String!
+  domain: Domain!
 }
 
 type Domain @entity {
@@ -33,4 +35,5 @@ type Domain @entity {
   owner: Account!
   approval: Account
   resolvedAddress: Bytes
+  records: [DomainRecord!]! @derivedFrom(field: "domain")
 }
