@@ -18,8 +18,6 @@ async function setup() {
   };
 }
 
-type Context = Awaited<ReturnType<typeof setup>>;
-
 describe("USDPricingOracle", () => {
   const tests = [
     {

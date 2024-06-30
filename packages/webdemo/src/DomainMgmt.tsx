@@ -38,6 +38,8 @@ const RECORDS: Record<RecordType, DomainRecord> = {
 export default function DomainMgmt(props: DomainMgmtProps) {
   const domain = useDomain({ id: props.tokenId });
 
+  console.log("hash", namehash("crypto.ETH.address"));
+
   if (!domain.data) {
     return null;
   }

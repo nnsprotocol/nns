@@ -41,7 +41,7 @@ interface IRegistry is IERC721, IRecordStorage {
     function register(
         address to,
         string calldata name,
-        string[] calldata recordKeys,
+        uint256[] calldata recordKeys,
         string[] calldata recordValues,
         uint256 duration,
         bool withReverse

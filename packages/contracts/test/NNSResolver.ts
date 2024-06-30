@@ -201,23 +201,47 @@ describe("NNSResolver", () => {
 
       // w1 and w2 have 2 domains each CLD, one set as the reverse.
 
-      await ctx.cldA.connect(ctx.owner).register(ctx.w1, "w1-a", 0, true);
-      await ctx.cldA.connect(ctx.owner).register(ctx.w1, "w1-no-a", 0, false);
+      await ctx.cldA
+        .connect(ctx.owner)
+        .register(ctx.w1, "w1-a", [], [], 0, true);
+      await ctx.cldA
+        .connect(ctx.owner)
+        .register(ctx.w1, "w1-no-a", [], [], 0, false);
 
-      await ctx.cldB.connect(ctx.owner).register(ctx.w1, "w1-b", 0, true);
-      await ctx.cldB.connect(ctx.owner).register(ctx.w1, "w1-no-b", 0, false);
+      await ctx.cldB
+        .connect(ctx.owner)
+        .register(ctx.w1, "w1-b", [], [], 0, true);
+      await ctx.cldB
+        .connect(ctx.owner)
+        .register(ctx.w1, "w1-no-b", [], [], 0, false);
 
-      await ctx.cldC.connect(ctx.owner).register(ctx.w1, "w1-c", 0, true);
-      await ctx.cldC.connect(ctx.owner).register(ctx.w1, "w1-no-c", 0, false);
+      await ctx.cldC
+        .connect(ctx.owner)
+        .register(ctx.w1, "w1-c", [], [], 0, true);
+      await ctx.cldC
+        .connect(ctx.owner)
+        .register(ctx.w1, "w1-no-c", [], [], 0, false);
 
-      await ctx.cldA.connect(ctx.owner).register(ctx.w2, "w2-a", 0, true);
-      await ctx.cldA.connect(ctx.owner).register(ctx.w2, "w2-no-a", 0, false);
+      await ctx.cldA
+        .connect(ctx.owner)
+        .register(ctx.w2, "w2-a", [], [], 0, true);
+      await ctx.cldA
+        .connect(ctx.owner)
+        .register(ctx.w2, "w2-no-a", [], [], 0, false);
 
-      await ctx.cldB.connect(ctx.owner).register(ctx.w2, "w2-b", 0, true);
-      await ctx.cldB.connect(ctx.owner).register(ctx.w2, "w2-no-b", 0, false);
+      await ctx.cldB
+        .connect(ctx.owner)
+        .register(ctx.w2, "w2-b", [], [], 0, true);
+      await ctx.cldB
+        .connect(ctx.owner)
+        .register(ctx.w2, "w2-no-b", [], [], 0, false);
 
-      await ctx.cldC.connect(ctx.owner).register(ctx.w2, "w2-c", 0, true);
-      await ctx.cldC.connect(ctx.owner).register(ctx.w2, "w2-no-c", 0, false);
+      await ctx.cldC
+        .connect(ctx.owner)
+        .register(ctx.w2, "w2-c", [], [], 0, true);
+      await ctx.cldC
+        .connect(ctx.owner)
+        .register(ctx.w2, "w2-no-c", [], [], 0, false);
     });
 
     describe("reverse of address", () => {
@@ -324,8 +348,12 @@ describe("NNSResolver", () => {
       tokenIdA = namehash("w1-a.a");
       tokenIdB = namehash("w1-b.b");
 
-      await ctx.cldA.connect(ctx.owner).register(ctx.w1, "w1-a", 0, true);
-      await ctx.cldB.connect(ctx.owner).register(ctx.w1, "w1-b", 0, true);
+      await ctx.cldA
+        .connect(ctx.owner)
+        .register(ctx.w1, "w1-a", [], [], 0, true);
+      await ctx.cldB
+        .connect(ctx.owner)
+        .register(ctx.w1, "w1-b", [], [], 0, true);
 
       await ctx.cldA.connect(ctx.w1).setRecord(tokenIdA, 1, "AAA");
       await ctx.cldB.connect(ctx.w1).setRecord(tokenIdB, 2, "BBB");

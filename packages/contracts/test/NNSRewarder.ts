@@ -190,15 +190,15 @@ describe("NNSRewarder", () => {
             communityShare,
             true
           );
-        await ctx.cldA.register(ctx.w1, "hey1", 0, false);
-        await ctx.cldA.register(ctx.w2, "hey2", 0, false);
-        await ctx.cldA.register(ctx.w3, "hey3", 0, false);
+        await ctx.cldA.register(ctx.w1, "hey1", [], [], 0, false);
+        await ctx.cldA.register(ctx.w2, "hey2", [], [], 0, false);
+        await ctx.cldA.register(ctx.w3, "hey3", [], [], 0, false);
 
-        await ctx.cldB.register(ctx.w1, "b1", 0, false);
-        await ctx.cldB.register(ctx.w2, "b2", 0, false);
-        await ctx.cldB.register(ctx.w2, "b3", 0, false);
-        await ctx.cldB.register(ctx.w2, "b4", 0, false);
-        await ctx.cldB.register(ctx.w2, "b5", 0, false);
+        await ctx.cldB.register(ctx.w1, "b1", [], [], 0, false);
+        await ctx.cldB.register(ctx.w2, "b2", [], [], 0, false);
+        await ctx.cldB.register(ctx.w2, "b3", [], [], 0, false);
+        await ctx.cldB.register(ctx.w2, "b4", [], [], 0, false);
+        await ctx.cldB.register(ctx.w2, "b5", [], [], 0, false);
 
         await ctx.rewarder
           .connect(ctx.owner)
@@ -316,11 +316,11 @@ describe("NNSRewarder", () => {
       await ctx.rewarder
         .connect(ctx.owner)
         .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 50, true);
-      await ctx.cldA.register(ctx.w1, "d1", 0, true);
-      await ctx.cldA.register(ctx.w2, "d2", 0, true);
-      await ctx.cldA.register(ctx.w3, "d3", 0, true);
-      await ctx.cldA.register(ctx.w4, "d4", 0, true);
-      await ctx.cldA.register(ctx.w5, "d5", 0, true);
+      await ctx.cldA.register(ctx.w1, "d1", [], [], 0, true);
+      await ctx.cldA.register(ctx.w2, "d2", [], [], 0, true);
+      await ctx.cldA.register(ctx.w3, "d3", [], [], 0, true);
+      await ctx.cldA.register(ctx.w4, "d4", [], [], 0, true);
+      await ctx.cldA.register(ctx.w5, "d5", [], [], 0, true);
 
       await ctx.rewarder.collect(ctx.cldAId, ethers.ZeroAddress, {
         value: 2389475,
@@ -435,7 +435,7 @@ describe("NNSRewarder", () => {
 
       const target = ctx.w5;
       const tokenId = namehash("hello.a");
-      await ctx.cldA.register(target, "hello", 0, true);
+      await ctx.cldA.register(target, "hello", [], [], 0, true);
       await ctx.rewarder.takeHolderRewardsSnapshot();
 
       const tx = ctx.rewarder.withdraw(ctx.w2, [tokenId]);
@@ -446,7 +446,7 @@ describe("NNSRewarder", () => {
 
     it("reverts when the tokenId was minted after the snapshot was taken", async () => {
       const ctx = await setup();
-      await ctx.cldA.register(ctx.w1, "xxxx.a", 0, true);
+      await ctx.cldA.register(ctx.w1, "xxxx.a", [], [], 0, true);
       await ctx.rewarder.registerCld(
         ctx.cldA,
         ethers.ZeroAddress,
@@ -463,7 +463,7 @@ describe("NNSRewarder", () => {
 
       const target = ctx.w5;
       const tokenId = namehash("hello.a");
-      await ctx.cldA.register(target, "hello", 0, true);
+      await ctx.cldA.register(target, "hello", [], [], 0, true);
       const mintBlock = await time.latestBlock();
 
       const tx = ctx.rewarder.withdraw(target, [tokenId]);
@@ -474,7 +474,7 @@ describe("NNSRewarder", () => {
 
     it("transfers the balance to the owner", async () => {
       const ctx = await setup();
-      await ctx.cldA.register(ctx.w1, "xxxx.a", 0, true);
+      await ctx.cldA.register(ctx.w1, "xxxx.a", [], [], 0, true);
       await ctx.rewarder.registerCld(
         ctx.cldA,
         ethers.ZeroAddress,
@@ -488,7 +488,7 @@ describe("NNSRewarder", () => {
       });
       const target = ctx.w5;
       const tokenId = namehash("hello.a");
-      await ctx.cldA.register(target, "hello", 0, true);
+      await ctx.cldA.register(target, "hello", [], [], 0, true);
       await ctx.rewarder.takeHolderRewardsSnapshot();
       const snapshot = await ctx.rewarder.holderRewardsSnapshot();
 
@@ -508,7 +508,7 @@ describe("NNSRewarder", () => {
 
     it("doesn't transfer the balance twice", async () => {
       const ctx = await setup();
-      await ctx.cldA.register(ctx.w1, "xxxx.a", 0, true);
+      await ctx.cldA.register(ctx.w1, "xxxx.a", [], [], 0, true);
       await ctx.rewarder.registerCld(
         ctx.cldA,
         ethers.ZeroAddress,
@@ -522,7 +522,7 @@ describe("NNSRewarder", () => {
       });
       const target = ctx.w5;
       const tokenId = namehash("hello.a");
-      await ctx.cldA.register(target, "hello", 0, true);
+      await ctx.cldA.register(target, "hello", [], [], 0, true);
       await ctx.rewarder.takeHolderRewardsSnapshot();
 
       await ctx.rewarder.withdraw(target, [tokenId]);
@@ -544,16 +544,16 @@ describe("NNSRewarder", () => {
       await ctx.rewarder.registerCld(ctx.cldB, ctx.w1, 10, 10, false);
       await ctx.rewarder.registerCld(ctx.cldC, ctx.w1, 10, 10, false);
 
-      await ctx.cldA.register(target, "claim1", 0, true);
-      await ctx.cldA.register(target, "claim2", 0, true);
-      await ctx.cldA.register(target, "claim3", 0, true);
-      await ctx.cldA.register(target, "claim4", 0, true);
-      await ctx.cldA.register(ctx.w2, "xas2", 0, false);
-      await ctx.cldA.register(ctx.w3, "xas3", 0, false);
-      await ctx.cldB.register(ctx.w1, "hey1", 0, true);
-      await ctx.cldC.register(ctx.w2, "hey2", 0, true);
-      await ctx.cldC.register(target, "claim1", 0, true);
-      await ctx.cldC.register(target, "claim2", 0, true);
+      await ctx.cldA.register(target, "claim1", [], [], 0, true);
+      await ctx.cldA.register(target, "claim2", [], [], 0, true);
+      await ctx.cldA.register(target, "claim3", [], [], 0, true);
+      await ctx.cldA.register(target, "claim4", [], [], 0, true);
+      await ctx.cldA.register(ctx.w2, "xas2", [], [], 0, false);
+      await ctx.cldA.register(ctx.w3, "xas3", [], [], 0, false);
+      await ctx.cldB.register(ctx.w1, "hey1", [], [], 0, true);
+      await ctx.cldC.register(ctx.w2, "hey2", [], [], 0, true);
+      await ctx.cldC.register(target, "claim1", [], [], 0, true);
+      await ctx.cldC.register(target, "claim2", [], [], 0, true);
 
       await ctx.rewarder.collect(ctx.cldAId, ethers.ZeroAddress, {
         value: 2345,

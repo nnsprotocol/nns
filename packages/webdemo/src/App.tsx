@@ -10,7 +10,7 @@ import {
 import "@mantine/core/styles.css";
 
 import { useAccount } from "wagmi";
-import { Domain, useDomains } from "./services/graph";
+import { Domain, useDomainOperators, useDomains } from "./services/graph";
 
 import { useDisclosure } from "@mantine/hooks";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -19,12 +19,14 @@ import {
   IconChevronRight,
   IconCrown,
   IconSquareRoundedPlus,
+  IconMoneybag,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Address, isAddress, isAddressEqual, keccak256, toHex } from "viem";
 import DomainMgmt from "./DomainMgmt";
 import Register from "./Register";
 import ReverseMgmt from "./ReverseMgmt";
+import RewardMgmt from "./RewardMgmt";
 
 type NavItem =
   | {
@@ -32,6 +34,9 @@ type NavItem =
     }
   | {
       type: "reverse";
+    }
+  | {
+      type: "rewards";
     }
   | {
       type: "domain";
@@ -44,12 +49,28 @@ const badgeColor = (name: string) => {
   return colors[Number(hash % BigInt(colors.length))];
 };
 
+function getInitalNavItem(): NavItem {
+  const stored = localStorage.getItem("nns:section");
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  return { type: "rewards" };
+}
+
 function App() {
   const [opened, { toggle }] = useDisclosure();
-  const [navItem, setNavItem] = useState<NavItem>({ type: "reverse" });
+  const [navItem, setNavItem] = useState<NavItem>(getInitalNavItem());
   const account = useAccount();
   const ownedDomains = useDomains({ owner: account.address });
-  const delegatedDomains = useDomains({ delegatee: account.address });
+  const domainOperators = useDomainOperators({ operator: account.address });
+  const delegatedDomains = useDomains({
+    delegatee: account.address,
+    operators: domainOperators.data,
+  });
+
+  useEffect(() => {
+    localStorage.setItem("nns:section", JSON.stringify(navItem));
+  }, [navItem]);
 
   return (
     <AppShell
@@ -80,6 +101,13 @@ function App() {
           onClick={() => setNavItem({ type: "reverse" })}
           active={navItem?.type === "reverse"}
         />
+        <NavLink
+          label="Rewards"
+          leftSection={<IconMoneybag size="1rem" stroke={1.5} />}
+          rightSection={<IconChevronRight size="0.8rem" stroke={1.5} />}
+          onClick={() => setNavItem({ type: "rewards" })}
+          active={navItem?.type === "rewards"}
+        />
 
         <Space h="md" />
         <Text fw={700}>Your Domains</Text>
@@ -109,6 +137,7 @@ function App() {
       <AppShell.Main>
         {navItem.type === "register" ? <Register /> : null}
         {navItem.type === "reverse" ? <ReverseMgmt /> : null}
+        {navItem.type === "rewards" ? <RewardMgmt /> : null}
         {navItem.type === "domain" ? (
           <DomainMgmt tokenId={navItem.domain.id} />
         ) : null}

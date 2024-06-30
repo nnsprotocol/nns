@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Address, Hash, namehash } from "viem";
+import { Address, Hash, Hex, namehash } from "viem";
 
 const GRAPH_URL =
   "https://api.goldsky.com/api/public/project_clxhxljv7a17t01x72s9reuqf/subgraphs/nns/0.0.2/gn";
@@ -53,7 +53,9 @@ export type Domain = {
   };
 };
 
-type DomainsFilter = { owner?: Address } | { delegatee?: Address };
+type DomainsFilter =
+  | { owner: Address }
+  | { delegatee: Address; operators: { registry: Hex; owner: Address }[] };
 
 const DOMAIN_SELECT = `
 id
@@ -72,12 +74,22 @@ approval {
 }
 `;
 
+function mapOperatorQuery(opt: { registry: Hex; owner: Address }) {
+  return `{ registry: "${opt.registry.toLowerCase()}", owner: "${opt.owner.toLowerCase()}" }`;
+}
+
 export async function fetchDomains(opt: DomainsFilter) {
   let where = "";
   if ("owner" in opt && opt.owner) {
     where = `{ owner_: { id: "${opt.owner.toLowerCase()}" } }`;
   } else if ("delegatee" in opt && opt.delegatee) {
     where = `{ approval_: { id: "${opt.delegatee.toLowerCase()}" } }`;
+    where = `{
+      or: [
+        { approval_: { id: "${opt.delegatee.toLowerCase()}"  } },
+        ${opt.operators.map(mapOperatorQuery).join(",\n")}
+      ]
+    }`;
   }
 
   const response = await fetch(GRAPH_URL, {
@@ -96,16 +108,21 @@ export async function fetchDomains(opt: DomainsFilter) {
   return (data.domains || []) as Domain[];
 }
 
-export function useDomains(opt: DomainsFilter) {
+export function useDomains(opt: Partial<DomainsFilter>) {
   let queryKey = ["domains"];
+  let queryOpt: DomainsFilter;
   if ("owner" in opt && opt.owner) {
     queryKey.push("owner", opt.owner);
+    queryOpt = { owner: opt.owner };
   } else if ("delegatee" in opt && opt.delegatee) {
     queryKey.push("delegatee", opt.delegatee);
+    queryKey.push("operators", opt.operators?.toString() || "");
+    queryOpt = { delegatee: opt.delegatee, operators: opt.operators || [] };
   }
+
   return useQuery({
     queryKey,
-    queryFn: () => fetchDomains(opt),
+    queryFn: () => fetchDomains(queryOpt),
     enabled: queryKey.length > 1,
   });
 }
@@ -140,5 +157,40 @@ export function useDomain(
     queryKey: ["domain", id],
     queryFn: () => fetchDomain({ id: id || "0x" }),
     enabled: Boolean(id),
+  });
+}
+
+async function fetchDomainOperators(opt: { operator: Address }) {
+  const response = await fetch(GRAPH_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      query: `{
+        domainOperators(where: { operator: "${opt.operator.toLowerCase()}", approved: true }) {
+          registry {
+            id
+          }
+          owner {
+            id
+          }
+        }
+      }`,
+    }),
+  });
+  const { data } = (await response.json()) as {
+    data: {
+      domainOperators: { registry: { id: Hex }; owner: { id: Address } }[];
+    };
+  };
+  return data.domainOperators.map(({ registry, owner }) => ({
+    registry: registry.id,
+    owner: owner.id,
+  }));
+}
+
+export function useDomainOperators(opt: { operator?: Address }) {
+  return useQuery({
+    queryKey: ["domainOperators", opt.operator],
+    queryFn: () => fetchDomainOperators({ operator: opt.operator || "0x" }),
+    enabled: Boolean(opt.operator),
   });
 }

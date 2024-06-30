@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.4;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IPricingOracle.sol";
 
 interface IAggregator {
@@ -18,13 +19,20 @@ interface IAggregator {
         );
 }
 
-contract USDPricingOracle is IPricingOracle {
+contract USDPricingOracle is IPricingOracle, Ownable {
     uint256[] _prices;
     IAggregator _aggregator;
 
-    constructor(uint256[] memory prices, IAggregator aggregator) {
+    constructor(
+        uint256[] memory prices,
+        IAggregator aggregator
+    ) Ownable(msg.sender) {
         _prices = prices;
         _aggregator = aggregator;
+    }
+
+    function setPrices(uint256[] memory prices) external onlyOwner {
+        _prices = prices;
     }
 
     function price(string calldata name) external view returns (uint256) {

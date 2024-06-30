@@ -66,7 +66,7 @@ async function registerName(
 
   await ctx.cld
     .connect(ctx.minter)
-    .register(owner, name, duration, opt?.withReverse || false);
+    .register(owner, name, [], [], duration, opt?.withReverse || false);
   const mintBlock = await time.latestBlock();
   await time.increase(100);
   return { name, tokenId, mintBlock };
@@ -101,7 +101,9 @@ describe("CLDRegistry", () => {
   describe("register", () => {
     it("reverts when not called by the minter", async () => {
       const ctx = await setup();
-      const tx = ctx.cld.connect(ctx.w1).register(ctx.w1, "xxx", 0, false);
+      const tx = ctx.cld
+        .connect(ctx.w1)
+        .register(ctx.w1, "xxx", [], [], 0, false);
       await expect(tx).to.revertedWithCustomError(
         ctx.cld,
         "AccessControlUnauthorizedAccount"
@@ -110,7 +112,9 @@ describe("CLDRegistry", () => {
 
     it("reverts when the name is empty", async () => {
       const ctx = await setup();
-      const tx = ctx.cld.connect(ctx.minter).register(ctx.w1, "", 0, false);
+      const tx = ctx.cld
+        .connect(ctx.minter)
+        .register(ctx.w1, "", [], [], 0, false);
       await expect(tx).to.revertedWithCustomError(ctx.cld, "InvalidName");
     });
 
@@ -128,7 +132,7 @@ describe("CLDRegistry", () => {
       it("does not revert", async () => {
         tx = await ctx.cld
           .connect(ctx.minter)
-          .register(ctx.w1, domainName, 0, true);
+          .register(ctx.w1, domainName, [], [], 0, true);
       });
 
       it("issues a token to the given account", async () => {
@@ -172,7 +176,7 @@ describe("CLDRegistry", () => {
       it("reverts when registering the same name twice", async () => {
         const tx = ctx.cld
           .connect(ctx.minter)
-          .register(ctx.w1, domainName, 0, true);
+          .register(ctx.w1, domainName, [], [], 0, true);
 
         await expect(tx).to.revertedWithCustomError(
           ctx.cld,
@@ -192,7 +196,7 @@ describe("CLDRegistry", () => {
         ctx = await setup();
         tx = await ctx.cld
           .connect(ctx.minter)
-          .register(ctx.w1, domainName, 10, true);
+          .register(ctx.w1, domainName, [], [], 10, true);
 
         tokenId = namehash(`${domainName}.${ctx.name}`);
 
@@ -210,7 +214,14 @@ describe("CLDRegistry", () => {
 
         tx = await ctx.cld
           .connect(ctx.minter)
-          .register(ctx.w2, domainName, 80, true);
+          .register(
+            ctx.w2,
+            domainName,
+            [namehash("record.key")],
+            ["record.value"],
+            80,
+            true
+          );
       });
 
       it("emits a Transfer event to zero - burn", async () => {
@@ -253,10 +264,16 @@ describe("CLDRegistry", () => {
           );
       });
 
+      it("emits a RecordSet event", async () => {
+        await expect(tx)
+          .to.emit(ctx.cld, "RecordSet")
+          .withArgs(ctx.cldId, tokenId, namehash("record.key"), "record.value");
+      });
+
       it("reverts when registering a non expired name", async () => {
         const tx = ctx.cld
           .connect(ctx.minter)
-          .register(ctx.w2, domainName, 100, true);
+          .register(ctx.w2, domainName, [], [], 100, true);
 
         await expect(tx).to.revertedWithCustomError(
           ctx.cld,

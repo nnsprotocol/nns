@@ -336,6 +336,16 @@ describe("NNSController", () => {
       );
     });
 
+    it("reverts when the second label is empty", async () => {
+      const tx = ctx.controller
+        .connect(ctx.w1)
+        .register(ctx.w2.address, ["one", ""], true, ethers.ZeroAddress, 0);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "InvalidLabel"
+      );
+    });
+
     it("reverts when the cld does not exist", async () => {
       const tx = ctx.controller
         .connect(ctx.w1)

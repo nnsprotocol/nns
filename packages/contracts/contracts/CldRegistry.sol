@@ -81,6 +81,8 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     function register(
         address to,
         string calldata name,
+        uint256[] calldata recordKeys,
+        string[] calldata recordValues,
         uint256 duration,
         bool withReverse
     ) external onlyRole(MINTER_ROLE) returns (uint256) {
@@ -88,8 +90,8 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         if (isExpired(tokenId)) {
             _burn(tokenId);
         }
-        // TODO: set crypto record
         _mint(to, tokenId, name, duration, withReverse);
+        _setRecords(tokenId, recordKeys, recordValues);
         return tokenId;
     }
 
@@ -352,10 +354,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         uint256[] calldata keyHashes,
         string[] calldata values
     ) external onlyApprovedOrOwner(tokenId) {
-        require(keyHashes.length == values.length);
-        for (uint256 i = 0; i < keyHashes.length; i++) {
-            _setRecord(tokenId, keyHashes[i], values[i]);
-        }
+        _setRecords(tokenId, keyHashes, values);
     }
 
     function resetRecords(
@@ -373,6 +372,17 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         _requireNotExpired(tokenId);
         _records[_presetOf(tokenId)][keyHash] = value;
         emit RecordSet(_cldId, tokenId, keyHash, value);
+    }
+
+    function _setRecords(
+        uint256 tokenId,
+        uint256[] calldata keyHashes,
+        string[] calldata values
+    ) internal {
+        require(keyHashes.length == values.length);
+        for (uint256 i = 0; i < keyHashes.length; i++) {
+            _setRecord(tokenId, keyHashes[i], values[i]);
+        }
     }
 
     function _resetRecords(uint256 tokenId) internal {

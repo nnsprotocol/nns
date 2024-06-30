@@ -14,11 +14,6 @@ const LockModule = buildModule("NNSModule", (m) => {
     10,
   ]);
 
-  //   0.2288
-  // ETH
-  // $822.58
-  // USD
-
   const resolver = m.contract("NNSResolver", []);
   const cldF = m.contract("CldFactory", []);
   const controller = m.contract("NNSController", [rewarder, resolver, cldF]);

@@ -8,8 +8,13 @@ import "./interfaces/IResolver.sol";
 import "./interfaces/IController.sol";
 import "./interfaces/ICldFactory.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract NNSController is IController, Ownable {
+    // namehash("crypto.ETH.address")
+    uint256 public constant RECORD_CRYPTO_ETH_ADDRESS =
+        0x391a42857851a55da4050881bd0d2e6c9978bfa7483b787e07a760028ed71a2b;
+
     IResolver _resolver;
     IRewarder _rewarder;
     ICldFactory _cldFactory;
@@ -78,22 +83,54 @@ contract NNSController is IController, Ownable {
         address referer,
         uint8 periods
     ) external payable {
+        _validateLabels(labels);
+        uint256 cldId = _namehash(0, labels[1]);
+        IRegistry registry = _requireRegistryOf(cldId);
+        uint256 price = _processRegistrationCost(cldId, periods, labels[0]);
+
+        uint256[] memory recordKeys = new uint256[](1);
+        string[] memory recordValues = new string[](1);
+        recordKeys[0] = RECORD_CRYPTO_ETH_ADDRESS;
+        recordValues[0] = Strings.toHexString(to);
+
+        registry.register(
+            to,
+            labels[0],
+            recordKeys,
+            recordValues,
+            _getDuration(cldId, periods),
+            withReverse
+        );
+
+        _rewarder.collect{value: price}(cldId, referer);
+    }
+
+    function _validateLabels(string[] calldata labels) internal pure {
         if (labels.length != 2) {
             revert InvalidLabel();
         }
-        string memory name = labels[0];
-        string memory cld = labels[1];
-        // TODO: add test
-        if (bytes(name).length == 0) {
+        if (bytes(labels[0]).length == 0) {
             revert InvalidLabel();
         }
+    }
 
-        uint256 cldId = _namehash(0, cld);
-        IRegistry registry = _requireRegistryOf(cldId);
-        bool expires = _expiringClds[cldId];
+    function _getDuration(
+        uint256 cldId,
+        uint8 periods
+    ) internal view returns (uint256) {
+        if (_expiringClds[cldId]) {
+            return (365 days) * periods;
+        }
+        return 0;
+    }
 
-        uint256 price = _pricingOracles[cldId].price(labels[0]);
-        if (expires) {
+    function _processRegistrationCost(
+        uint256 cldId,
+        uint8 periods,
+        string calldata name
+    ) internal returns (uint256) {
+        uint256 price = _pricingOracles[cldId].price(name);
+        if (_expiringClds[cldId]) {
             if (periods <= 0) {
                 revert InvalidRegistrationPeriod();
             }
@@ -102,25 +139,19 @@ contract NNSController is IController, Ownable {
         if (msg.value < price) {
             revert InsufficientTransferAmount(price, msg.value);
         }
-
-        uint256 duration = 0;
-        if (expires) {
-            duration = (365 days) * periods;
-        }
-        registry.register(to, name, duration, withReverse);
-
-        _rewarder.collect{value: price}(cldId, referer);
-
         if (msg.value >= price) {
             payable(msg.sender).transfer(msg.value - price);
         }
+        return price;
     }
 
     function _namehash(
         uint256 tokenId,
         string memory label
     ) internal pure returns (uint256) {
-        require(bytes(label).length != 0, "MintingManager: LABEL_EMPTY");
+        if (bytes(label).length == 0) {
+            revert InvalidLabel();
+        }
         return
             uint256(
                 keccak256(

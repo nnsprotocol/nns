@@ -6,9 +6,9 @@ dataSources:
     name: NNSController
     network: base-sepolia
     source:
-      address: "0x3eD890A427a7691e24fc40A772cF3f9e8e1841d7"
+      address: "0x26A9bfb452d05C6531F9d603772c07860d756F27"
       abi: NNSController
-      startBlock: 11398164
+      startBlock: 11995420
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
