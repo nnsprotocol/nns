@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Address, Hash, Hex, namehash } from "viem";
 
-const GRAPH_URL =
-  "https://api.goldsky.com/api/public/project_clxhxljv7a17t01x72s9reuqf/subgraphs/nns/0.0.2/gn";
+const GRAPH_URL = import.meta.env.VITE_GRAPH_URL;
 
 export type Registry = {
   id: Hash;

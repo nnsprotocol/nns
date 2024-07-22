@@ -5,8 +5,9 @@ import PRICING_ORACLE_ABI from "./abi/IPricingOracle";
 import { useMemo } from "react";
 import { Hash } from "viem";
 
-export const CONTROLLER_ADDRESS = "0x26a9bfb452d05c6531f9d603772c07860d756f27";
-const USD_ETH_AGGREGATOR_ADDRESS = "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1";
+export const CONTROLLER_ADDRESS = import.meta.env.VITE_CONTROLLER_ADDRESS;
+const USD_ETH_AGGREGATOR_ADDRESS = import.meta.env
+  .VITE_USD_ETH_AGGREGATOR_ADDRESS;
 
 export function useDomainPrice(opt: { name?: string; cldId?: bigint | Hash }) {
   const pricerAddr = useReadContract({

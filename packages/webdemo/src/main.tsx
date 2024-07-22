@@ -13,7 +13,7 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { baseSepolia } from "wagmi/chains";
+import { baseSepolia, hardhat } from "wagmi/chains";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useColorScheme } from "@mantine/hooks";
 
@@ -25,10 +25,21 @@ if (import.meta.env.DEV) {
   };
 }
 
+function getChain() {
+  switch (import.meta.env.VITE_CHAIN_NAME) {
+    case "hardhat":
+      return hardhat;
+    case "base-sepolia":
+      return baseSepolia;
+    default:
+      throw new Error("set CHAIN_NAME");
+  }
+}
+
 const config = getDefaultConfig({
   appName: "NNS v2",
   projectId: "123",
-  chains: [baseSepolia],
+  chains: [getChain()],
   ssr: false,
 });
 
