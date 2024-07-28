@@ -2,7 +2,6 @@ import {
   Button,
   Card,
   Group,
-  Select,
   Space,
   Stack,
   Table,
@@ -10,8 +9,10 @@ import {
   Title,
 } from "@mantine/core";
 import { useState } from "react";
-import { Hash, isAddress, namehash } from "viem";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { Hash, isAddress } from "viem";
+import { normalize } from "viem/ens";
+import { useAccount, useWriteContract } from "wagmi";
+import Records from "./Records";
 import REGISTRY_ABI from "./services/abi/IRegistry";
 import { Domain, useDomain } from "./services/graph";
 
@@ -19,26 +20,8 @@ interface DomainMgmtProps {
   tokenId: Hash;
 }
 
-type DomainRecord = {
-  id: Hash;
-  name: string;
-  type: "address";
-};
-
-type RecordType = "CRYPTO_ETH";
-
-const RECORDS: Record<RecordType, DomainRecord> = {
-  CRYPTO_ETH: {
-    id: namehash("crypto.ETH.address"),
-    name: "ETH Address",
-    type: "address",
-  },
-};
-
 export default function DomainMgmt(props: DomainMgmtProps) {
   const domain = useDomain({ id: props.tokenId });
-
-  console.log("hash", namehash("crypto.ETH.address"));
 
   if (!domain.data) {
     return null;
@@ -50,9 +33,13 @@ export default function DomainMgmt(props: DomainMgmtProps) {
       <Space h="md" />
       <Stack>
         <Approval domain={domain.data} />
-        <Records domain={domain.data} />
-        <EditRecords domain={domain.data} />
+        <Info domain={domain.data} />
+        <Records
+          tokenId={domain.data.id}
+          registry={domain.data.registry.address}
+        />
         <Transfer domain={domain.data} />
+        <Subdomain domain={domain.data} />
       </Stack>
     </div>
   );
@@ -122,19 +109,7 @@ function Approval(props: { domain: Domain }) {
   );
 }
 
-function Records(props: { domain: Domain }) {
-  const records = useReadContract({
-    abi: REGISTRY_ABI,
-    functionName: "recordsOf",
-    address: props.domain?.registry.address,
-    args: [BigInt(props.domain.id || 0n), [BigInt(RECORDS.CRYPTO_ETH.id)]],
-    query: {
-      select(data) {
-        return [{ ...RECORDS.CRYPTO_ETH, value: data[0] }];
-      },
-    },
-  });
-
+function Info(props: { domain: Domain }) {
   return (
     <Card>
       <Title order={4}>Info</Title>
@@ -153,70 +128,8 @@ function Records(props: { domain: Domain }) {
             <Table.Td>Resolved Address</Table.Td>
             <Table.Td>{props.domain.resolvedAddress}</Table.Td>
           </Table.Tr>
-          {records.data?.map((r) => (
-            <Table.Tr key={"record-" + r.id}>
-              <Table.Td>{r.name}</Table.Td>
-              <Table.Td>{r.value}</Table.Td>
-            </Table.Tr>
-          ))}
         </Table.Tbody>
       </Table>
-    </Card>
-  );
-}
-
-function EditRecords(props: { domain: Domain }) {
-  const [record, setRecord] = useState<DomainRecord | null>(null);
-  const [value, setValue] = useState("");
-
-  const saveRecord = useWriteContract();
-
-  function handleSaveRecord() {
-    if (!record || !value) {
-      return;
-    }
-
-    saveRecord.writeContract({
-      abi: REGISTRY_ABI,
-      address: props.domain.registry.address,
-      functionName: "setRecord",
-      args: [BigInt(props.domain.id), BigInt(record.id), value.toLowerCase()],
-    });
-  }
-
-  return (
-    <Card>
-      <Title order={4}>Edit Record</Title>
-      <Space h="md" />
-      <Group align="end" grow>
-        <Select
-          required
-          label="Community"
-          name="registry"
-          placeholder="Pick value"
-          data={Object.values(RECORDS).map((r) => r.name)}
-          value={Object.values(RECORDS).find((r) => r.id === record?.id)?.name}
-          onChange={(name) => {
-            const record = Object.values(RECORDS).find((r) => r.name === name);
-            setRecord(record || null);
-            setValue("");
-          }}
-        />
-        <TextInput
-          placeholder="Value"
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-          }}
-        />
-        <Button
-          loading={saveRecord.isPending}
-          disabled={!record || !value}
-          onClick={handleSaveRecord}
-        >
-          Save
-        </Button>
-      </Group>
     </Card>
   );
 }
@@ -261,6 +174,44 @@ function Transfer(props: { domain: Domain }) {
         />
         <Button loading={saveRecord.isPending} onClick={handleSaveRecord}>
           Transfer
+        </Button>
+      </Group>
+    </Card>
+  );
+}
+
+function Subdomain(props: { domain: Domain }) {
+  const [name, setName] = useState<string>("");
+
+  const register = useWriteContract();
+
+  function handleRegisterSubdomain() {
+    if (!name || register.isPending) {
+      return;
+    }
+
+    register.writeContract({
+      abi: REGISTRY_ABI,
+      address: props.domain.registry.address,
+      functionName: "registerSubdomain",
+      args: [BigInt(props.domain.id), normalize(name)],
+    });
+  }
+
+  return (
+    <Card>
+      <Title order={4}>Subdomains</Title>
+      <Space h="md" />
+      <Group grow align="baseline">
+        <TextInput
+          placeholder="To"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+        />
+        <Button loading={register.isPending} onClick={handleRegisterSubdomain}>
+          Register
         </Button>
       </Group>
     </Card>

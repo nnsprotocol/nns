@@ -10,7 +10,12 @@ import {
 import "@mantine/core/styles.css";
 
 import { useAccount } from "wagmi";
-import { Domain, useDomainOperators, useDomains } from "./services/graph";
+import {
+  Domain,
+  Subdomain,
+  useDomainOperators,
+  useDomains,
+} from "./services/graph";
 
 import { useDisclosure } from "@mantine/hooks";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -20,6 +25,7 @@ import {
   IconCrown,
   IconSquareRoundedPlus,
   IconMoneybag,
+  IconArrowBadgeRight,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Address, isAddress, isAddressEqual, keccak256, toHex } from "viem";
@@ -27,6 +33,7 @@ import DomainMgmt from "./DomainMgmt";
 import Register from "./Register";
 import ReverseMgmt from "./ReverseMgmt";
 import RewardMgmt from "./RewardMgmt";
+import SubdomainMgmt from "./SubdomainMgmt";
 
 type NavItem =
   | {
@@ -41,6 +48,10 @@ type NavItem =
   | {
       type: "domain";
       domain: Domain;
+    }
+  | {
+      type: "subdomain";
+      subdomain: Subdomain;
     };
 
 const badgeColor = (name: string) => {
@@ -113,13 +124,29 @@ function App() {
         <Text fw={700}>Your Domains</Text>
         <Space h="sm" />
         {(ownedDomains.data || []).map((d) => (
-          <DomainNavLink
-            key={"owned-" + d.id}
-            domain={d}
-            account={account.address}
-            onClick={() => setNavItem({ type: "domain", domain: d })}
-            active={navItem.type === "domain" && navItem.domain.id === d.id}
-          />
+          <>
+            <DomainNavLink
+              key={"owned-" + d.id}
+              domain={d}
+              account={account.address}
+              onClick={() => setNavItem({ type: "domain", domain: d })}
+              active={navItem.type === "domain" && navItem.domain.id === d.id}
+            />
+            {d.subdomains?.map((sub) => (
+              <SubdomainNavLink
+                key={"owned-" + sub.id}
+                domain={sub}
+                account={account.address}
+                onClick={() =>
+                  setNavItem({ type: "subdomain", subdomain: sub })
+                }
+                active={
+                  navItem.type === "subdomain" &&
+                  navItem.subdomain.id === sub.id
+                }
+              />
+            ))}
+          </>
         ))}
         <Space h="sm" />
         <Text fw={700}>Delegated Domains</Text>
@@ -140,6 +167,9 @@ function App() {
         {navItem.type === "rewards" ? <RewardMgmt /> : null}
         {navItem.type === "domain" ? (
           <DomainMgmt tokenId={navItem.domain.id} />
+        ) : null}
+        {navItem.type === "subdomain" ? (
+          <SubdomainMgmt id={navItem.subdomain.id} />
         ) : null}
       </AppShell.Main>
     </AppShell>
@@ -169,6 +199,39 @@ function DomainNavLink(props: {
           {"." + props.domain.name.split(".")[1]}
         </Badge>
       }
+      rightSection={
+        <IconChevronRight
+          size="0.8rem"
+          stroke={1.5}
+          className="mantine-rotate-rtl"
+        />
+      }
+      onClick={props.onClick}
+      active={props.active}
+    />
+  );
+}
+
+function SubdomainNavLink(props: {
+  domain: Subdomain;
+  account?: Address;
+  onClick: () => void;
+  active: boolean;
+}) {
+  return (
+    <NavLink
+      pl={75}
+      label={
+        <Group>
+          {props.domain.name}
+          {isAddress(props.domain.resolvedAddress || "") &&
+            props.account &&
+            isAddressEqual(props.domain.resolvedAddress!, props.account) && (
+              <IconCrown stroke={1.5} color="gold" />
+            )}
+        </Group>
+      }
+      leftSection={<IconArrowBadgeRight size="0.8rem" stroke={1.5} />}
       rightSection={
         <IconChevronRight
           size="0.8rem"

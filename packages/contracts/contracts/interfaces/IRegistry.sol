@@ -20,9 +20,19 @@ interface IRegistry is IERC721, IRecordStorage {
     );
     event NameRenewed(uint256 cldId, uint256 tokenId, uint256 expiry);
 
+    event SubdomainRegistered(
+        uint256 cldId,
+        uint256 parentTokenId,
+        string name,
+        uint256 subdomainId
+    );
+    event SubdomainDeleted(uint256 cldId, uint256 subdomainId);
+
     error NonExpiringToken(uint256 tokenId);
     error InvalidName(string name);
     error NoReverseSet(address account);
+    error SubdomainAlreadyExists(uint256 tokenId, string name);
+    error NonexistentSubdomain(uint256 subdomainId);
 
     function totalSupply() external view returns (uint256);
 
@@ -34,7 +44,11 @@ interface IRegistry is IERC721, IRecordStorage {
 
     function reverseNameOf(address addr) external view returns (string memory);
 
-    function setReverse(uint256 tokenId) external;
+    function setReverse(
+        uint256 tokenId,
+        uint256[] calldata recordKeys,
+        string[] calldata recordValues
+    ) external;
 
     function deleteReverse(address addr) external;
 
@@ -63,4 +77,17 @@ interface IRegistry is IERC721, IRecordStorage {
     function isExpired(uint256 tokenId) external view returns (bool);
 
     function mintBlockNumberOf(uint256 tokenId) external view returns (uint256);
+
+    function registerSubdomain(
+        uint256 tokenId,
+        string calldata name
+    ) external returns (uint256);
+
+    function deleteSubdomain(uint256 subdomainId) external;
+
+    function parentOf(uint256 subdomainId) external view returns (uint256);
+
+    function subdomainsOf(
+        uint256 tokenId
+    ) external view returns (uint256[] memory);
 }

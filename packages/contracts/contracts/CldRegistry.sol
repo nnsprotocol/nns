@@ -8,9 +8,6 @@ import "./interfaces/IRegistry.sol";
 import "./interfaces/IRecordStorage.sol";
 
 contract CldRegistry is IRegistry, ERC721, AccessControl {
-    string public constant NAME = "NNS: CLDRegistry";
-    string public constant VERSION = "0.0.1";
-
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant COMMUNITY_ROLE = keccak256("COMMUNITY_ROLE");
 
@@ -18,12 +15,14 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     mapping(address tokenId => uint256) internal _reverses;
     mapping(uint256 tokenId => uint256) internal _expiries;
     mapping(uint256 tokenId => uint256) internal _mintBlockNumbers;
+    mapping(uint256 subdomainId => uint256) internal _subdomainParents;
+    mapping(uint256 tokenId => uint256[]) internal _subdomains;
 
     mapping(uint256 tokenId => uint256) internal _recordPresets;
     mapping(uint256 recordPresetId => mapping(uint256 key => string))
         internal _records;
 
-    uint256 _totalSupply;
+    uint256 internal _totalSupply;
 
     uint256 internal _cldId;
     string internal _cldName;
@@ -53,9 +52,14 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     }
 
     function nameOf(uint256 tokenId) public view returns (string memory) {
-        _requireNotExpired(tokenId);
-        _requireOwned(tokenId);
+        uint256 domainId = _domainTokenId(tokenId);
+        _requireNotExpired(domainId);
+        _requireOwned(domainId);
         return string.concat(_tokenNames[tokenId], ".", _cldName);
+    }
+
+    function parentOf(uint256 subdomainId) public view returns (uint256) {
+        return _subdomainParents[subdomainId];
     }
 
     function reverseOf(address addr) public view returns (uint256 tokenId) {
@@ -114,8 +118,88 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         emit NameRenewed(_cldId, tokenId, newExpiry);
     }
 
-    function setReverse(uint256 tokenId) external onlyApprovedOrOwner(tokenId) {
+    function registerSubdomain(
+        uint256 tokenId,
+        string calldata name
+    ) external onlyApprovedOrOwner(tokenId) returns (uint256) {
+        uint256 subdomainId = _namehash(tokenId, name);
+        if (_subdomainParents[subdomainId] != 0) {
+            revert SubdomainAlreadyExists(tokenId, name);
+        }
+
+        _subdomains[tokenId].push(subdomainId);
+        _subdomainParents[subdomainId] = tokenId;
+        _tokenNames[subdomainId] = string.concat(
+            name,
+            ".",
+            _tokenNames[tokenId]
+        );
+        emit SubdomainRegistered(_cldId, tokenId, name, subdomainId);
+        return tokenId;
+    }
+
+    function deleteSubdomain(
+        uint256 subdomainId
+    ) external onlyApprovedOrOwner(_domainTokenId(subdomainId)) {
+        uint256 parent = _subdomainParents[subdomainId];
+        if (parent == 0) {
+            revert NonexistentSubdomain(subdomainId);
+        }
+
+        // Remove the subdomain from the parent's list
+        for (uint256 i = 0; i < _subdomains[parent].length; i++) {
+            if (_subdomains[parent][i] == subdomainId) {
+                _subdomains[parent][i] = _subdomains[parent][
+                    _subdomains[parent].length - 1
+                ];
+                _subdomains[parent].pop();
+                break;
+            }
+        }
+
+        delete _subdomainParents[subdomainId];
+        delete _tokenNames[subdomainId];
+        _resetRecords(subdomainId);
+
+        emit SubdomainDeleted(_cldId, subdomainId);
+    }
+
+    function _deleteAllSubdomains(uint256 parentTokenId) internal {
+        for (uint256 i = 0; i < _subdomains[parentTokenId].length; i++) {
+            uint256 subdomainId = _subdomains[parentTokenId][i];
+            delete _subdomainParents[subdomainId];
+            delete _tokenNames[subdomainId];
+            _resetRecords(subdomainId);
+            emit SubdomainDeleted(_cldId, subdomainId);
+        }
+        delete _subdomains[parentTokenId];
+    }
+
+    function subdomainsOf(
+        uint256 tokenId
+    ) external view returns (uint256[] memory) {
+        return _subdomains[tokenId];
+    }
+
+    /**
+     * @dev Returns the parent tokenId when the given id is a subdomain. Otherwise returns the input.
+     */
+    function _domainTokenId(
+        uint256 tokenOrSubdomainId
+    ) internal view returns (uint256) {
+        if (_subdomainParents[tokenOrSubdomainId] != 0) {
+            return _subdomainParents[tokenOrSubdomainId];
+        }
+        return tokenOrSubdomainId;
+    }
+
+    function setReverse(
+        uint256 tokenId,
+        uint256[] calldata recordKeys,
+        string[] calldata recordValues
+    ) external onlyApprovedOrOwner(_domainTokenId(tokenId)) {
         _setReverse(_msgSender(), tokenId);
+        _setRecords(tokenId, recordKeys, recordValues);
     }
 
     function deleteReverse(address addr) external {
@@ -150,7 +234,6 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     }
 
     function _setReverse(address addr, uint256 tokenId) internal {
-        _requireOwned(tokenId);
         uint256 oldTokenId = _reverses[addr];
         _reverses[addr] = tokenId;
         emit ReverseChanged(_cldId, addr, oldTokenId, tokenId);
@@ -293,6 +376,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
             _totalSupply--;
             delete _tokenNames[tokenId];
             delete _mintBlockNumbers[tokenId];
+            _deleteAllSubdomains(tokenId);
         }
 
         // Transfer
@@ -345,7 +429,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         uint256 tokenId,
         uint256 keyHash,
         string calldata value
-    ) external onlyApprovedOrOwner(tokenId) {
+    ) external onlyApprovedOrOwner(_domainTokenId(tokenId)) {
         _setRecord(tokenId, keyHash, value);
     }
 
@@ -353,13 +437,13 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         uint256 tokenId,
         uint256[] calldata keyHashes,
         string[] calldata values
-    ) external onlyApprovedOrOwner(tokenId) {
+    ) external onlyApprovedOrOwner(_domainTokenId(tokenId)) {
         _setRecords(tokenId, keyHashes, values);
     }
 
     function resetRecords(
         uint256 tokenId
-    ) external onlyApprovedOrOwner(tokenId) {
+    ) external onlyApprovedOrOwner(_domainTokenId(tokenId)) {
         _resetRecords(tokenId);
     }
 
@@ -368,8 +452,6 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         uint256 keyHash,
         string calldata value
     ) internal {
-        _requireOwned(tokenId);
-        _requireNotExpired(tokenId);
         _records[_presetOf(tokenId)][keyHash] = value;
         emit RecordSet(_cldId, tokenId, keyHash, value);
     }

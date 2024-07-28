@@ -35,6 +35,20 @@ export function useRegistries() {
   });
 }
 
+export type Subdomain = {
+  id: Hash;
+  name: string;
+  resolvedAddress: Address | null;
+  parent: {
+    id: Hash;
+    name: string;
+    registry: {
+      name: string;
+      address: Address;
+    };
+  };
+};
+
 export type Domain = {
   id: Hash;
   name: string;
@@ -50,11 +64,26 @@ export type Domain = {
   approval?: {
     id: Address;
   };
+  subdomains?: Subdomain[];
 };
 
 type DomainsFilter =
   | { owner: Address }
   | { delegatee: Address; operators: { registry: Hex; owner: Address }[] };
+
+const SUBDOMAIN_SELECT = `
+id
+name
+resolvedAddress
+parent {
+  id
+  name
+  registry {
+    name
+    address
+  }
+}
+`;
 
 const DOMAIN_SELECT = `
 id
@@ -70,6 +99,9 @@ owner {
 }
 approval {
   id
+}
+subdomains {
+  ${SUBDOMAIN_SELECT}
 }
 `;
 
@@ -191,5 +223,30 @@ export function useDomainOperators(opt: { operator?: Address }) {
     queryKey: ["domainOperators", opt.operator],
     queryFn: () => fetchDomainOperators({ operator: opt.operator || "0x" }),
     enabled: Boolean(opt.operator),
+  });
+}
+
+export async function fetchSubdomain(opt: { id: Hash }) {
+  const response = await fetch(GRAPH_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      query: `
+        {
+          subdomains(where: { id: "${opt.id.toLowerCase()}" }) {
+            ${SUBDOMAIN_SELECT}
+          }
+        }
+      `,
+    }),
+  });
+  const { data } = await response.json();
+  return (data.subdomains?.[0] as Subdomain) || null;
+}
+
+export function useSubdomain(opt: { id?: Hash }) {
+  return useQuery({
+    queryKey: ["subdomain", opt.id],
+    queryFn: () => fetchSubdomain({ id: opt.id || "0x" }),
+    enabled: Boolean(opt.id),
   });
 }

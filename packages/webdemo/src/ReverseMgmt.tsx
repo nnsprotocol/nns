@@ -14,8 +14,15 @@ import { Address, isAddress, namehash } from "viem";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import REGISTRY_ABI from "./services/abi/IRegistry";
 import RESOLVER_ABI from "./services/abi/IResolver";
-import { Domain, Registry, useDomains, useRegistries } from "./services/graph";
+import {
+  Domain,
+  Registry,
+  Subdomain,
+  useDomains,
+  useRegistries,
+} from "./services/graph";
 import { RESOLVER_ADDRESS } from "./services/resolver";
+import { RECORDS } from "./Records";
 
 export default function ReverseMgmt() {
   const registries = useRegistries();
@@ -150,10 +157,17 @@ function ResolveAddress(props: { registries: Registry[] }) {
   );
 }
 
+function getRegistry(v: Domain | Subdomain) {
+  if ("registry" in v) {
+    return v.registry.address;
+  }
+  return v.parent.registry.address;
+}
+
 function PrimaryNameCLD(props: { registries: Registry[] }) {
   const account = useAccount();
   const [registry, setRegistry] = useState<Registry | null>(null);
-  const [domain, setDomain] = useState<Domain | null>(null);
+  const [domain, setDomain] = useState<Domain | Subdomain | null>(null);
   const domains = useDomains({
     owner: account.address,
   });
@@ -167,8 +181,11 @@ function PrimaryNameCLD(props: { registries: Registry[] }) {
     },
   });
 
-  const domainsInCld = useMemo(() => {
-    return domains.data?.filter((d) => d.registry.id === registry?.id) || [];
+  const possibleNames = useMemo(() => {
+    const d = domains.data?.filter((d) => d.registry.id === registry?.id) || [];
+    const subdomains = d.flatMap((d) => d.subdomains || []);
+
+    return [...d, ...subdomains];
   }, [domains.data, registry]);
 
   const setReverse = useWriteContract({
@@ -206,10 +223,10 @@ function PrimaryNameCLD(props: { registries: Registry[] }) {
             name="domain"
             disabled={!Boolean(registry) || !Boolean(domains.data)}
             placeholder="Pick value"
-            data={domainsInCld?.map((r) => r.name) || []}
+            data={possibleNames?.map((r) => r.name) || []}
             value={domain?.name || ""}
             onChange={(r) => {
-              setDomain(domainsInCld.find((d) => d.name === r) || null);
+              setDomain(possibleNames.find((d) => d.name === r) || null);
             }}
           />
           <Button
@@ -219,9 +236,13 @@ function PrimaryNameCLD(props: { registries: Registry[] }) {
               {
                 setReverse.writeContract({
                   abi: REGISTRY_ABI,
-                  address: domain!.registry.address!,
+                  address: getRegistry(domain!),
                   functionName: "setReverse",
-                  args: [BigInt(domain?.id || 0)],
+                  args: [
+                    BigInt(domain?.id || 0),
+                    [BigInt(namehash("crypto.ETH.address"))],
+                    [account.address?.toLowerCase() || ""],
+                  ],
                 });
               }
             }}
@@ -243,10 +264,10 @@ function ResolveName(props: { registries: Registry[] }) {
 
   const registryAddress = useMemo(() => {
     const bits = name.split(".");
-    if (bits.length !== 2) {
+    if (bits.length < 2) {
       return;
     }
-    const [_, cld] = bits;
+    const cld = bits[bits.length - 1];
     const registry = props.registries.find((r) => r.name === cld);
     return registry?.address;
   }, [name]);
@@ -255,7 +276,7 @@ function ResolveName(props: { registries: Registry[] }) {
     abi: REGISTRY_ABI,
     address: registryAddress,
     functionName: "recordOf",
-    args: [BigInt(tokenId), BigInt(namehash("crypto.ETH.address"))],
+    args: [BigInt(tokenId), BigInt(RECORDS.CRYPTO_ETH.id)],
   });
 
   return (

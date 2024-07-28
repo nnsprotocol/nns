@@ -5,6 +5,7 @@ import {
   DomainOperator,
   DomainRecord,
   Registry,
+  Subdomain,
 } from "../generated/schema";
 import {
   Approval,
@@ -14,6 +15,8 @@ import {
   RecordSet,
   RecordsReset,
   ReverseChanged,
+  SubdomainDeleted,
+  SubdomainRegistered,
   Transfer,
 } from "../generated/templates/Registry/CldRegistry";
 
@@ -78,9 +81,22 @@ export function handleReverseChanged(event: ReverseChanged): void {
 }
 
 function updateIsReverse(tokenId: BigInt, address: Address | null): void {
-  const domain = fetchDomain(tokenId);
-  domain.resolvedAddress = address;
-  domain.save();
+  const domain = Domain.load(domainId(tokenId));
+  if (domain != null) {
+    domain.resolvedAddress = address;
+    domain.save();
+    return;
+  }
+
+  const subdomain = Subdomain.load(tokenId.toHexString());
+  if (subdomain != null) {
+    subdomain.resolvedAddress = address;
+    subdomain.save();
+    return;
+  }
+
+  log.error("domain/subdomain not found: {}", [tokenId.toHexString()]);
+  throw new Error("Domain/Subdomain not found");
 }
 
 export function handleApproval(event: Approval): void {
@@ -133,16 +149,14 @@ function deleteDomainRecord(recordId: string): void {
 }
 
 export function handleRecordSet(event: RecordSet): void {
-  let domain = fetchDomain(event.params.tokenId);
-
-  const recordId = domainRecordId(domain.tokenId, event.params.keyHash);
+  const recordId = domainRecordId(event.params.tokenId, event.params.keyHash);
   let record = DomainRecord.load(recordId);
   if (record === null && event.params.value.length === 0) {
     return;
   }
   if (record === null && event.params.value.length > 0) {
     record = new DomainRecord(recordId);
-    record.domain = domain.id;
+    record.domain = domainId(event.params.tokenId);
     record.key = event.params.keyHash;
     record.value = event.params.value;
     record.save();
@@ -162,9 +176,38 @@ export function handleRecordSet(event: RecordSet): void {
 }
 
 export function handleRecordsReset(event: RecordsReset): void {
-  let domain = fetchDomain(event.params.tokenId);
-  const records = domain.records.load();
+  let records: DomainRecord[] = [];
+  const domain = Domain.load(domainId(event.params.tokenId));
+  if (domain != null) {
+    records = domain.records.load();
+  }
+  if (domain == null) {
+    const subdomain = Subdomain.load(domainId(event.params.tokenId));
+    if (subdomain == null) {
+      log.error("domain/subdomain not found: {}", [
+        event.params.tokenId.toHexString(),
+      ]);
+      throw new Error("Domain/Subdomain not found");
+    }
+    records = subdomain.records.load();
+  }
+
   for (let i = 0; i < records.length; i++) {
     deleteDomainRecord(records[i].id);
   }
+}
+
+export function handleSubdomainRegistered(event: SubdomainRegistered): void {
+  const domain = fetchDomain(event.params.parentTokenId);
+
+  const subdomain = new Subdomain(domainId(event.params.subdomainId));
+  subdomain.tokenId = event.params.subdomainId;
+  subdomain.name = event.params.name;
+  subdomain.parent = domain.id;
+  subdomain.resolvedAddress = null;
+  subdomain.save();
+}
+
+export function handleSubdomainDeleted(event: SubdomainDeleted): void {
+  store.remove("Subdomain", domainId(event.params.subdomainId));
 }

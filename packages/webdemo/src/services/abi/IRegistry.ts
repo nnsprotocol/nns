@@ -33,6 +33,33 @@ export default [
     type: "error",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "subdomainId",
+        type: "uint256",
+      },
+    ],
+    name: "NonexistentSubdomain",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+    ],
+    name: "SubdomainAlreadyExists",
+    type: "error",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -229,6 +256,56 @@ export default [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "uint256",
+        name: "cldId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "subdomainId",
+        type: "uint256",
+      },
+    ],
+    name: "SubdomainDeleted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "cldId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "parentTokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "subdomainId",
+        type: "uint256",
+      },
+    ],
+    name: "SubdomainRegistered",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "from",
@@ -314,6 +391,19 @@ export default [
       },
     ],
     name: "deleteReverse",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "subdomainId",
+        type: "uint256",
+      },
+    ],
+    name: "deleteSubdomain",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -503,6 +593,25 @@ export default [
     inputs: [
       {
         internalType: "uint256",
+        name: "subdomainId",
+        type: "uint256",
+      },
+    ],
+    name: "parentOf",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "tokenId",
         type: "uint256",
       },
@@ -560,6 +669,16 @@ export default [
         type: "string",
       },
       {
+        internalType: "uint256[]",
+        name: "recordKeys",
+        type: "uint256[]",
+      },
+      {
+        internalType: "string[]",
+        name: "recordValues",
+        type: "string[]",
+      },
+      {
         internalType: "uint256",
         name: "duration",
         type: "uint256",
@@ -575,6 +694,30 @@ export default [
       {
         internalType: "uint256",
         name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+    ],
+    name: "registerSubdomain",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
         type: "uint256",
       },
     ],
@@ -772,10 +915,39 @@ export default [
         name: "tokenId",
         type: "uint256",
       },
+      {
+        internalType: "uint256[]",
+        name: "recordKeys",
+        type: "uint256[]",
+      },
+      {
+        internalType: "string[]",
+        name: "recordValues",
+        type: "string[]",
+      },
     ],
     name: "setReverse",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "subdomainsOf",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

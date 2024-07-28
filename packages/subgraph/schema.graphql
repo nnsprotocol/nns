@@ -24,7 +24,8 @@ type DomainRecord @entity {
   id: ID!
   key: BigInt!
   value: String!
-  domain: Domain!
+  domain: Domain
+  subdomain: Subdomain
 }
 
 type Domain @entity {
@@ -36,4 +37,14 @@ type Domain @entity {
   approval: Account
   resolvedAddress: Bytes
   records: [DomainRecord!]! @derivedFrom(field: "domain")
+  subdomains: [Subdomain!]! @derivedFrom(field: "parent")
+}
+
+type Subdomain @entity {
+  id: ID!
+  tokenId: BigInt!
+  name: String!
+  parent: Domain!
+  records: [DomainRecord!]! @derivedFrom(field: "subdomain")
+  resolvedAddress: Bytes
 }
