@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    font-family: "Geist", system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .link-default {
+    @apply text-sm font-medium text-textSecondary hover:text-borderSecondary stroke-textSecondary hover:stroke-borderSecondary gap-xxs flex items-center;
+  }
+
+  .button-secondary {
+    @apply text-textInverse disabled:text-textPrimary bg-surfaceSecondary hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs;
+  }
+  .button-sm {
+    @apply text-sm p-xs rounded-lg;
+  }
+  .button-md {
+    @apply text-sm p-sm rounded-xl;
+  }
+  .button-lg {
+    @apply text-base p-md rounded-48;
+  }
+
+  .balance-text-gradient {
+    background: linear-gradient(92deg, #C496FF 10.29%, #86F9E4 99.41%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
