@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "webdemo:build": "yarn workspace webdemo build"
+    "webdemo:build": "yarn workspace webdemo build",
+    "webapp:build": "yarn workspace webapp build"
   }
 }
