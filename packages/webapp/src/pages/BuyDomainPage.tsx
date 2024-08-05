@@ -1,4 +1,3 @@
-import { useState } from "react";
 import SectionCards from "../components/buy-domain/SectionCards";
 import SectionIdentitySystem from "../components/buy-domain/SectionIdentitySystem";
 import SectionNamingSystem from "../components/buy-domain/SectionNamingSystem";
@@ -6,6 +5,7 @@ import SectionPoweredBy from "../components/buy-domain/SectionPoweredBy";
 import SectionResolved from "../components/buy-domain/SectionResolved";
 import SectionShared from "../components/buy-domain/SectionShared";
 import IconArrowRight from "../components/icons/IconArrowRight";
+import WalletButtonSection from "../components/wallet/WalletButtonSection";
 
 const headerNavLinks = [
   { id: "header-link-1", href: "#", text: "WTF are" },
@@ -22,25 +22,11 @@ const footerSocialItems = [
 ];
 
 function BuyDomainPage() {
-  const [connectWalletBackgroundColor, setConnectWalletBackgroundColor] = useState("#11101B");
-
-  const handleMouseEnter = () => {
-    if (window.scrollY > 0) {
-      setConnectWalletBackgroundColor("#04030F");
-    } else {
-      setConnectWalletBackgroundColor("#C496FF");
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setConnectWalletBackgroundColor("#11101B");
-  };
-
   return (
-    <div className="bg-surfaceBrandBlue">
+    <div className="bg-surfaceBrandLavender">
       <header className="px-4 max-w-screen-2xl sticky top-0 mx-auto w-full py-2 z-30">
         <div className="p-md overflow-hidden relative rounded-128">
-          <div className="absolute inset-0 backdrop-blur-1xl bg-surfaceBrandBlue/10 z-0"></div>
+          <div className="absolute inset-0 backdrop-blur-1xl bg-surfaceBrandLavender/10 z-0"></div>
           <div className="relative z-10 flex justify-between items-center">
             <div>
               <img src="/logo.svg" alt="Logo" className="h-6 w-auto" />
@@ -58,16 +44,11 @@ function BuyDomainPage() {
               </ul>
             </nav>
             <div>
-              <button
-                id="targetButton"
-                type="button"
-                className="button-secondary button-md"
-                style={{ backgroundColor: connectWalletBackgroundColor }}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                Connect Wallet
-              </button>
+              <WalletButtonSection 
+                customConnectWalletButtonColors={{
+                  hoverThemedBackgroundColor: "#C496FF"
+                }} 
+              />
             </div>
           </div>
         </div>
@@ -84,7 +65,7 @@ function BuyDomainPage() {
           </div>
         </main>
       </div>
-      <footer className="bg-gradient-to-b from-surfaceBrandBlue from-30% to-surfaceBrandMauve">
+      <footer className="bg-gradient-to-b from-surfaceBrandLavender from-30% to-surfaceBrandMauve">
         <div className="max-w-screen-2xl px-4 mx-auto w-full py-9 lg:pt-40">
           <div className="flex flex-col items-center gap-xl">
             <div>

@@ -1,7 +1,39 @@
+import { useMemo } from "react";
 import IconInbox from "../icons/IconInbox";
 import IconMintStars from "../icons/IconMintStars";
 
+type Item = {
+  id: string;
+  type: string;
+  coin: string;
+  valueFormatted: string;
+};
+
 function SectionPoweredBy() {
+  const items = useMemo<Item[]>(
+    () => [
+      {
+        id: "list-item-1",
+        type: "earn",
+        coin: "NOGS",
+        valueFormatted: "1,000 NOGS",
+      },
+      {
+        id: "list-item-2",
+        type: "earn",
+        coin: "NOGS",
+        valueFormatted: "1,000 NOGS",
+      },
+      {
+        id: "list-item-3",
+        type: "mint",
+        coin: "NNS Identity",
+        valueFormatted: "bob.⌐◨-◨",
+      },
+    ],
+    []
+  );
+
   return (
     <section className="-mx-4 bg-[url('/brand/pattern-tape.png')] bg-repeat-x bg-bottom min-h-[186px] py-9 px-4">
       <div className="flex justify-center w-full">
@@ -31,38 +63,35 @@ function SectionPoweredBy() {
                     Earn with NNS
                   </p>
                 </div>
-                <div className="flex-grow flex flex-col">
-                  <div className="p-lg flex items-center gap-xs border-b border-borderPrimary">
-                    <IconInbox />
-                    <p className="text-base font-medium flex gap-xxs">
-                      <span className="text-textInverse">Earn</span>
-                      <span className="text-textBrandLavender">NOGS</span>
-                    </p>
-                    <div className="text-base text-textSecondary font-medium ms-auto">
-                      1,000 NOGS
-                    </div>
-                  </div>
-                  <div className="p-lg flex items-center gap-xs border-b border-borderPrimary">
-                    <IconInbox />
-                    <p className="text-base font-medium flex gap-xxs">
-                      <span className="text-textInverse">Earn</span>
-                      <span className="text-textBrandLavender">NOGS</span>
-                    </p>
-                    <div className="text-base text-textSecondary font-medium ms-auto">
-                      1,000 NOGS
-                    </div>
-                  </div>
-                  <div className="p-lg flex items-center gap-xs border-b border-borderPrimary">
-                    <IconMintStars />
-                    <p className="text-base font-medium flex gap-xxs">
-                      <span className="text-textInverse">Mint</span>
-                      <span className="text-textBrandAquamarine">
-                        NNS Identity
-                      </span>
-                    </p>
-                    <div className="text-base text-textSecondary font-medium ms-auto">
-                      bob.⌐◨-◨
-                    </div>
+                <div className="overflow-hidden">
+                  <div className="flex-grow flex flex-col min-h-[267px] animate-earnWithNNSTranslate">
+                    {items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-lg flex items-center gap-xs border-b border-borderPrimary"
+                      >
+                        {item.type === "earn" && <IconInbox />}
+                        {item.type === "mint" && <IconMintStars />}
+                        <p className="text-base font-medium flex gap-xxs">
+                          <span className="text-textInverse capitalize">
+                            {item.type}
+                          </span>
+                          {item.type === "earn" && (
+                            <span className="text-textBrandLavender">
+                              {item.coin}
+                            </span>
+                          )}
+                          {item.type === "mint" && (
+                            <span className="text-textBrandAquamarine">
+                              {item.coin}
+                            </span>
+                          )}
+                        </p>
+                        <div className="text-base text-textSecondary font-medium ms-auto">
+                          {item.valueFormatted}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 <div className="p-lg border-t border-borderPrimary flex justify-between items-center gap-md">
@@ -70,8 +99,14 @@ function SectionPoweredBy() {
                     Balance
                   </p>
                   <div className="flex gap-xxs text-base font-medium">
-                    <span className="balance-text-gradient">2,000.00</span>
-                    <span className="text-textSecondary">NOGS</span>
+                    <div className="overflow-hidden h-[20px]">
+                      <div className="animate-earnWithNNSBalanceTranslate flex flex-col text-end">
+                        <span className="balance-text-gradient leading-5">2,000.00</span>
+                        <span className="balance-text-gradient leading-5">1,000.00</span>
+                        <span className="balance-text-gradient leading-5">0.00</span>
+                      </div>
+                    </div>
+                    <span className="text-textSecondary leading-5">NOGS</span>
                   </div>
                 </div>
               </div>

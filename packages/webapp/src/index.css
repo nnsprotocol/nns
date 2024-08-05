@@ -11,11 +11,20 @@
 
 @layer components {
   .link-default {
-    @apply text-sm font-medium text-textSecondary hover:text-borderSecondary stroke-textSecondary hover:stroke-borderSecondary gap-xxs flex items-center;
+    @apply text-sm font-medium text-textSecondary hover:text-textSecondary stroke-textSecondary hover:stroke-textSecondary gap-xxs flex items-center;
+  }
+  .link-brand-lavender {
+    @apply text-sm font-medium text-textBrandLavender hover:text-textPrimary stroke-textBrandLavender hover:stroke-textPrimary gap-xxs flex items-center;
   }
 
+  .button-light {
+    @apply text-textPrimary hover:text-textPrimary disabled:text-textPrimary bg-surfaceLight hover:bg-surfaceInverse disabled:bg-surfaceSecondary stroke-textPrimary disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs font-medium;
+  }
   .button-secondary {
-    @apply text-textInverse disabled:text-textPrimary bg-surfaceSecondary hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs;
+    @apply text-textInverse disabled:text-textPrimary bg-surfaceSecondary hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs font-medium;
+  }
+  .button-brand-lavender {
+    @apply text-textInverse hover:text-textBrandLavender disabled:text-textPrimary bg-surfaceBrandLavender hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse hover:stroke-textBrandLavender disabled:stroke-textPrimary border border-transparent hover:border-borderBrandLavender disabled:border-transparent flex items-center gap-xxs font-medium;
   }
   .button-sm {
     @apply text-sm p-xs rounded-lg;

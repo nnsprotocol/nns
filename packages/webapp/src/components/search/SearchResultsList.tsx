@@ -5,8 +5,8 @@ import IconArrowRight from "../icons/IconArrowRight";
 
 const SearchResultsList: React.FC<{ showResults: boolean }> = ({ showResults }) => {
   const searchResults = [
-    { id: "result-1", text: "bob.⌐◨-◨", isAvailable: true, url: "/" },
-    { id: "result-2", text: "alice.⌐◨-◨", isAvailable: false, url: "/" },
+    { id: "result-1", text: "bob.⌐◨-◨", isAvailable: true, url: "/domain-overview/bob.⌐◨-◨" },
+    { id: "result-2", text: "alice.⌐◨-◨", isAvailable: false, url: "/domain-overview/alice.⌐◨-◨" },
   ];
 
   if(!showResults) {

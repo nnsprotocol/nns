@@ -1,7 +1,7 @@
 function SectionNamingSystem() {
   return (
     <section>
-      <div className="bg-[url(/brand/nns-graffity.svg)] min-h-[252px] md:min-h-[352px] w-auto bg-no-repeat bg-contain bg-center flex flex-col justify-end">
+      <div className="bg-[url('/brand/nns-graffity.png')] min-h-[252px] md:min-h-[352px] w-auto bg-no-repeat bg-contain bg-center flex flex-col justify-end">
         <div id="target" className="flex flex-col items-center gap-md">
           <p className="text-2xl md:text-3xl text-textInverse font-semibold max-w-[657px] text-center">
             Your naming system, natively resolved from day 1.
