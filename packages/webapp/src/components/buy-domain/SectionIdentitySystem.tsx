@@ -30,7 +30,7 @@ function SectionIdentitySystem() {
 
           <div className="inline-block ml-4">
             <div className="flex">
-              <div className="bg-gradient-to-b from-surfaceBrandBlue from-30% to-surfaceBrandMauve p-[1px] rounded-128">
+              <div className="bg-gradient-to-b from-surfaceBrandLavender from-30% to-surfaceBrandMauve p-[1px] rounded-128">
                 <div className="p-md bg-surfaceSecondary rounded-128 min-w-44 flex justify-center">
                   <img src="/logo.svg" alt="Logo" className="h-8 w-auto" />
                 </div>
@@ -47,7 +47,7 @@ function SectionIdentitySystem() {
             className="h-[88px] w-[88px] -mb-[44px] relative z-10"
           />
         </div>
-        <div className="bg-gradient-to-b from-surfaceBrandBlue from-30% to-surfaceBrandMauve p-[1px] rounded-32">
+        <div className="bg-gradient-to-b from-surfaceBrandLavender from-30% to-surfaceBrandMauve p-[1px] rounded-32">
           <div className="p-lg pt-20 rounded-32 relative lg:min-w-[484px]">
             <div className="absolute inset-0 backdrop-blur-1xl bg-surfacePrimaryGradient z-0 rounded-32"></div>
             <div className="relative z-10 grid grid-cols-1 gap-lg">
@@ -67,7 +67,7 @@ function SectionIdentitySystem() {
                 <button
                   onClick={handleSearchClick}
                   type="button"
-                  className="bg-surfaceBrandBlue text-textInverse text-base font-medium text-center p-md rounded-2xl w-full border border-surfaceBrandBlue hover:bg-surfacePrimary hover:text-surfaceBrandBlue"
+                  className="bg-surfaceBrandLavender text-textInverse text-base font-medium text-center p-md rounded-2xl w-full border border-surfaceBrandLavender hover:bg-surfacePrimary hover:text-surfaceBrandLavender"
                 >
                   Search
                 </button>

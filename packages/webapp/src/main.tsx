@@ -6,6 +6,7 @@ import Root from "./Root.tsx";
 import BuyDomainPage from "./pages/BuyDomainPage.tsx";
 import CollectionDetailsPage from "./pages/CollectionDetailsPage.tsx";
 import MyDomainsPage from "./pages/MyDomainsPage.tsx";
+import DomainOverviewPage from "./pages/DomainOverviewPage.tsx";
 
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 
@@ -19,12 +20,16 @@ const router = createBrowserRouter([
         element: <BuyDomainPage />,
       },
       {
-        path: "/collection-details/:collectionId",
-        element: <CollectionDetailsPage />,
+        path: "/domain-overview/:domainId",
+        element: <DomainOverviewPage />,
       },
       {
         path: "/my-domains",
         element: <MyDomainsPage />,
+      },
+      {
+        path: "/collection-details/:collectionId",
+        element: <CollectionDetailsPage />,
       },
       {
         path: "*",

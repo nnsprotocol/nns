@@ -1,4 +1,7 @@
-const GroupSocialLinks: React.FC = () => {
+const GroupSocialLinks: React.FC<{
+  customLinkClassName?: string;
+  iconSize?: number;
+}> = ({ customLinkClassName, iconSize }) => {
   const socialLinks = [
     { iconSrc: "/icons/social/x.svg", url: "https://x.com/" },
     { iconSrc: "/icons/social/farcaster.svg", url: "https://www.farcaster.xyz/" },
@@ -13,13 +16,15 @@ const GroupSocialLinks: React.FC = () => {
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="button-secondary button-md h-[38px] w-[38px] flex items-center justify-center"
+          className={
+            customLinkClassName ||
+            "button-secondary button-md h-[38px] w-[38px] flex items-center justify-center"
+          }
         >
           <img
             src={link.iconSrc}
-            width={14}
-            height={14}
-            className="w-auto h-[14px]"
+            width={iconSize || 14}
+            height={iconSize || 14}
             alt={link.url}
           />
         </a>

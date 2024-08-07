@@ -1,7 +1,7 @@
 function BadgeEarned() {
   return (
     <div className="bg-badgeLavenderGradient border border-borderBrandLavender relative rounded-128 overflow-hidden p-xs pe-md">
-      <div className="absolute inset-0 backdrop-blur-1xl bg-surfaceBrandBlue/10 z-0"></div>
+      <div className="absolute inset-0 backdrop-blur-1xl bg-surfaceBrandLavender/10 z-0"></div>
       <div className="relative z-10 flex gap-xxs">
         <div>
           <img src="/brand/coin-earn.svg" alt="Coin hand" className="w-12 h-12" />

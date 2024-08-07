@@ -78,11 +78,16 @@ function SectionResolved() {
           </button>
         </div>
         <div className="hidden lg:flex justify-center items-center">
-          <img
-            src="/brand/decor-resolved.svg"
-            alt="Decor"
-            className="h-96 w-auto"
-          />
+          <div className="h-96 w-96 bg-[url('/brand/decor-resolved-outer.svg')] bg-no-repeat bg-contain bg-center flex justify-center items-center relative">
+          <div className="absolute inset-0 z-10 bg-surfacePrimary/50"></div>
+            <img
+              src="/brand/decor-resolved-inner.png"
+              alt="Decor"
+              width={199}
+              height={199}
+              className="animate-rotateLeftWithStops"
+            />
+          </div>
         </div>
       </div>
     </section>

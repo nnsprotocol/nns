@@ -1,10 +1,10 @@
-import { useState } from "react";
 import SectionAbout from "../components/collection-details/SectionAbout";
 import SectionBenefits from "../components/collection-details/SectionBenefits";
 import SectionSearch from "../components/collection-details/SectionSearch";
 import SectionSearchBackgroundPattern from "../components/collection-details/SectionSearchBackgroundPattern";
 import { Brand } from "../types/collection-details";
 import { Link, useParams } from "react-router-dom";
+import WalletButtonSection from "../components/wallet/WalletButtonSection";
 
 function CollectionDetailsPage() {
   const { collectionId } = useParams<{ collectionId: string }>();
@@ -15,25 +15,11 @@ function CollectionDetailsPage() {
     coinImageSrc: collectionId === "nns" ? "/temp/nns.svg" : "/temp/noun-1.svg",
   };
 
-  const [connectWalletBackgroundColor, setConnectWalletBackgroundColor] = useState("#11101B");
-
-  const handleMouseEnter = () => {
-    if (window.scrollY > 0) {
-      setConnectWalletBackgroundColor("#04030F");
-    } else {
-      setConnectWalletBackgroundColor(brand.themeColor);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setConnectWalletBackgroundColor("#11101B");
-  };
-
   return (
     <div style={{ backgroundColor: brand.themeColor }}>
       <header className="px-4 max-w-screen-2xl sticky top-0 mx-auto w-full py-2 z-30">
         <div className="p-md overflow-hidden relative rounded-128">
-          <div className="absolute inset-0 backdrop-blur-1xl bg-surfaceBrandBlue/10 z-0"></div>
+          <div className="absolute inset-0 backdrop-blur-1xl bg-surfaceBrandLavender/10 z-0"></div>
           <div className="relative z-10 flex justify-between items-center">
             <Link className="block" to="/">
               <img
@@ -43,15 +29,11 @@ function CollectionDetailsPage() {
               />
             </Link>
             <div>
-              <button
-                type="button"
-                className="button-secondary button-md"
-                style={{ backgroundColor: connectWalletBackgroundColor }}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                Connect Wallet
-              </button>
+              <WalletButtonSection
+                customConnectWalletButtonColors={{
+                  hoverThemedBackgroundColor: brand.themeColor,
+                }} 
+              />
             </div>
           </div>
         </div>
