@@ -1,12 +1,15 @@
 import React from "react";
 
-const IconChevronUp: React.FC<{ color?: string }> = ({ color }) => {
+const IconChevronUp: React.FC<{ color?: string; size?: number }> = ({
+  color,
+  size,
+}) => {
   const fill = color || "#19BB46";
 
   return (
     <svg
-      width="14"
-      height="15"
+      width={size || 14}
+      height={size || 15}
       viewBox="0 0 14 15"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

@@ -1,4 +1,4 @@
-import { DomainData } from "../../types/domain";
+import { DomainData } from "../../types/domains";
 import IconArrowRight from "../icons/IconArrowRight";
 import IconInfo from "../icons/IconInfo";
 import ToggleDefault from "../ui/inputs/ToggleDefault";

@@ -1,4 +1,4 @@
-import { DomainData } from "../../types/domain";
+import { DomainData } from "../../types/domains";
 import IconArrowRight from "../icons/IconArrowRight";
 import IconElectricalPlug from "../icons/IconElectricalPlug";
 import IconInfo from "../icons/IconInfo";

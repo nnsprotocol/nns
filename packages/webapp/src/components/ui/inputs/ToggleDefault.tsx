@@ -1,6 +1,6 @@
 const ToggleDefault: React.FC<{
   isOn: boolean;
-  setIsOn: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsOn: React.Dispatch<React.SetStateAction<boolean>> | ((value: boolean) => void);
 }> = ({ isOn, setIsOn }) => {
   const toggleSwitch = () => {
     setIsOn(!isOn);

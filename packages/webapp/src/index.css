@@ -37,8 +37,47 @@
   }
 
   .balance-text-gradient {
-    background: linear-gradient(92deg, #C496FF 10.29%, #86F9E4 99.41%);
+    background: linear-gradient(92deg, #c496ff 10.29%, #86f9e4 99.41%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  .total-rewards-text-gradient {
+    background: linear-gradient(180deg, #c496ff 26.51%, #86f9e4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .domain-cards {
+    position: relative;
+    height: 100px;
+    width: 100%;
+  }
+  .domain-cards > img {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  .collection-card .domain-cards img:nth-last-child(1) {
+    transform: translateX(-50%) rotate(10deg);
+  }
+  .collection-card .domain-cards img:nth-last-child(3) {
+    transform: translate(-50%, -15%);
+  }
+  .collection-card .domain-cards img:nth-child(2) {
+    transform: translateX(-75%) rotate(-10deg);
+  }
+  .collection-card .domain-cards img:nth-child(3) {
+    transform: translateX(-25%) rotate(10deg);
+  }
+  .collection-card:hover .domain-cards img:nth-child(2) {
+    transform: translateX(-115%) rotate(-10deg);
+  }
+  .collection-card:hover .domain-cards img:nth-child(3) {
+    transform: translateX(15%) rotate(10deg);
   }
 }

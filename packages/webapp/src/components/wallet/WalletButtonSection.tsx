@@ -65,7 +65,7 @@ const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({ customConnect
           >
             <div className="bg-surfacePrimary rounded-xl p-sm flex items-center gap-xxs">
               <img src="/temp/profile.png" width={16} height={16} alt="" />
-              <span className="text-[#FBFFF4] text-sm font-medium">
+              <span className="hidden sm:block text-[#FBFFF4] text-sm font-medium">
                 0x123...c5f6
               </span>
               <span className="stroke-[#FBFFF4] rotate-180">
