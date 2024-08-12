@@ -1437,6 +1437,15 @@ describe("CLDRegistry", () => {
         .setRecord(tokenId, namehash("key"), "hello");
     });
 
+    it("returns an empty string when the domain has expired", async () => {
+      const ctx = await setup();
+      const { tokenId } = await registerName(ctx, ctx.w1, {
+        type: "expired",
+      });
+      const v = await ctx.cld.recordOf(tokenId, namehash("key"));
+      expect(v).to.eq("");
+    });
+
     describe("success", () => {
       let ctx: Context;
       let tx: ContractTransactionResponse;

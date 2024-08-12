@@ -6,8 +6,10 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces/IRegistry.sol";
 import "./interfaces/IRecordStorage.sol";
+import "./interfaces/IERC721Reward.sol";
+import "./libraries/Namehash.sol";
 
-contract CldRegistry is IRegistry, ERC721, AccessControl {
+contract CldRegistry is IRegistry, ERC721, AccessControl, IERC721Rewardable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant COMMUNITY_ROLE = keccak256("COMMUNITY_ROLE");
 
@@ -78,7 +80,12 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         return nameOf(reverseOf(addr));
     }
 
-    function totalSupply() external view returns (uint256) {
+    function totalSupply()
+        external
+        view
+        override(IERC721Rewardable, IRegistry)
+        returns (uint256)
+    {
         return _totalSupply;
     }
 
@@ -203,7 +210,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
     }
 
     function deleteReverse(address addr) external {
-        if (msg.sender != addr && !isApprovedForAll(addr, msg.sender)) {
+        if (_msgSender() != addr && !isApprovedForAll(addr, _msgSender())) {
             revert ERC721InsufficientApproval(addr, 0);
         }
         if (reverseOf(addr) == 0) {
@@ -252,15 +259,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         if (bytes(label).length == 0) {
             revert InvalidName(label);
         }
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        tokenId,
-                        keccak256(abi.encodePacked(label))
-                    )
-                )
-            );
+        return Namehash.namehash(label, tokenId);
     }
 
     function isApprovedOrOwner(
@@ -288,7 +287,7 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
         address newAccount
     ) external onlyRole(COMMUNITY_ROLE) {
         _grantRole(COMMUNITY_ROLE, newAccount);
-        _revokeRole(COMMUNITY_ROLE, msg.sender);
+        _revokeRole(COMMUNITY_ROLE, _msgSender());
     }
 
     function tokenURI(
@@ -323,7 +322,13 @@ contract CldRegistry is IRegistry, ERC721, AccessControl {
 
     function ownerOf(
         uint256 tokenId
-    ) public view virtual override(IERC721, ERC721) returns (address owner) {
+    )
+        public
+        view
+        virtual
+        override(ERC721, IERC721, IERC721Rewardable)
+        returns (address owner)
+    {
         _requireNotExpired(tokenId);
         owner = super.ownerOf(tokenId);
     }

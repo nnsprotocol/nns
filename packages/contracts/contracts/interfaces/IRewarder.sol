@@ -2,6 +2,7 @@
 pragma solidity >=0.8.4;
 
 import "./IRegistry.sol";
+import "./IERC721Reward.sol";
 
 interface IRewarder {
     event CldRegistered(
@@ -19,33 +20,28 @@ interface IRewarder {
     );
     event BalanceChanged(address accont, uint256 delta, uint256 amount);
     event Withdrawn(address account, uint256[] tokenIds, uint256 amount);
+    event WithdrawnEcosystem(
+        address account,
+        uint256[] tokenIds,
+        uint256 amount
+    );
     event HoldersBalanceChanged(uint256 delta, uint256 amount);
-    event HolderRewardsSnapshotCreated(HolderRewardsSnapshot);
+    event HolderRewardSplitterChanged(address value);
+    event EcosystemRewardSplitterChanged(address value);
+    event EcosystemBalanceChanged(uint256 delta, uint256 amount);
 
     error CldAlreadyRegistered(uint256 cldId);
     error InvalidCld(uint256 cldId);
     error InvalidAccount(address account);
-    error TokenNotOwned(
-        address account,
-        uint256 cldId,
-        address registry,
-        uint256 tokenId
-    );
-    error TokenNotInSnapshot(
-        uint256 tokenId,
-        uint256 mintBlock,
-        uint256 snapshotBlock
-    );
     error InvalidShares();
-    error HoldersSnapshotTooEarly();
     error NothingToWithdraw();
+    error CallerNotController(address addr);
 
     struct CldConfiguration {
         uint8 referralShare;
         uint8 communityShare;
         uint8 ecosystemShare;
         uint8 protocolShare;
-        bool isCldSplitRewards;
         address payoutTarget;
         IRegistry registry;
     }
@@ -54,14 +50,19 @@ interface IRewarder {
 
     function balanceOf(uint256 tokenId) external view returns (uint256);
 
+    function ecosystemBalanceOf(
+        uint256 tokenId
+    ) external view returns (uint256);
+
     function balanceOfHolders() external view returns (uint256);
+
+    function balanceOfEcosystem() external view returns (uint256);
 
     function registerCld(
         IRegistry registry,
         address target,
         uint8 referralShare,
-        uint8 communityShare,
-        bool isCldSplitRewards
+        uint8 communityShare
     ) external;
 
     function configurationOf(
@@ -77,23 +78,38 @@ interface IRewarder {
 
     function withdraw(address account, uint256[] calldata tokenIds) external;
 
-    struct HolderRewardsSnapshot {
-        uint256 reward;
-        uint256 supply;
-        uint256 unclaimed;
-        uint256 blockNumber;
-        uint256 blockTimestamp;
-    }
+    function withdrawEcosystem(
+        address account,
+        uint256[] calldata tokenIds
+    ) external;
 
     function takeHolderRewardsSnapshot() external;
 
     function previewHolderRewardsSnapshot()
         external
         view
-        returns (HolderRewardsSnapshot memory);
+        returns (IERC721RewardSplitter.Snapshot memory);
 
     function holderRewardsSnapshot()
         external
         view
-        returns (HolderRewardsSnapshot memory);
+        returns (IERC721RewardSplitter.Snapshot memory);
+
+    function setHolderRewardSplitter(IERC721RewardSplitter splitter) external;
+
+    function takeEcosystemRewardsSnapshot() external;
+
+    function previewEcosystemRewardsSnapshot()
+        external
+        view
+        returns (IERC721RewardSplitter.Snapshot memory);
+
+    function ecosystemRewardsSnapshot()
+        external
+        view
+        returns (IERC721RewardSplitter.Snapshot memory);
+
+    function setEcosystemRewardSplitter(
+        IERC721RewardSplitter splitter
+    ) external;
 }

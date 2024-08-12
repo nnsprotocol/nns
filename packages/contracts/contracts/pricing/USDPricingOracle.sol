@@ -26,7 +26,7 @@ contract USDPricingOracle is IPricingOracle, Ownable {
     constructor(
         uint256[] memory prices,
         IAggregator aggregator
-    ) Ownable(msg.sender) {
+    ) Ownable(_msgSender()) {
         _prices = prices;
         _aggregator = aggregator;
     }

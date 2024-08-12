@@ -4,7 +4,8 @@ import { ContractTransactionResponse, namehash } from "ethers";
 import { ethers } from "hardhat";
 
 async function setup() {
-  const [owner, w1, w2, w3, w4, w5, protocol] = await ethers.getSigners();
+  const [owner, w1, w2, w3, w4, w5, controller, protocol] =
+    await ethers.getSigners();
 
   const erc20F = await ethers.getContractFactory("ERC20Mock");
   const erc20 = await erc20F.deploy();
@@ -12,22 +13,35 @@ async function setup() {
   const swapRouterF = await ethers.getContractFactory("SwapRouterMock");
   const swapRouter = await swapRouterF.deploy(erc20);
 
-  const snapshotInterval = 10234;
-
   const rewarderF = await ethers.getContractFactory("NNSRewarder");
-  const rewarder = await rewarderF.deploy(
-    swapRouter,
-    erc20,
-    erc20,
-    protocol,
-    snapshotInterval
-  );
+  const rewarder = await rewarderF.deploy(swapRouter, erc20, erc20, protocol);
 
   const cldFact = await ethers.getContractFactory("CldRegistry");
   const cldA = await cldFact.deploy("a", "a", owner, owner);
   const cldB = await cldFact.deploy("b", "b", owner, owner);
   const cldC = await cldFact.deploy("c", "c", owner, owner);
   const cldD = await cldFact.deploy("d", "d", owner, owner);
+
+  const snapshotInterval = 10234;
+  const holderRewardSplitterF = await ethers.getContractFactory(
+    "RewardSplitter"
+  );
+  const holderRewardSplitter = await holderRewardSplitterF.deploy(
+    cldA,
+    snapshotInterval
+  );
+  await holderRewardSplitter.transferOwnership(rewarder);
+  await rewarder.setController(controller);
+  await rewarder.setHolderRewardSplitter(holderRewardSplitter);
+
+  const nnsrF = await ethers.getContractFactory("NNSResolverToken");
+  const nnsr = await nnsrF.deploy();
+  const ecosystemRewardSplitter = await holderRewardSplitterF.deploy(
+    nnsr,
+    snapshotInterval
+  );
+  await ecosystemRewardSplitter.transferOwnership(rewarder);
+  await rewarder.setEcosystemRewardSplitter(ecosystemRewardSplitter);
 
   await erc20.mint(swapRouter, 1e9);
 
@@ -49,8 +63,12 @@ async function setup() {
     w3,
     w4,
     w5,
+    controller,
     protocol,
     snapshotInterval,
+    holderRewardSplitter,
+    ecosystemRewardSplitter,
+    nnsr,
   };
 }
 
@@ -65,22 +83,22 @@ describe("NNSRewarder", () => {
   });
 
   describe("registerCld", () => {
-    it("reverts when not called by the owner", async () => {
+    it("reverts when not called by the controller", async () => {
       const ctx = await setup();
       const tx = ctx.rewarder
         .connect(ctx.w1)
-        .registerCld(ctx.cldA, ctx.w2, 10, 10, true);
+        .registerCld(ctx.cldA, ctx.w2, 10, 10);
       await expect(tx).to.revertedWithCustomError(
         ctx.rewarder,
-        "OwnableUnauthorizedAccount"
+        "CallerNotController"
       );
     });
 
     it("reverts when the sum of shares are above 100", async () => {
       const ctx = await setup();
       const tx = ctx.rewarder
-        .connect(ctx.owner)
-        .registerCld(ctx.cldA, ctx.w2, 70, 29, true); // 70 + 29 + 5 = 104
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ctx.w2, 70, 29); // 70 + 29 + 5 = 104
       await expect(tx).to.revertedWithCustomError(
         ctx.rewarder,
         "InvalidShares"
@@ -90,12 +108,12 @@ describe("NNSRewarder", () => {
     it("reverts when registering twice", async () => {
       const ctx = await setup();
       await ctx.rewarder
-        .connect(ctx.owner)
-        .registerCld(ctx.cldA, ctx.w2, 10, 10, true);
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ctx.w2, 10, 10);
 
       const tx = ctx.rewarder
-        .connect(ctx.owner)
-        .registerCld(ctx.cldA, ctx.w2, 10, 10, true);
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ctx.w2, 10, 10);
       await expect(tx)
         .to.revertedWithCustomError(ctx.rewarder, "CldAlreadyRegistered")
         .withArgs(ctx.cldAId);
@@ -109,13 +127,13 @@ describe("NNSRewarder", () => {
       const communityShare = 54;
       const ecosystemShare = (100 - 5 - communityShare - referralShare) / 2;
 
-      it("does not revery", async () => {
+      it("does not revert", async () => {
         ctx = await setup();
         payout = ctx.w5.address;
 
         tx = await ctx.rewarder
-          .connect(ctx.owner)
-          .registerCld(ctx.cldA, payout, referralShare, communityShare, true);
+          .connect(ctx.controller)
+          .registerCld(ctx.cldA, payout, referralShare, communityShare);
       });
 
       it("emits a CldRegistered event", async () => {
@@ -136,7 +154,6 @@ describe("NNSRewarder", () => {
         expect(cfg.communityShare).to.eq(communityShare);
         expect(cfg.ecosystemShare).to.eq(ecosystemShare);
         expect(cfg.protocolShare).to.eq(5);
-        expect(cfg.isCldSplitRewards).to.eq(true);
         expect(cfg.payoutTarget).to.eq(payout);
         expect(cfg.registry).to.eq(ctx.cldA);
       });
@@ -144,21 +161,21 @@ describe("NNSRewarder", () => {
   });
 
   describe("collect", () => {
-    it("reverts when not called by the owner", async () => {
+    it("reverts when not called by the controller", async () => {
       const ctx = await setup();
       const tx = ctx.rewarder
         .connect(ctx.w1)
         .collect(ctx.cldAId, ethers.ZeroAddress);
       await expect(tx).to.revertedWithCustomError(
         ctx.rewarder,
-        "OwnableUnauthorizedAccount"
+        "CallerNotController"
       );
     });
 
     it("reverts when the cld is not registered", async () => {
       const ctx = await setup();
       const tx = ctx.rewarder
-        .connect(ctx.owner)
+        .connect(ctx.controller)
         .collect(ctx.cldAId, ethers.ZeroAddress);
       await expect(tx)
         .to.revertedWithCustomError(ctx.rewarder, "InvalidCld")
@@ -182,13 +199,12 @@ describe("NNSRewarder", () => {
         referer = ctx.w4.address;
 
         await ctx.rewarder
-          .connect(ctx.owner)
+          .connect(ctx.controller)
           .registerCld(
             ctx.cldA,
             communityPayout,
             referralShare,
-            communityShare,
-            true
+            communityShare
           );
         await ctx.cldA.register(ctx.w1, "hey1", [], [], 0, false);
         await ctx.cldA.register(ctx.w2, "hey2", [], [], 0, false);
@@ -201,19 +217,18 @@ describe("NNSRewarder", () => {
         await ctx.cldB.register(ctx.w2, "b5", [], [], 0, false);
 
         await ctx.rewarder
-          .connect(ctx.owner)
+          .connect(ctx.controller)
           .registerCld(
             ctx.cldB,
             communityPayout,
             referralShare,
-            communityShare,
-            false
+            communityShare
           );
 
         await ctx.erc20.mint(ctx.swapRouter, 1e9);
 
         tx = await ctx.rewarder
-          .connect(ctx.owner)
+          .connect(ctx.controller)
           .collect(ctx.cldBId, referer, { value: valueETH });
       });
 
@@ -272,8 +287,6 @@ describe("NNSRewarder", () => {
         });
       });
 
-      // TODO: ecosystem
-
       describe("holders", () => {
         function s(share: number) {
           return Math.floor((share * valueERC20) / 100);
@@ -301,6 +314,25 @@ describe("NNSRewarder", () => {
             .withArgs(expBalance, expBalance);
         });
       });
+
+      describe("ecosystem", () => {
+        const expBalance = Math.floor((ecosystemShare * valueERC20) / 100);
+
+        it("has a positive balance", async () => {
+          expect(expBalance).to.be.greaterThanOrEqual(0);
+        });
+
+        it("assigns balance", async () => {
+          const balance = await ctx.rewarder.balanceOfEcosystem();
+          expect(balance).to.eq(expBalance);
+        });
+
+        it("emits EcosystemBalanceChanged event", async () => {
+          await expect(tx)
+            .to.emit(ctx.rewarder, "EcosystemBalanceChanged")
+            .withArgs(expBalance, expBalance);
+        });
+      });
     });
   });
 
@@ -314,23 +346,33 @@ describe("NNSRewarder", () => {
       ctx = await setup();
 
       await ctx.rewarder
-        .connect(ctx.owner)
-        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 50, true);
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 50);
       await ctx.cldA.register(ctx.w1, "d1", [], [], 0, true);
       await ctx.cldA.register(ctx.w2, "d2", [], [], 0, true);
       await ctx.cldA.register(ctx.w3, "d3", [], [], 0, true);
       await ctx.cldA.register(ctx.w4, "d4", [], [], 0, true);
       await ctx.cldA.register(ctx.w5, "d5", [], [], 0, true);
 
-      await ctx.rewarder.collect(ctx.cldAId, ethers.ZeroAddress, {
-        value: 2389475,
-      });
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2389475,
+        });
       usersBalance = Number(await ctx.rewarder.balanceOfHolders());
     });
 
     it("has zero balance before snapshots are taken", async () => {
       const b = await ctx.rewarder["balanceOf(uint256)"](namehash("d1.a"));
       expect(b).to.eq(0);
+    });
+
+    it("creates a preview", async () => {
+      const snapshot = await ctx.rewarder.previewHolderRewardsSnapshot();
+      expect(snapshot.supply).to.eq(5); // 5 domains were minted
+      const expReward = Math.floor(usersBalance / Number(snapshot.supply));
+      expect(snapshot.reward).to.eq(expReward);
+      expect(snapshot.unclaimed).to.eq(usersBalance);
     });
 
     it("creates a snapshot", async () => {
@@ -354,30 +396,122 @@ describe("NNSRewarder", () => {
       expect(b).to.eq(expReward);
     });
 
-    it("emits a HolderRewardsSnapshotCreated event", async () => {
-      await expect(tx).to.emit(ctx.rewarder, "HolderRewardsSnapshotCreated");
+    it("emits a SnapshotCreated event", async () => {
+      await expect(tx).to.emit(ctx.holderRewardSplitter, "SnapshotCreated");
     });
 
     it("reverts when snapshotting before the next is allowed", async () => {
       const tx = ctx.rewarder.takeHolderRewardsSnapshot();
       expect(tx).to.be.revertedWithCustomError(
-        ctx.rewarder,
-        "HoldersSnapshotTooEarly"
+        ctx.holderRewardSplitter,
+        "SnapshotTooEarly"
       );
     });
 
     it("redistributes the unclaimed amount in the next snapshot", async () => {
       const { unclaimed } = await ctx.rewarder.holderRewardsSnapshot();
       const value = 66666;
-      await ctx.rewarder.collect(ctx.cldAId, ethers.ZeroAddress, {
-        value,
-      });
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value,
+        });
       await time.increase(ctx.snapshotInterval + 10);
       const b = await ctx.rewarder.balanceOfHolders();
 
       await ctx.rewarder.takeHolderRewardsSnapshot();
 
       const snapshot = await ctx.rewarder.holderRewardsSnapshot();
+      expect(snapshot.unclaimed).to.eq(b + unclaimed);
+    });
+  });
+
+  describe("Ecosystem Snapshot", () => {
+    let ctx: Context;
+    let tx: ContractTransactionResponse;
+    let txTimestamp: number;
+    let ecosystemBalance: number;
+
+    before(async () => {
+      ctx = await setup();
+
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 50);
+
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2389475,
+        });
+
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w1.address, "w1-1");
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w1.address, "w1-2");
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w2.address, "w2-1");
+
+      ecosystemBalance = Number(await ctx.rewarder.balanceOfEcosystem());
+    });
+
+    it("has zero balance before snapshots are taken", async () => {
+      const b = await ctx.rewarder.ecosystemBalanceOf(namehash("w1-1"));
+      expect(b).to.eq(0);
+    });
+
+    it("creates a preview", async () => {
+      const snapshot = await ctx.rewarder.previewEcosystemRewardsSnapshot();
+      expect(snapshot.supply).to.eq(3); // 3 rewards tokens minted
+      const expReward = Math.floor(ecosystemBalance / Number(snapshot.supply));
+      expect(snapshot.reward).to.eq(expReward);
+      expect(snapshot.unclaimed).to.eq(ecosystemBalance);
+    });
+
+    it("creates a snapshot", async () => {
+      tx = await ctx.rewarder.connect(ctx.owner).takeEcosystemRewardsSnapshot();
+      txTimestamp = await time.latest();
+    });
+
+    it("distributes the balance and keeps the reminder", async () => {
+      const snapshot = await ctx.rewarder.ecosystemRewardsSnapshot();
+      expect(snapshot.supply).to.eq(3); // 3 rewards tokens minted
+      const expReward = Math.floor(ecosystemBalance / Number(snapshot.supply));
+      expect(snapshot.reward).to.eq(expReward);
+      expect(snapshot.unclaimed).to.eq(ecosystemBalance);
+      expect(snapshot.blockNumber).to.eq(tx.blockNumber);
+      expect(snapshot.blockTimestamp).to.eq(txTimestamp);
+
+      const reminder = ecosystemBalance % Number(snapshot.supply);
+      expect(await ctx.rewarder.balanceOfEcosystem()).to.eq(reminder);
+
+      const b = await ctx.rewarder.ecosystemBalanceOf(namehash("w1-1"));
+      expect(b).to.eq(expReward);
+    });
+
+    it("emits a SnapshotCreated event", async () => {
+      await expect(tx).to.emit(ctx.ecosystemRewardSplitter, "SnapshotCreated");
+    });
+
+    it("reverts when snapshotting before the next is allowed", async () => {
+      const tx = ctx.rewarder.takeHolderRewardsSnapshot();
+      expect(tx).to.be.revertedWithCustomError(
+        ctx.ecosystemRewardSplitter,
+        "SnapshotTooEarly"
+      );
+    });
+
+    it("redistributes the unclaimed amount in the next snapshot", async () => {
+      const { unclaimed } = await ctx.rewarder.ecosystemRewardsSnapshot();
+      const value = 66666;
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value,
+        });
+      await time.increase(ctx.snapshotInterval + 10);
+      const b = await ctx.rewarder.balanceOfEcosystem();
+
+      await ctx.rewarder.takeEcosystemRewardsSnapshot();
+
+      const snapshot = await ctx.rewarder.ecosystemRewardsSnapshot();
       expect(snapshot.unclaimed).to.eq(b + unclaimed);
     });
   });
@@ -394,15 +528,11 @@ describe("NNSRewarder", () => {
 
     it("transfers the balance accumulated for that wallet", async () => {
       const ctx = await setup();
-      await ctx.rewarder.registerCld(
-        ctx.cldA,
-        ethers.ZeroAddress,
-        10,
-        10,
-        true
-      );
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 10);
       const target = ctx.w5;
-      await ctx.rewarder.collect(ctx.cldAId, target, {
+      await ctx.rewarder.connect(ctx.controller).collect(ctx.cldAId, target, {
         value: 2345,
       });
 
@@ -422,16 +552,14 @@ describe("NNSRewarder", () => {
 
     it("reverts when the tokenId is not owned by the target account", async () => {
       const ctx = await setup();
-      await ctx.rewarder.registerCld(
-        ctx.cldA,
-        ethers.ZeroAddress,
-        10,
-        10,
-        true
-      );
-      await ctx.rewarder.collect(ctx.cldAId, ethers.ZeroAddress, {
-        value: 2345,
-      });
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 10);
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2345,
+        });
 
       const target = ctx.w5;
       const tokenId = namehash("hello.a");
@@ -440,24 +568,25 @@ describe("NNSRewarder", () => {
 
       const tx = ctx.rewarder.withdraw(ctx.w2, [tokenId]);
       await expect(tx)
-        .to.be.revertedWithCustomError(ctx.rewarder, "TokenNotOwned")
-        .withArgs(ctx.w2.address, ctx.cldAId, ctx.cldA, tokenId);
+        .to.be.revertedWithCustomError(
+          ctx.holderRewardSplitter,
+          "TokenNotOwned"
+        )
+        .withArgs(ctx.w2.address, ctx.cldA, tokenId);
     });
 
     it("reverts when the tokenId was minted after the snapshot was taken", async () => {
       const ctx = await setup();
       await ctx.cldA.register(ctx.w1, "xxxx.a", [], [], 0, true);
-      await ctx.rewarder.registerCld(
-        ctx.cldA,
-        ethers.ZeroAddress,
-        10,
-        10,
-        true
-      );
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 10);
 
-      await ctx.rewarder.collect(ctx.cldAId, ethers.ZeroAddress, {
-        value: 2345,
-      });
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2345,
+        });
       await ctx.rewarder.takeHolderRewardsSnapshot();
       const snapshotBlock = await time.latestBlock();
 
@@ -468,24 +597,25 @@ describe("NNSRewarder", () => {
 
       const tx = ctx.rewarder.withdraw(target, [tokenId]);
       await expect(tx)
-        .to.be.revertedWithCustomError(ctx.rewarder, "TokenNotInSnapshot")
-        .withArgs(tokenId, mintBlock, snapshotBlock);
+        .to.be.revertedWithCustomError(
+          ctx.holderRewardSplitter,
+          "TokenNotInSnapshot"
+        )
+        .withArgs(ctx.cldA, tokenId, mintBlock, snapshotBlock);
     });
 
     it("transfers the balance to the owner", async () => {
       const ctx = await setup();
       await ctx.cldA.register(ctx.w1, "xxxx.a", [], [], 0, true);
-      await ctx.rewarder.registerCld(
-        ctx.cldA,
-        ethers.ZeroAddress,
-        10,
-        10,
-        true
-      );
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 10);
 
-      await ctx.rewarder.collect(ctx.cldAId, ethers.ZeroAddress, {
-        value: 2345,
-      });
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2345,
+        });
       const target = ctx.w5;
       const tokenId = namehash("hello.a");
       await ctx.cldA.register(target, "hello", [], [], 0, true);
@@ -509,17 +639,15 @@ describe("NNSRewarder", () => {
     it("doesn't transfer the balance twice", async () => {
       const ctx = await setup();
       await ctx.cldA.register(ctx.w1, "xxxx.a", [], [], 0, true);
-      await ctx.rewarder.registerCld(
-        ctx.cldA,
-        ethers.ZeroAddress,
-        10,
-        10,
-        true
-      );
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 10);
 
-      await ctx.rewarder.collect(ctx.cldAId, ethers.ZeroAddress, {
-        value: 2345,
-      });
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2345,
+        });
       const target = ctx.w5;
       const tokenId = namehash("hello.a");
       await ctx.cldA.register(target, "hello", [], [], 0, true);
@@ -540,9 +668,15 @@ describe("NNSRewarder", () => {
       const target = ctx.w5;
 
       // only CLD A counts
-      await ctx.rewarder.registerCld(ctx.cldA, target, 10, 10, true);
-      await ctx.rewarder.registerCld(ctx.cldB, ctx.w1, 10, 10, false);
-      await ctx.rewarder.registerCld(ctx.cldC, ctx.w1, 10, 10, false);
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, target, 10, 10);
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldB, ctx.w1, 10, 10);
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldC, ctx.w1, 10, 10);
 
       await ctx.cldA.register(target, "claim1", [], [], 0, true);
       await ctx.cldA.register(target, "claim2", [], [], 0, true);
@@ -555,12 +689,16 @@ describe("NNSRewarder", () => {
       await ctx.cldC.register(target, "claim1", [], [], 0, true);
       await ctx.cldC.register(target, "claim2", [], [], 0, true);
 
-      await ctx.rewarder.collect(ctx.cldAId, ethers.ZeroAddress, {
-        value: 2345,
-      });
-      await ctx.rewarder.collect(ctx.cldBId, ethers.ZeroAddress, {
-        value: 3432,
-      });
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2345,
+        });
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldBId, ethers.ZeroAddress, {
+          value: 3432,
+        });
       await ctx.rewarder.takeHolderRewardsSnapshot();
       const snapshot = await ctx.rewarder.holderRewardsSnapshot();
 
@@ -578,6 +716,132 @@ describe("NNSRewarder", () => {
 
       const b = await ctx.erc20.balanceOf(target.address);
       expect(b).to.eq(expAddrBalance + expTokenBalance);
+    });
+  });
+
+  describe("withdrawEcosystem", () => {
+    it("reverts when the target is the zero address", async () => {
+      const ctx = await setup();
+      const tx = ctx.rewarder.withdrawEcosystem(ethers.ZeroAddress, []);
+      await expect(tx).to.be.revertedWithCustomError(
+        ctx.rewarder,
+        "InvalidAccount"
+      );
+    });
+
+    it("transfers the balance accumulated for that wallet", async () => {
+      const ctx = await setup();
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w1.address, "w1-1");
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w1.address, "w1-2");
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w2.address, "w2-1");
+      const target = ctx.w1;
+
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 10);
+      await ctx.rewarder.connect(ctx.controller).collect(ctx.cldAId, target, {
+        value: 2345,
+      });
+      await ctx.rewarder.takeEcosystemRewardsSnapshot();
+
+      const expBalance1 = await ctx.rewarder.ecosystemBalanceOf(
+        namehash("w1-1")
+      );
+      const expBalance2 = await ctx.rewarder.ecosystemBalanceOf(
+        namehash("w1-2")
+      );
+
+      await ctx.rewarder.withdrawEcosystem(target.address, [
+        namehash("w1-1"),
+        namehash("w1-2"),
+      ]);
+      const b = await ctx.erc20.balanceOf(target.address);
+      expect(b).to.be.greaterThan(0);
+      expect(b).to.eq(expBalance1 + expBalance2);
+      const newBalance1 = await ctx.rewarder.ecosystemBalanceOf(
+        namehash("w1-1")
+      );
+      expect(newBalance1).to.eq(0);
+      const newBalance2 = await ctx.rewarder.ecosystemBalanceOf(
+        namehash("w1-2")
+      );
+      expect(newBalance2).to.eq(0);
+
+      const balanceOtherToken = await ctx.rewarder.ecosystemBalanceOf(
+        namehash("w2-1")
+      );
+      expect(balanceOtherToken).to.be.greaterThan(0);
+    });
+
+    it("reverts when the tokenId is not owned by the target account", async () => {
+      const ctx = await setup();
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 10);
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2345,
+        });
+
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w1.address, "w1-1");
+
+      await ctx.rewarder.takeEcosystemRewardsSnapshot();
+      const tx = ctx.rewarder.withdrawEcosystem(ctx.w2, [namehash("w1-1")]);
+      await expect(tx)
+        .to.be.revertedWithCustomError(
+          ctx.holderRewardSplitter,
+          "TokenNotOwned"
+        )
+        .withArgs(ctx.w2.address, ctx.nnsr, namehash("w1-1"));
+    });
+
+    it("reverts when the tokenId was minted after the snapshot was taken", async () => {
+      const ctx = await setup();
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w1.address, "before");
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 10);
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2345,
+        });
+      await ctx.rewarder.takeEcosystemRewardsSnapshot();
+      const snapshotBlock = await time.latestBlock();
+
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w1.address, "after");
+
+      const mintBlock = await time.latestBlock();
+      const tx = ctx.rewarder.withdrawEcosystem(ctx.w1, [namehash("after")]);
+      await expect(tx)
+        .to.be.revertedWithCustomError(
+          ctx.holderRewardSplitter,
+          "TokenNotInSnapshot"
+        )
+        .withArgs(ctx.nnsr, namehash("after"), mintBlock, snapshotBlock);
+    });
+
+    it("doesn't transfer the balance twice", async () => {
+      const ctx = await setup();
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ethers.ZeroAddress, 10, 10);
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .collect(ctx.cldAId, ethers.ZeroAddress, {
+          value: 2345,
+        });
+      await ctx.nnsr.connect(ctx.owner).mint(ctx.w1, "token");
+
+      await ctx.rewarder.takeEcosystemRewardsSnapshot();
+
+      await ctx.rewarder.withdrawEcosystem(ctx.w1, [namehash("token")]);
+      const tx = ctx.rewarder.withdrawEcosystem(ctx.w1, [namehash("token")]);
+      await expect(tx).to.be.revertedWithCustomError(
+        ctx.rewarder,
+        "NothingToWithdraw"
+      );
     });
   });
 });

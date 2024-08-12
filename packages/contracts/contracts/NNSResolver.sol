@@ -11,7 +11,7 @@ contract NNSResolver is IResolver, Ownable {
 
     mapping(address => uint256) _defaultCldIds;
 
-    constructor() Ownable(msg.sender) {}
+    constructor() Ownable(_msgSender()) {}
 
     function registerCld(
         IRegistry registry,
@@ -46,7 +46,8 @@ contract NNSResolver is IResolver, Ownable {
     function setDefaultCld(address account, uint256 cldId) external {
         IRegistry reg = _requireRegistryOf(cldId);
         if (
-            msg.sender != account && !reg.isApprovedForAll(account, msg.sender)
+            _msgSender() != account &&
+            !reg.isApprovedForAll(account, _msgSender())
         ) {
             revert UnauthorizedAccount();
         }

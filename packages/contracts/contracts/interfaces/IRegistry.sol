@@ -3,8 +3,9 @@ pragma solidity >=0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./IRecordStorage.sol";
+import "./IERC721Named.sol";
 
-interface IRegistry is IERC721, IRecordStorage {
+interface IRegistry is IERC721, IRecordStorage, IERC721Named {
     event ReverseChanged(
         uint256 cldId,
         address account,
@@ -37,8 +38,6 @@ interface IRegistry is IERC721, IRecordStorage {
     function totalSupply() external view returns (uint256);
 
     function cld() external view returns (string memory name, uint256 id);
-
-    function nameOf(uint256 tokenId) external view returns (string memory);
 
     function reverseOf(address addr) external view returns (uint256 tokenId);
 
@@ -75,8 +74,6 @@ interface IRegistry is IERC721, IRecordStorage {
     function expiryOf(uint256 tokenId) external view returns (uint256);
 
     function isExpired(uint256 tokenId) external view returns (bool);
-
-    function mintBlockNumberOf(uint256 tokenId) external view returns (uint256);
 
     function registerSubdomain(
         uint256 tokenId,

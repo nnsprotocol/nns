@@ -3,6 +3,7 @@ pragma solidity >=0.8.4;
 
 import "./interfaces/IRewarder.sol";
 import "./interfaces/IRegistry.sol";
+import "./interfaces/IERC721Reward.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -19,83 +20,103 @@ contract NNSRewarder is IRewarder, Ownable {
     mapping(uint256 cldId => address) _communityPayables;
     mapping(uint256 cldId => uint8) _referralRewards;
     mapping(uint256 cldId => IRegistry) _registries;
-    IRegistry _registrySplitRewards;
+
+    IERC721RewardSplitter internal _holderRewardSplitter;
+    IERC721RewardSplitter internal _ecosystemRewardSplitter;
 
     IERC20 _rewardToken;
     ISwapRouter internal _swapRouter;
     IERC20 internal _weth9;
 
     uint256 internal _holdersBalance;
-    HolderRewardsSnapshot internal _holderRewardsSnapshot;
-    mapping(uint256 block => mapping(uint256 tokenId => bool)) _claimedTokens;
+    uint256 internal _ecosystemBalance;
+    address internal _controller;
 
-    uint256 internal _minSnapshotInterval;
+    function setController(address controller) external onlyOwner {
+        _controller = controller;
+    }
+
+    modifier onlyController() {
+        if (_msgSender() != _controller) {
+            revert CallerNotController(_msgSender());
+        }
+        _;
+    }
+
+    function setHolderRewardSplitter(
+        IERC721RewardSplitter splitter
+    ) external onlyOwner {
+        _holderRewardSplitter = splitter;
+        emit HolderRewardSplitterChanged(address(splitter));
+    }
+
+    function setEcosystemRewardSplitter(
+        IERC721RewardSplitter splitter
+    ) external onlyOwner {
+        _ecosystemRewardSplitter = splitter;
+        emit EcosystemRewardSplitterChanged(address(splitter));
+    }
 
     function holderRewardsSnapshot()
         external
         view
-        returns (HolderRewardsSnapshot memory)
+        returns (IERC721RewardSplitter.Snapshot memory)
     {
-        return _holderRewardsSnapshot;
+        return _holderRewardSplitter.lastSnapshot();
     }
 
     function takeHolderRewardsSnapshot() external {
-        if (
-            _holderRewardsSnapshot.blockTimestamp + _minSnapshotInterval >
-            block.timestamp
-        ) {
-            revert HoldersSnapshotTooEarly();
-        }
-
-        (
-            _holderRewardsSnapshot,
-            _holdersBalance
-        ) = _calculateHolderRewardsSnapshot();
-        emit HolderRewardsSnapshotCreated(_holderRewardsSnapshot);
-    }
-
-    function _calculateHolderRewardsSnapshot()
-        internal
-        view
-        returns (HolderRewardsSnapshot memory snapshot, uint256 reminder)
-    {
-        uint256 balance = _holdersBalance + _holderRewardsSnapshot.unclaimed;
-        uint256 supply = _registrySplitRewards.totalSupply();
-        uint256 reward = balance / supply;
-        snapshot = HolderRewardsSnapshot(
-            reward,
-            supply,
-            balance,
-            block.number,
-            block.timestamp
-        );
-        reminder = balance % supply;
+        _holdersBalance = _holderRewardSplitter.takeSnapshot(_holdersBalance);
     }
 
     function previewHolderRewardsSnapshot()
         external
         view
-        returns (HolderRewardsSnapshot memory)
+        returns (IERC721RewardSplitter.Snapshot memory)
     {
         (
-            HolderRewardsSnapshot memory snapshot,
+            IERC721RewardSplitter.Snapshot memory snapshot,
 
-        ) = _calculateHolderRewardsSnapshot();
+        ) = _holderRewardSplitter.previewSnapshot(_holdersBalance);
         return snapshot;
+    }
+
+    function takeEcosystemRewardsSnapshot() external {
+        _ecosystemBalance = _ecosystemRewardSplitter.takeSnapshot(
+            _ecosystemBalance
+        );
+    }
+
+    function previewEcosystemRewardsSnapshot()
+        external
+        view
+        returns (IERC721RewardSplitter.Snapshot memory)
+    {
+        (
+            IERC721RewardSplitter.Snapshot memory snapshot,
+
+        ) = _ecosystemRewardSplitter.previewSnapshot(_ecosystemBalance);
+        return snapshot;
+    }
+
+    function ecosystemRewardsSnapshot()
+        external
+        view
+        returns (IERC721RewardSplitter.Snapshot memory)
+    {
+        return _ecosystemRewardSplitter.lastSnapshot();
     }
 
     constructor(
         ISwapRouter swapRouter,
         IERC20 rewardToken,
         IERC20 weth9,
-        address protocol,
-        uint256 minSnapshotInterval
-    ) Ownable(msg.sender) {
+        address protocol
+    ) Ownable(_msgSender()) {
         _swapRouter = swapRouter;
         _rewardToken = rewardToken;
         _weth9 = weth9;
         _protocol = protocol;
-        _minSnapshotInterval = minSnapshotInterval;
     }
 
     function configurationOf(
@@ -112,7 +133,6 @@ contract NNSRewarder is IRewarder, Ownable {
                 _communityRewards[cldId],
                 _ecosytemShare(cldId),
                 PROTOCOL_SHARE,
-                registry == _registrySplitRewards,
                 _communityPayables[cldId],
                 registry
             );
@@ -122,9 +142,8 @@ contract NNSRewarder is IRewarder, Ownable {
         IRegistry registry,
         address payout,
         uint8 referralShare,
-        uint8 communityShare,
-        bool isCldSplitRewards
-    ) external onlyOwner {
+        uint8 communityShare
+    ) external onlyController {
         if (referralShare + communityShare + PROTOCOL_SHARE > 100) {
             revert InvalidShares();
         }
@@ -138,9 +157,6 @@ contract NNSRewarder is IRewarder, Ownable {
         _communityRewards[cldId] = communityShare;
         _referralRewards[cldId] = referralShare;
         _registries[cldId] = registry;
-        if (isCldSplitRewards) {
-            _registrySplitRewards = registry;
-        }
         emit CldRegistered(
             cldId,
             payout,
@@ -153,7 +169,7 @@ contract NNSRewarder is IRewarder, Ownable {
     function collect(
         uint256 cldId,
         address referer
-    ) external payable onlyOwner {
+    ) external payable onlyController {
         _requireRegistryOf(cldId);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
@@ -201,6 +217,10 @@ contract NNSRewarder is IRewarder, Ownable {
 
         // Ecosystem + Users
         uint256 ecosystemAmount = (totalAmount * _ecosytemShare(cldId)) / 100;
+        if (ecosystemAmount > 0) {
+            _ecosystemBalance += ecosystemAmount;
+            emit EcosystemBalanceChanged(ecosystemAmount, _ecosystemBalance);
+        }
 
         uint256 usersAmount = totalAmount -
             refererAmount -
@@ -223,60 +243,58 @@ contract NNSRewarder is IRewarder, Ownable {
                 PROTOCOL_SHARE) / 2;
     }
 
-    function withdraw(address account, uint256[] calldata tokenIds) external {
-        _withdraw(account, tokenIds);
+    function withdraw(address account, uint256[] calldata tokenIds) public {
+        uint256 amount = _withdraw(
+            account,
+            tokenIds,
+            true,
+            _holderRewardSplitter
+        );
+        emit Withdrawn(account, tokenIds, amount);
     }
 
     function withdrawForCommunity(
         uint256 cldId,
         uint256[] calldata tokenIds
     ) external {
-        _withdraw(_communityPayables[cldId], tokenIds);
+        withdraw(_communityPayables[cldId], tokenIds);
     }
 
-    function _withdraw(address account, uint256[] calldata tokenIds) internal {
+    function withdrawEcosystem(
+        address account,
+        uint256[] calldata tokenIds
+    ) external {
+        uint256 amount = _withdraw(
+            account,
+            tokenIds,
+            false,
+            _ecosystemRewardSplitter
+        );
+        emit WithdrawnEcosystem(account, tokenIds, amount);
+    }
+
+    function _withdraw(
+        address account,
+        uint256[] calldata tokenIds,
+        bool includeAccountBalance,
+        IERC721RewardSplitter splitter
+    ) internal returns (uint256 amount) {
         if (account == address(0)) {
             revert InvalidAccount(account);
         }
-        uint256 amount = balanceOf(account);
+        amount = 0;
+        if (includeAccountBalance) {
+            amount = balanceOf(account);
+        }
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            amount += _processTokenReward(account, tokenIds[i]);
+            amount += splitter.issueReward(account, tokenIds[i]);
         }
         if (amount == 0) {
             revert NothingToWithdraw();
         }
         _walletBalances[account] = 0;
         SafeERC20.safeTransfer(_rewardToken, account, amount);
-        emit Withdrawn(account, tokenIds, amount);
-    }
-
-    function _processTokenReward(
-        address account,
-        uint256 tokenId
-    ) internal returns (uint256) {
-        if (_claimedTokens[_holderRewardsSnapshot.blockNumber][tokenId]) {
-            return 0;
-        }
-        if (_registrySplitRewards.ownerOf(tokenId) != account) {
-            (, uint256 cldId) = _registrySplitRewards.cld();
-            revert TokenNotOwned(
-                account,
-                cldId,
-                address(_registrySplitRewards),
-                tokenId
-            );
-        }
-        uint256 mintBlock = _registrySplitRewards.mintBlockNumberOf(tokenId);
-        if (mintBlock >= _holderRewardsSnapshot.blockNumber) {
-            revert TokenNotInSnapshot(
-                tokenId,
-                mintBlock,
-                _holderRewardsSnapshot.blockNumber
-            );
-        }
-        _holderRewardsSnapshot.unclaimed -= _holderRewardsSnapshot.reward;
-        _claimedTokens[_holderRewardsSnapshot.blockNumber][tokenId] = true;
-        return _holderRewardsSnapshot.reward;
+        return amount;
     }
 
     function balanceOf(address account) public view returns (uint256) {
@@ -284,18 +302,21 @@ contract NNSRewarder is IRewarder, Ownable {
     }
 
     function balanceOf(uint256 tokenId) public view returns (uint256) {
-        uint256 tokenBlock = _registrySplitRewards.mintBlockNumberOf(tokenId);
-        if (tokenBlock > _holderRewardsSnapshot.blockNumber) {
-            return 0;
-        }
-        if (_claimedTokens[_holderRewardsSnapshot.blockNumber][tokenId]) {
-            return 0;
-        }
-        return _holderRewardsSnapshot.reward;
+        return _holderRewardSplitter.balanceOf(tokenId);
+    }
+
+    function ecosystemBalanceOf(
+        uint256 tokenId
+    ) external view returns (uint256) {
+        return _ecosystemRewardSplitter.balanceOf(tokenId);
     }
 
     function balanceOfHolders() external view returns (uint256) {
         return _holdersBalance;
+    }
+
+    function balanceOfEcosystem() external view returns (uint256) {
+        return _ecosystemBalance;
     }
 
     function _requireRegistryOf(

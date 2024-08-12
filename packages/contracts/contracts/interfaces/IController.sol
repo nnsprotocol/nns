@@ -31,8 +31,7 @@ interface IController {
         address communityPayable,
         address communityManager,
         bool hasExpiringNames,
-        bool isDefaultCldResolver,
-        bool isSplitShareCld
+        bool isDefaultCldResolver
     ) external;
 
     function register(

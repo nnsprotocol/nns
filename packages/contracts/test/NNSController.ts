@@ -15,7 +15,7 @@ async function setup() {
   const swapRouter = await swapRouterF.deploy(erc20);
 
   const rewarderF = await ethers.getContractFactory("NNSRewarder");
-  const rewarder = await rewarderF.deploy(swapRouter, erc20, erc20, w5, 0);
+  const rewarder = await rewarderF.deploy(swapRouter, erc20, erc20, w5);
 
   const resolverF = await ethers.getContractFactory("NNSResolver");
   const resolver = await resolverF.deploy();
@@ -25,7 +25,7 @@ async function setup() {
 
   const controllerF = await ethers.getContractFactory("NNSController");
   const controller = await controllerF.deploy(rewarder, resolver, cldF);
-  await rewarder.transferOwnership(controller);
+  await rewarder.setController(controller);
   await resolver.transferOwnership(controller);
 
   const pricerF = await ethers.getContractFactory("ConstantPricingOracle");
@@ -54,17 +54,7 @@ describe("NNSController", () => {
       const ctx = await setup();
       const tx = ctx.controller
         .connect(ctx.w3)
-        .registerCld(
-          "test",
-          10,
-          10,
-          ctx.pricer,
-          ctx.w1,
-          ctx.w1,
-          false,
-          true,
-          true
-        );
+        .registerCld("test", 10, 10, ctx.pricer, ctx.w1, ctx.w1, false, true);
       await expect(tx).to.revertedWithCustomError(
         ctx.controller,
         "OwnableUnauthorizedAccount"
@@ -83,7 +73,6 @@ describe("NNSController", () => {
           ctx.owner,
           ctx.owner,
           false,
-          true,
           true
         );
 
@@ -107,17 +96,7 @@ describe("NNSController", () => {
       it("does not revert", async () => {
         tx = await ctx.controller
           .connect(ctx.owner)
-          .registerCld(
-            cldName,
-            10,
-            7,
-            ctx.pricer,
-            ctx.w3,
-            ctx.w2,
-            false,
-            true,
-            true
-          );
+          .registerCld(cldName, 10, 7, ctx.pricer, ctx.w3, ctx.w2, false, true);
 
         registryAddress = await ctx.controller.registryOf(cldId);
       });
@@ -162,31 +141,11 @@ describe("NNSController", () => {
       const cldName = "hello";
       await ctx.controller
         .connect(ctx.owner)
-        .registerCld(
-          cldName,
-          10,
-          7,
-          ctx.pricer,
-          ctx.w3,
-          ctx.w2,
-          false,
-          true,
-          true
-        );
+        .registerCld(cldName, 10, 7, ctx.pricer, ctx.w3, ctx.w2, false, true);
 
       const tx = ctx.controller
         .connect(ctx.owner)
-        .registerCld(
-          cldName,
-          10,
-          7,
-          ctx.pricer,
-          ctx.w3,
-          ctx.w2,
-          false,
-          true,
-          true
-        );
+        .registerCld(cldName, 10, 7, ctx.pricer, ctx.w3, ctx.w2, false, true);
 
       await expect(tx).to.revertedWithCustomError(
         ctx.controller,
@@ -219,7 +178,6 @@ describe("NNSController", () => {
           ctx.w3,
           communityManager,
           false,
-          true,
           true
         );
     });
@@ -300,7 +258,6 @@ describe("NNSController", () => {
           ctx.w3,
           communityManager,
           false,
-          true,
           true
         );
 
@@ -452,7 +409,6 @@ describe("NNSController", () => {
           ctx.w3,
           communityManager,
           true,
-          true,
           true
         );
 
@@ -555,7 +511,6 @@ describe("NNSController", () => {
         ctx.w3,
         ctx.w2,
         expires,
-        true,
         true
       );
       const isExpiring = await ctx.controller.isExpiringCLD(namehash(name));
@@ -574,7 +529,6 @@ describe("NNSController", () => {
         ctx.w3,
         ctx.w2,
         expires,
-        true,
         true
       );
       const isExpiring = await ctx.controller.isExpiringCLD(namehash(name));
@@ -591,7 +545,6 @@ describe("NNSController", () => {
 
     it("returns the pricing oracle when set", async () => {
       const ctx = await setup();
-      const expires = true;
       const name = "test";
       await ctx.controller.registerCld(
         name,
@@ -601,7 +554,6 @@ describe("NNSController", () => {
         ctx.w3,
         ctx.w2,
         false,
-        true,
         true
       );
       const oracle = await ctx.controller.pricingOracleOf(namehash(name));

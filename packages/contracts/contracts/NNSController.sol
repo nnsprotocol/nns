@@ -7,6 +7,7 @@ import "./interfaces/IRewarder.sol";
 import "./interfaces/IResolver.sol";
 import "./interfaces/IController.sol";
 import "./interfaces/ICldFactory.sol";
+import "./libraries/Namehash.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -27,7 +28,7 @@ contract NNSController is IController, Ownable {
         IRewarder rewarder,
         IResolver resolver,
         ICldFactory cldFactory
-    ) Ownable(msg.sender) {
+    ) Ownable(_msgSender()) {
         _rewarder = rewarder;
         _resolver = resolver;
         _cldFactory = cldFactory;
@@ -45,8 +46,7 @@ contract NNSController is IController, Ownable {
         address communityPayable,
         address communityManager,
         bool hasExpiringNames,
-        bool isDefaultCldResolver,
-        bool isSplitShareCld
+        bool isDefaultCldResolver
     ) external onlyOwner {
         IRegistry reg = _cldFactory.createCld(
             name,
@@ -62,8 +62,7 @@ contract NNSController is IController, Ownable {
             reg,
             communityPayable,
             referralReward,
-            communityReward,
-            isSplitShareCld
+            communityReward
         );
         _resolver.registerCld(reg, isDefaultCldResolver);
         _registries[cldId] = reg;
@@ -140,7 +139,7 @@ contract NNSController is IController, Ownable {
             revert InsufficientTransferAmount(price, msg.value);
         }
         if (msg.value >= price) {
-            payable(msg.sender).transfer(msg.value - price);
+            payable(_msgSender()).transfer(msg.value - price);
         }
         return price;
     }
@@ -152,20 +151,12 @@ contract NNSController is IController, Ownable {
         if (bytes(label).length == 0) {
             revert InvalidLabel();
         }
-        return
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        tokenId,
-                        keccak256(abi.encodePacked(label))
-                    )
-                )
-            );
+        return Namehash.namehash(label, tokenId);
     }
 
     function setPricingOracle(uint256 cldId, IPricingOracle oracle) public {
         IRegistry registry = _requireRegistryOf(cldId);
-        if (!registry.hasCommunityRole(msg.sender)) {
+        if (!registry.hasCommunityRole(_msgSender())) {
             revert UnauthorizedAccount();
         }
         _setPricingOracle(cldId, oracle);
