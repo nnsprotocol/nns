@@ -7,6 +7,7 @@ import IconPlus from "../components/icons/IconPlus";
 import LayoutDefault from "../components/layouts/LayoutDefault";
 import DomainCollectionsCards from "../components/my-domains/DomainCollectionsCards";
 import SearchResultsList from "../components/search/SearchResultsList";
+import DropdownSearch from "../components/my-domains/DropdownSearch";
 
 function MyDomainsPage() {
   const [searchText, setSearchText] = useState("");
@@ -25,21 +26,10 @@ function MyDomainsPage() {
         <input
           type="text"
           onInput={handleSearchInput}
-          placeholder="Seach domain"
+          placeholder="Search domain"
           className="p-xs h-12 w-full outline-none text-base bg-transparent"
         />
-        <div className="flex items-center gap-xxs p-xxs pr-xs rounded-128 bg-surfaceSecondary">
-          <div
-            className="h-[24px] w-[24px] rounded-full bg-cover bg-no-repeat"
-            style={{
-              boxShadow: "-7px -7px 8px 0px rgba(0, 0, 0, 0.40) inset",
-              backgroundImage: `url('/brand/nns-sunglasses.png')`,
-            }}
-          ></div>
-          <span className="text-sm font-medium text-textInverse">NNS</span>
-          <span className="rotate-180"><IconChevronUp color="#ffffff" /></span>
-          
-        </div>
+        <DropdownSearch />
       </div>
       <div className="absolute bottom-0 left-0 right-0">
         <SearchResultsList showResults={showSearchResults} />
@@ -89,7 +79,7 @@ function MyDomainsPage() {
                 </span>
               </div>
             </div>
-            <div className="border border-borderPrimary rounded-3xl p-md bg-surfacePrimary grid grid-cols-1 gap-md min-w-[332px]">
+            <div className="border border-borderPrimary rounded-3xl py-md sm:px-md bg-surfacePrimary grid grid-cols-1 gap-md min-w-[332px]">
               <div>
                 <div className="border-b border-borderPrimary mb-xs pb-xs">
                   <div className="flex items-center justify-between mb-xs w-full text-sm font-medium">

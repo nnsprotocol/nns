@@ -29,7 +29,7 @@ const LayoutDefault: React.FC<{
       <input
         type="text"
         onInput={handleSearchInput}
-        placeholder="Seach domain"
+        placeholder="Search domain"
         className="p-xs ps-12 border border-borderSecondary focus:border-borderBrandLavender rounded-128 h-12 w-full outline-none text-base relative z-10 bg-transparent"
       />
       <div className="absolute bottom-0 left-0 right-0">
@@ -46,8 +46,8 @@ const LayoutDefault: React.FC<{
         </div>
         <div className="max-w-screen-2xl text-textInverse mx-auto relative">
           <header className="p-md flex gap-xs justify-between items-center sticky z-20 top-0">
-            <Link className="hidden sm:block" to="/">
-              <img src="/logo.svg" alt="Logo" className="h-6 w-auto" />
+            <Link to="/">
+              <img src="/logo.svg" alt="Logo" className="sm:h-6 w-auto" />
             </Link>
             {searchSection}
             <WalletButtonSection />

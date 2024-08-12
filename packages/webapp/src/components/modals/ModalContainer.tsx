@@ -38,7 +38,7 @@ const ModalContainer: React.FC<{
                 <IconX />
               </button>
             </div>
-            <div className="max-h-[80vh] overflow-y-auto p-lg">{children}</div>
+            <div className="max-h-[96vh] sm:max-h-[80vh] overflow-y-auto p-lg">{children}</div>
           </div>
         </div>
       </div>

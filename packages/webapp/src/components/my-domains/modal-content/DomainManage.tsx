@@ -37,17 +37,17 @@ const DomainManage: React.FC<{
       <table>
         <thead>
           <tr>
-            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-md text-start">
+            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-md text-start leading-4">
               Name
             </th>
-            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-md flex gap-xxs items-center text-start">
+            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-md flex gap-xxs items-center text-start leading-4">
               <span>Rewards</span>
               <IconInfo />
             </th>
-            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-md text-end">
+            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-md text-end leading-4">
               Expires
             </th>
-            <th></th>
+            <th className="p-0 leading-4"></th>
           </tr>
         </thead>
         <tbody>
@@ -130,16 +130,16 @@ const DomainManage: React.FC<{
       <table>
         <thead>
           <tr>
-            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-xs text-start">
+            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-xs text-start leading-4">
               Name
             </th>
-            <th className="text-textSecondary text-xs font-medium pb-sm px-xs text-center">
+            <th className="text-textSecondary text-xs font-medium pb-sm px-xs text-center leading-4">
               RENEW FOR (Years)
             </th>
-            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-xs text-center">
+            <th className="text-textSecondary text-xs font-medium uppercase pb-sm pe-xs text-center leading-4">
               Total
             </th>
-            <th></th>
+            <th className="p-0 leading-4"></th>
           </tr>
         </thead>
         <tbody>
@@ -315,7 +315,7 @@ const DomainManage: React.FC<{
           </button>
         </div>
         <div className="overflow-x-auto">
-          <div className="min-w-[555px] min-h-[426px]">
+          <div className="min-w-[555px]">
             {activeTab === "domains" && domainsTabContent}
             {activeTab === "renew" && renewTabContent}
           </div>
