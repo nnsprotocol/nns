@@ -25,8 +25,8 @@ function BuyDomainPage() {
   return (
     <div className="bg-surfaceBrandLavender">
       <header className="px-4 max-w-screen-2xl sticky top-0 mx-auto w-full py-2 z-30">
-        <div className="p-md overflow-hidden relative rounded-128">
-          <div className="absolute inset-0 backdrop-blur-1xl bg-surfaceBrandLavender/10 z-0"></div>
+        <div className="p-md relative rounded-128">
+          <div className="absolute inset-0 backdrop-blur-1xl bg-surfaceBrandLavender/10 z-0 rounded-128"></div>
           <div className="relative z-10 flex justify-between items-center">
             <div>
               <img src="/logo.svg" alt="Logo" className="h-6 w-auto" />

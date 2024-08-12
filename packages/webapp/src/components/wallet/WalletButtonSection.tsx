@@ -1,22 +1,27 @@
 import { Link } from "react-router-dom";
-import IconChevronUp from "../icons/IconChevronUp";
 import { useState } from "react";
+import DropdownWallet from "./DropdownWallet";
 
 type WalletButtonSectionProps = {
   customConnectWalletButtonColors?: {
     hoverThemedBackgroundColor: string;
   };
-}
+};
 
-const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({ customConnectWalletButtonColors }) => {
+const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({
+  customConnectWalletButtonColors,
+}) => {
   const [isConnected, setIsConnected] = useState(false);
-  const [connectWalletBackgroundColor, setConnectWalletBackgroundColor] = useState("#11101B");
+  const [connectWalletBackgroundColor, setConnectWalletBackgroundColor] =
+    useState("#11101B");
 
   const handleMouseEnter = () => {
     if (window.scrollY > 0) {
       setConnectWalletBackgroundColor("#04030F");
     } else {
-      setConnectWalletBackgroundColor(customConnectWalletButtonColors?.hoverThemedBackgroundColor || "#C496FF");
+      setConnectWalletBackgroundColor(
+        customConnectWalletButtonColors?.hoverThemedBackgroundColor || "#C496FF"
+      );
     }
   };
 
@@ -51,28 +56,14 @@ const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({ customConnect
       {isConnected ? (
         <>
           <div className="hidden sm:flex items-center gap-xs">
-            <Link to="/my-domains" className="link-default">
+            <Link to="/my-domains" className="link-default text-nowrap">
               My Domains
             </Link>
             <span className="bg-surfaceBrandLavender rounded-2xl text-textInverse text-xs p-xxs text-center min-w-[28px]">
               3
             </span>
           </div>
-          <button
-            id="dropdown-wallet-button"
-            type="button"
-            className="bg-gradient-to-b from-surfaceBrandLavender from-30% to-surfaceBrandMauve p-[1px] rounded-xl"
-          >
-            <div className="bg-surfacePrimary rounded-xl p-sm flex items-center gap-xxs">
-              <img src="/temp/profile.png" width={16} height={16} alt="" />
-              <span className="text-[#FBFFF4] text-sm font-medium">
-                0x123...c5f6
-              </span>
-              <span className="stroke-[#FBFFF4] rotate-180">
-                <IconChevronUp />
-              </span>
-            </div>
-          </button>
+          <DropdownWallet />
         </>
       ) : (
         connectWalletButton

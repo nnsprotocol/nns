@@ -3,7 +3,7 @@ import LayoutDefault from "../components/layouts/LayoutDefault";
 import GroupSocialLinks from "../components/ui/groups/GroupSocialLinks";
 import IconChevronUp from "../components/icons/IconChevronUp";
 import { useMemo, useState } from "react";
-import { DomainCheckoutType, DomainData } from "../types/domain";
+import { DomainCheckoutType, DomainData } from "../types/domains";
 import DomainCheckoutOverview from "../components/domain-overview/DomainCheckoutOverview";
 import DomainCheckoutConnectToWallet from "../components/domain-overview/DomainCheckoutСonnectToWallet";
 import DomainCheckoutBuy from "../components/domain-overview/DomainCheckoutBuy";

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { DomainData } from "../../types/domain";
+import { DomainData } from "../../types/domains";
 import DomainCheckoutContainer from "./DomainCheckoutContainer";
 import { Link } from "react-router-dom";
 

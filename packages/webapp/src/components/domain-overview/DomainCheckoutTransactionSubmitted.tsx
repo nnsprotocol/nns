@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { DomainData } from "../../types/domain";
+import { DomainData } from "../../types/domains";
 import IconArrowRight from "../icons/IconArrowRight";
 import DomainCheckoutContainer from "./DomainCheckoutContainer";
 

@@ -68,6 +68,7 @@ export default {
         'badgeLavenderGradient': 'linear-gradient(269deg, #765A99 0.98%, #C496FF 99.51%)',
         'cardPrimaryGradient': 'linear-gradient(90deg, rgba(17, 16, 27, 0.50) 4.96%, #04030F 100%)',
         'surfacePinkGradient': 'linear-gradient(146deg, #FEC6E5 8.1%, #FDABD8 94.75%)',
+        'modalContainerGradient': 'linear-gradient(107deg, rgba(17, 16, 27, 0.50) 11.18%, rgba(4, 3, 15, 0.90) 92.62%)',
       },
       keyframes: {
         earnWithNNSTranslate: {
