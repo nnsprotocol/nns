@@ -3,6 +3,8 @@ pragma solidity >=0.8.4;
 
 import "./IRegistry.sol";
 import "./IERC721Reward.sol";
+import "./IERC721BasedRewarder.sol";
+import "./IAccountRewarder.sol";
 
 interface IRewarder {
     event CldRegistered(
@@ -18,17 +20,12 @@ interface IRewarder {
         uint256 amountEth,
         uint256 amountERC20
     );
-    event BalanceChanged(address accont, uint256 delta, uint256 amount);
-    event Withdrawn(address account, uint256[] tokenIds, uint256 amount);
-    event WithdrawnEcosystem(
+    event Withdrawn(
         address account,
-        uint256[] tokenIds,
+        uint256[] holderTokenIds,
+        uint256[] ecosystemTokenIds,
         uint256 amount
     );
-    event HoldersBalanceChanged(uint256 delta, uint256 amount);
-    event HolderRewardSplitterChanged(address value);
-    event EcosystemRewardSplitterChanged(address value);
-    event EcosystemBalanceChanged(uint256 delta, uint256 amount);
 
     error CldAlreadyRegistered(uint256 cldId);
     error InvalidCld(uint256 cldId);
@@ -46,18 +43,7 @@ interface IRewarder {
         IRegistry registry;
     }
 
-    function balanceOf(address account) external view returns (uint256);
-
-    function balanceOf(uint256 tokenId) external view returns (uint256);
-
-    function ecosystemBalanceOf(
-        uint256 tokenId
-    ) external view returns (uint256);
-
-    function balanceOfHolders() external view returns (uint256);
-
-    function balanceOfEcosystem() external view returns (uint256);
-
+    /** Registration of CLDs */
     function registerCld(
         IRegistry registry,
         address target,
@@ -69,47 +55,35 @@ interface IRewarder {
         uint256 cldId
     ) external returns (CldConfiguration memory);
 
+    /** Collection of rewards */
     function collect(uint256 cldId, address referer) external payable;
 
-    function withdrawForCommunity(
-        uint256 cldId,
-        uint256[] calldata tokenIds
-    ) external;
+    /** Admin */
+    function setController(address controller) external;
 
-    function withdraw(address account, uint256[] calldata tokenIds) external;
+    function setEcosystemRewarder(IERC721BasedRewarder rewarder) external;
 
-    function withdrawEcosystem(
+    function setHolderRewarder(IERC721BasedRewarder rewarder) external;
+
+    function setAccountRewarder(IAccountRewarder rewarder) external;
+
+    /** Rewarders */
+    function ecosystemRewarder() external view returns (IERC721BasedRewarder);
+
+    function holderRewarder() external view returns (IERC721BasedRewarder);
+
+    function accountRewarder() external view returns (IAccountRewarder);
+
+    /** Withdraw */
+    function balanceOf(
         address account,
-        uint256[] calldata tokenIds
-    ) external;
+        uint256[] calldata holderTokenIds,
+        uint256[] calldata ecosystemTokenIds
+    ) external view returns (uint256);
 
-    function takeHolderRewardsSnapshot() external;
-
-    function previewHolderRewardsSnapshot()
-        external
-        view
-        returns (IERC721RewardSplitter.Snapshot memory);
-
-    function holderRewardsSnapshot()
-        external
-        view
-        returns (IERC721RewardSplitter.Snapshot memory);
-
-    function setHolderRewardSplitter(IERC721RewardSplitter splitter) external;
-
-    function takeEcosystemRewardsSnapshot() external;
-
-    function previewEcosystemRewardsSnapshot()
-        external
-        view
-        returns (IERC721RewardSplitter.Snapshot memory);
-
-    function ecosystemRewardsSnapshot()
-        external
-        view
-        returns (IERC721RewardSplitter.Snapshot memory);
-
-    function setEcosystemRewardSplitter(
-        IERC721RewardSplitter splitter
+    function withdraw(
+        address account,
+        uint256[] calldata holderTokenIds,
+        uint256[] calldata ecosystemTokenIds
     ) external;
 }
