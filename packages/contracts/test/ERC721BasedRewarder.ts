@@ -282,5 +282,15 @@ describe("ERC721BasedRewarder", () => {
       const balance = await ctx.rewarder.balanceOf(1);
       expect(balance).to.eq(0);
     });
+
+    it("returns zero if the token does not exist", async () => {
+      const ctx = await setup();
+      await ctx.token.connect(ctx.owner).mint(ctx.w1.address, 1);
+      await ctx.rewarder.connect(ctx.owner).incrementBalance(100);
+      await ctx.rewarder.connect(ctx.owner).takeSnapshot();
+
+      const balance = await ctx.rewarder.balanceOf(10000);
+      expect(balance).to.eq(0);
+    });
   });
 });

@@ -4,10 +4,10 @@ pragma solidity >=0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./interfaces/IERC721Reward.sol";
-import "./interfaces/IResolvingToken.sol";
+import "./interfaces/IERC721Resolver.sol";
 import "./libraries/Namehash.sol";
 
-contract NNSResolverToken is ERC721, IResolvingToken, Ownable {
+contract NNSResolverToken is ERC721, IERC721Resolver, Ownable {
     mapping(uint256 tokenId => uint256) private _mintBlockNumbers;
     mapping(uint256 tokenId => string) private _names;
     uint256 private _totalSupply;

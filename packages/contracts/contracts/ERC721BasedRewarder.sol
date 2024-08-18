@@ -104,7 +104,7 @@ contract ERC721BasedRewarder is Ownable, IERC721BasedRewarder {
 
     function balanceOf(uint256 tokenId) public view returns (uint256) {
         uint256 tokenBlock = _nft.mintBlockNumberOf(tokenId);
-        if (tokenBlock > _snapshot.blockNumber) {
+        if (tokenBlock == 0 || tokenBlock > _snapshot.blockNumber) {
             return 0;
         }
         if (_claimedTokens[_snapshot.blockNumber][tokenId]) {

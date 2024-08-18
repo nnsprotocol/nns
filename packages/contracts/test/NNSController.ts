@@ -17,6 +17,19 @@ async function setup() {
   const rewarderF = await ethers.getContractFactory("NNSRewarder");
   const rewarder = await rewarderF.deploy(swapRouter, erc20, erc20, w5);
 
+  const erc721F = await ethers.getContractFactory("ERC721Mock");
+  const erc721 = await erc721F.deploy();
+  const tokenRewarderF = await ethers.getContractFactory("ERC721BasedRewarder");
+  const tokenRewarder = await tokenRewarderF.deploy(erc721, 6666);
+  await tokenRewarder.transferOwnership(rewarder);
+  await rewarder.setEcosystemRewarder(tokenRewarder);
+  await rewarder.setHolderRewarder(tokenRewarder);
+
+  const accountRewarderF = await ethers.getContractFactory("AccountRewarder");
+  const accountRewarder = await accountRewarderF.deploy();
+  await accountRewarder.transferOwnership(rewarder);
+  await rewarder.setAccountRewarder(accountRewarder);
+
   const resolverF = await ethers.getContractFactory("NNSResolver");
   const resolver = await resolverF.deploy();
 
