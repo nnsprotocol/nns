@@ -18,7 +18,7 @@ dataSources:
         - Registry
       abis:
         - name: NNSController
-          file: ./abis/NNSController.json
+          file: ./abis/IController.json
       eventHandlers:
         - event: CldRegistered(uint256,string,address,bool)
           handler: handleCldRegistered
@@ -27,7 +27,7 @@ templates:
     kind: ethereum/contract
     network: base-sepolia
     source:
-      abi: CldRegistry
+      abi: CLDegistry
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -37,8 +37,8 @@ templates:
         - Account
         - Domain
       abis:
-        - name: CldRegistry
-          file: ./abis/CldRegistry.json
+        - name: CLDegistry
+          file: ./abis/IRegistry.json
       eventHandlers:
         - event: NameRegistered(uint256,uint256,string,address,uint256)
           handler: handleNameRegistered

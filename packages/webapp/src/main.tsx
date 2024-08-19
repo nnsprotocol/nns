@@ -1,3 +1,4 @@
+import "@rainbow-me/rainbowkit/styles.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -5,10 +6,20 @@ import "./index.css";
 import Root from "./Root.tsx";
 import BuyDomainPage from "./pages/BuyDomainPage.tsx";
 import CollectionDetailsPage from "./pages/CollectionDetailsPage.tsx";
-import MyDomainsPage from "./pages/MyDomainsPage.tsx";
+import Demo from "./pages/Demo.tsx";
 import DomainOverviewPage from "./pages/DomainOverviewPage.tsx";
+import MyDomainsPage from "./pages/MyDomainsPage.tsx";
 
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WagmiProvider } from "wagmi";
+import { baseSepolia } from "wagmi/chains";
+
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +43,10 @@ const router = createBrowserRouter([
         element: <CollectionDetailsPage />,
       },
       {
+        path: "/demo",
+        element: <Demo />,
+      },
+      {
         path: "*",
         element: <Navigate to="/" />,
       },
@@ -39,8 +54,21 @@ const router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient();
+const config = getDefaultConfig({
+  appName: "NNS",
+  projectId: "2b9721d85a7335f1bffd51b84a4ad573",
+  chains: [baseSepolia],
+});
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <RouterProvider router={router} />
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   </React.StrictMode>
 );

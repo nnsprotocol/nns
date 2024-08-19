@@ -1,39 +1,12 @@
 [
   {
     "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "inputs": [],
     "name": "CldAlreadyRegistered",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "InvalidCld",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
-    ],
-    "name": "OwnableInvalidOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "OwnableUnauthorizedAccount",
     "type": "error"
   },
   {
@@ -93,27 +66,14 @@
     "type": "event"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
         "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
+        "name": "account",
         "type": "address"
       }
     ],
-    "name": "OwnershipTransferred",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "fallbackCld",
+    "name": "defaultCldOf",
     "outputs": [
       {
         "internalType": "uint256",
@@ -126,12 +86,12 @@
   },
   {
     "inputs": [],
-    "name": "owner",
+    "name": "fallbackCld",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -163,36 +123,7 @@
         "type": "string"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "cldId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "keys",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "recordsOf",
-    "outputs": [
-      {
-        "internalType": "string[]",
-        "name": "values",
-        "type": "string[]"
-      }
-    ],
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -214,10 +145,22 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "reverseNameOf",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -228,9 +171,14 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "cldId",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "cldIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bool",
+        "name": "fallbackToDefault",
+        "type": "bool"
       }
     ],
     "name": "reverseNameOf",
@@ -250,25 +198,16 @@
         "internalType": "address",
         "name": "addr",
         "type": "address"
-      }
-    ],
-    "name": "reverseNameOf",
-    "outputs": [
+      },
       {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
+        "internalType": "uint256[]",
+        "name": "cldIds",
+        "type": "uint256[]"
+      },
       {
-        "internalType": "address",
-        "name": "addr",
-        "type": "address"
+        "internalType": "bool",
+        "name": "fallbackToDefault",
+        "type": "bool"
       }
     ],
     "name": "reverseOf",
@@ -293,15 +232,15 @@
         "internalType": "address",
         "name": "addr",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "cldId",
-        "type": "uint256"
       }
     ],
     "name": "reverseOf",
     "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "cldId",
+        "type": "uint256"
+      },
       {
         "internalType": "uint256",
         "name": "tokenId",
@@ -338,19 +277,6 @@
       }
     ],
     "name": "setFallbackCld",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
