@@ -10,7 +10,7 @@ import {
 import {
   Approval,
   ApprovalForAll,
-  CldRegistry,
+  CLDRegistry,
   NameRegistered,
   RecordSet,
   RecordsReset,
@@ -18,7 +18,7 @@ import {
   SubdomainDeleted,
   SubdomainRegistered,
   Transfer,
-} from "../generated/templates/Registry/CldRegistry";
+} from "../generated/templates/Registry/CLDRegistry";
 
 function fetchAccount(address: Address): Account {
   let account = Account.load(address.toHexString());
@@ -48,7 +48,7 @@ function fetchRegistry(cldId: BigInt): Registry {
 }
 
 function fetchRegistryByAddress(address: Address): Registry {
-  const registry = CldRegistry.bind(address);
+  const registry = CLDRegistry.bind(address);
   const v = registry.cld();
   return fetchRegistry(v.getId());
 }
@@ -127,17 +127,33 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 }
 
 export function handleTransfer(event: Transfer): void {
+  // Mint
   if (event.params.from.equals(Address.zero())) {
-    // newly minted domain. This is handled by handleNameRegistered.
+    // The creation of the domain is handled by the NameRegistered event
+    updateSupply(event.address, BigInt.fromI32(1));
     return;
   }
 
+  // Burn
+  if (event.params.to.equals(Address.zero())) {
+    updateSupply(event.address, BigInt.fromI32(-1));
+    store.remove("Domain", domainId(event.params.tokenId));
+    return;
+  }
+
+  // Transfer
   let domain = fetchDomain(event.params.tokenId);
   let to = fetchAccount(event.params.to);
   domain.owner = to.id;
   domain.approval = null;
   domain.resolvedAddress = null;
   domain.save();
+}
+
+function updateSupply(registryAddress: Address, delta: BigInt): void {
+  const registry = fetchRegistryByAddress(registryAddress);
+  registry.totalSupply = registry.totalSupply.plus(delta);
+  registry.save();
 }
 
 function domainRecordId(domainId: BigInt, key: BigInt): string {

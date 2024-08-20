@@ -18,6 +18,8 @@ type Registry @entity {
   address: Bytes!
   domains: [Domain!]! @derivedFrom(field: "registry")
   operators: [DomainOperator!]! @derivedFrom(field: "registry")
+  hasExpiringNames: Boolean!
+  totalSupply: BigInt!
 }
 
 type DomainRecord @entity {

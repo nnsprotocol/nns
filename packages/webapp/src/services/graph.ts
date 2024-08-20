@@ -4,6 +4,14 @@ import { normalize } from "viem/ens";
 
 const GRAPH_URL: string = import.meta.env.VITE_GRAPH_URL;
 
+export type Registry = {
+  id: Hash;
+  name: string;
+  address: Address;
+  hasExpiringNames: boolean;
+  totalSupply: string;
+};
+
 export type Subdomain = {
   id: Hash;
   name: string;
@@ -11,10 +19,7 @@ export type Subdomain = {
   parent: {
     id: Hash;
     name: string;
-    registry: {
-      name: string;
-      address: Address;
-    };
+    registry: Registry;
   };
 };
 
@@ -22,11 +27,7 @@ export type Domain = {
   id: Hash;
   name: string;
   resolvedAddress: Address | null;
-  registry: {
-    id: Hash;
-    name: string;
-    address: Address;
-  };
+  registry: Registry;
   owner: {
     id: Address;
   };
@@ -36,6 +37,14 @@ export type Domain = {
   subdomains?: Subdomain[];
 };
 
+const REGISTRY_SELECT = `
+  id
+  name
+  address
+  hasExpiringNames
+  totalSupply
+`;
+
 const SUBDOMAIN_SELECT = `
 id
 name
@@ -44,8 +53,7 @@ parent {
   id
   name
   registry {
-    name
-    address
+    ${REGISTRY_SELECT}
   }
 }
 `;
@@ -55,9 +63,7 @@ id
 name
 resolvedAddress
 registry {
-  id
-  address
-  name
+  ${REGISTRY_SELECT}
 }
 owner {
   id
@@ -107,5 +113,30 @@ export function useSearchDomain(q: Partial<FetchDomainInput>) {
       });
     },
     enabled: Boolean(q.cldId) && Boolean(q.name),
+  });
+}
+
+export async function fetchRegistry(id: Hash) {
+  const response = await fetch(GRAPH_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      query: `
+        {
+          registry(id: "${id}") {
+            ${REGISTRY_SELECT}
+          }
+        }
+      `,
+    }),
+  });
+  const { data } = await response.json();
+  return data.registry as Registry | null;
+}
+
+export function useRegistry(data: { id?: Hash }) {
+  return useQuery({
+    queryKey: ["registries", data.id],
+    queryFn: () => fetchRegistry(data.id || "0x"),
+    enabled: Boolean(data.id),
   });
 }

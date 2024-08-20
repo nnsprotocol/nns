@@ -27,7 +27,7 @@ templates:
     kind: ethereum/contract
     network: base-sepolia
     source:
-      abi: CLDegistry
+      abi: CLDRegistry
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -37,7 +37,7 @@ templates:
         - Account
         - Domain
       abis:
-        - name: CLDegistry
+        - name: CLDRegistry
           file: ./abis/IRegistry.json
       eventHandlers:
         - event: NameRegistered(uint256,uint256,string,address,uint256)
