@@ -1,8 +1,74 @@
 import { useQuery } from "@tanstack/react-query";
-import { Hex } from "viem";
+import { Address, Hash, Hex } from "viem";
 import { normalize } from "viem/ens";
 
 const GRAPH_URL: string = import.meta.env.VITE_GRAPH_URL;
+
+export type Subdomain = {
+  id: Hash;
+  name: string;
+  resolvedAddress: Address | null;
+  parent: {
+    id: Hash;
+    name: string;
+    registry: {
+      name: string;
+      address: Address;
+    };
+  };
+};
+
+export type Domain = {
+  id: Hash;
+  name: string;
+  resolvedAddress: Address | null;
+  registry: {
+    id: Hash;
+    name: string;
+    address: Address;
+  };
+  owner: {
+    id: Address;
+  };
+  approval?: {
+    id: Address;
+  };
+  subdomains?: Subdomain[];
+};
+
+const SUBDOMAIN_SELECT = `
+id
+name
+resolvedAddress
+parent {
+  id
+  name
+  registry {
+    name
+    address
+  }
+}
+`;
+
+const DOMAIN_SELECT = `
+id
+name
+resolvedAddress
+registry {
+  id
+  address
+  name
+}
+owner {
+  id
+}
+approval {
+  id
+}
+subdomains {
+  ${SUBDOMAIN_SELECT}
+}
+`;
 
 interface FetchDomainInput {
   cldId: Hex;
@@ -21,21 +87,14 @@ async function fetchSearchDomains(d: FetchDomainInput) {
               name_contains: "${normalize(d.name)}"
             }
           ) {
-            id
-            tokenId
-            name
+            ${DOMAIN_SELECT}
           }
         }
       `,
     }),
   });
   const { data } = await res.json();
-  const domains: Record<string, unknown>[] = data?.domains || [];
-  return domains.map((d: any) => ({
-    id: d.id,
-    tokenId: BigInt(d.tokenId),
-    name: d.name,
-  }));
+  return (data.domains || []) as Domain[];
 }
 
 export function useSearchDomain(q: Partial<FetchDomainInput>) {
