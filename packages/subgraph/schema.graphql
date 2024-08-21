@@ -20,6 +20,16 @@ type Registry @entity {
   operators: [DomainOperator!]! @derivedFrom(field: "registry")
   hasExpiringNames: Boolean!
   totalSupply: BigInt!
+
+  ownerStats: [OwnerStats!]! @derivedFrom(field: "registry")
+  uniqueOwners: BigInt!
+}
+
+type OwnerStats @entity {
+  id: ID!
+  owner: Account!
+  registry: Registry!
+  numberOfTokens: BigInt!
 }
 
 type DomainRecord @entity {

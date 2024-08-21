@@ -4,6 +4,7 @@ import {
   Domain,
   DomainOperator,
   DomainRecord,
+  OwnerStats,
   Registry,
   Subdomain,
 } from "../generated/schema";
@@ -126,34 +127,83 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
   delegation.save();
 }
 
+function loadOrCreateOwnerStats(
+  accountId: string,
+  registryId: string
+): OwnerStats {
+  const id = accountId + ":" + registryId;
+  let stats = OwnerStats.load(id);
+  if (stats == null) {
+    stats = new OwnerStats(id);
+    stats.registry = registryId;
+    stats.owner = accountId;
+    stats.numberOfTokens = BigInt.zero();
+    stats.save();
+  }
+  return stats;
+}
+
 export function handleTransfer(event: Transfer): void {
+  const registry = fetchRegistryByAddress(event.address);
+
+  const ONE = BigInt.fromI32(1);
+
   // Mint
   if (event.params.from.equals(Address.zero())) {
     // The creation of the domain is handled by the NameRegistered event
-    updateSupply(event.address, BigInt.fromI32(1));
-    return;
+    registry.totalSupply = registry.totalSupply.plus(ONE);
   }
-
   // Burn
-  if (event.params.to.equals(Address.zero())) {
-    updateSupply(event.address, BigInt.fromI32(-1));
-    store.remove("Domain", domainId(event.params.tokenId));
-    return;
+  else if (event.params.to.equals(Address.zero())) {
+    registry.totalSupply = registry.totalSupply.minus(ONE);
+  }
+  // Transfer
+  else {
+    // Clean the domain properties which are cleared during the transfer
+    let domain = fetchDomain(event.params.tokenId);
+    let to = fetchAccount(event.params.to);
+    domain.owner = to.id;
+    domain.approval = null;
+    domain.resolvedAddress = null;
+    domain.save();
   }
 
-  // Transfer
-  let domain = fetchDomain(event.params.tokenId);
-  let to = fetchAccount(event.params.to);
-  domain.owner = to.id;
-  domain.approval = null;
-  domain.resolvedAddress = null;
-  domain.save();
+  const fromStats = updateNumberOfTokensForOwner(
+    event.params.from,
+    registry.id,
+    ONE.neg()
+  );
+  if (fromStats != null && fromStats.numberOfTokens.isZero()) {
+    // The old owner has no more domains.
+    registry.uniqueOwners = registry.uniqueOwners.minus(ONE);
+  }
+
+  const toStats = updateNumberOfTokensForOwner(
+    event.params.to,
+    registry.id,
+    ONE
+  );
+  if (toStats != null && toStats.numberOfTokens.equals(ONE)) {
+    // The new owner has the first domain.
+    registry.uniqueOwners = registry.uniqueOwners.plus(ONE);
+  }
+
+  registry.save();
 }
 
-function updateSupply(registryAddress: Address, delta: BigInt): void {
-  const registry = fetchRegistryByAddress(registryAddress);
-  registry.totalSupply = registry.totalSupply.plus(delta);
-  registry.save();
+function updateNumberOfTokensForOwner(
+  account: Address,
+  registryId: string,
+  delta: BigInt
+): OwnerStats | null {
+  if (account.equals(Address.zero())) {
+    return null;
+  }
+
+  const stats = loadOrCreateOwnerStats(account.toHexString(), registryId);
+  stats.numberOfTokens = stats.numberOfTokens.plus(delta);
+  stats.save();
+  return stats;
 }
 
 function domainRecordId(domainId: BigInt, key: BigInt): string {

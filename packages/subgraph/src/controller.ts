@@ -9,6 +9,7 @@ export function handleCldRegistered(event: CldRegistered): void {
   r.address = event.params.registry;
   r.hasExpiringNames = event.params.hasExpiringNames;
   r.totalSupply = BigInt.zero();
+  r.uniqueOwners = BigInt.zero();
   r.save();
 
   RegistryTemplate.create(event.params.registry);
