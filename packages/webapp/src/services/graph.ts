@@ -10,6 +10,7 @@ export type Registry = {
   address: Address;
   hasExpiringNames: boolean;
   totalSupply: string;
+  uniqueOwners: string;
 };
 
 export type Subdomain = {
@@ -44,6 +45,7 @@ const REGISTRY_SELECT = `
   address
   hasExpiringNames
   totalSupply
+  uniqueOwners
 `;
 
 const SUBDOMAIN_SELECT = `
@@ -155,8 +157,8 @@ export function useRegistries() {
   });
 }
 
-type CollectionPreview = {
-  numberOfTokens: number;
+export type CollectionPreview = {
+  numberOfDomains: string;
   defaultResolverRegistry: null | Pick<Registry, "id">;
   registry: {
     id: Hash;
@@ -181,7 +183,7 @@ async function fetchCollectionPreview(data: {
             id
           }
           stats {
-            numberOfTokens
+            numberOfDomains
             registry {
               id
               name
@@ -242,6 +244,36 @@ export function useDomains(data: Partial<Parameters<typeof fetchDomains>[0]>) {
         owner: data.owner || "0x",
       }),
     enabled: Boolean(data.owner) && Boolean(data.cldId),
+  });
+}
+
+async function fetchNumberOfDomains(data: {
+  owner: Address;
+}): Promise<number | null> {
+  const accountId = data.owner.toLowerCase();
+  const res = await sendGraphRequest<{ numberOfDomains: string | null }>(
+    `
+      {
+        account(id: "${accountId}") {
+          numberOfDomains
+        }
+      }
+    `,
+    "account"
+  );
+  return res?.numberOfDomains ? parseInt(res.numberOfDomains) : null;
+}
+
+export function useNumberOfDomains(
+  data: Partial<Parameters<typeof fetchNumberOfDomains>[0]>
+) {
+  return useQuery({
+    queryKey: [data.owner, "numberOfDomains"],
+    queryFn: () =>
+      fetchNumberOfDomains({
+        owner: data.owner || "0x",
+      }),
+    enabled: Boolean(data.owner),
   });
 }
 

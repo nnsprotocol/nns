@@ -1,21 +1,39 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAccount } from "wagmi";
 import IconArrowRight from "../components/icons/IconArrowRight";
-import IconChevronUp from "../components/icons/IconChevronUp";
 import IconCopy from "../components/icons/IconCopy";
 import IconInfo from "../components/icons/IconInfo";
 import IconPlus from "../components/icons/IconPlus";
 import LayoutDefault from "../components/layouts/LayoutDefault";
 import DomainCollectionsCards from "../components/my-domains/DomainCollectionsCards";
-import SearchResultsList from "../components/search/SearchResultsList";
 import DropdownSearch from "../components/my-domains/DropdownSearch";
+import { useRegistries } from "../services/graph";
+import { useResolvedName } from "../services/resolver";
+import { formatAddress } from "../utils/formatter";
 
 function MyDomainsPage() {
+  const account = useAccount();
+  const registries = useRegistries();
+  const [selectedCld, setSelectedCld] = useState<bigint | null>(null);
+  const resolvedName = useResolvedName({
+    account: account.address,
+    cldId: selectedCld || undefined,
+  });
+  const navigate = useNavigate();
+
   const [searchText, setSearchText] = useState("");
 
   const handleSearchInput = (event: React.FormEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
     setSearchText(target.value);
   };
+
+  useEffect(() => {
+    if (!account.isConnected) {
+      navigate("/");
+    }
+  }, [account.isConnected]);
 
   const showSearchResults = useMemo(() => Boolean(searchText), [searchText]);
 
@@ -32,9 +50,21 @@ function MyDomainsPage() {
         <DropdownSearch />
       </div>
       <div className="absolute bottom-0 left-0 right-0">
-        <SearchResultsList showResults={showSearchResults} />
+        {/* <SearchResultsList showResults={false} /> */}
       </div>
     </div>
+  );
+
+  const onSelectChange = useCallback(
+    (value: string) => {
+      if (value === "default") {
+        setSelectedCld(null);
+      } else {
+        const reg = registries.data?.find((r) => r.id === value)!;
+        setSelectedCld(BigInt(reg.id));
+      }
+    },
+    [registries.data]
   );
 
   return (
@@ -59,21 +89,35 @@ function MyDomainsPage() {
           <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-lg">
             <div>
               <p className="text-base font-medium mb-xs flex gap-xxs items-center">
-                <span className="text-textBrandAquamarine">0x123...c5f6</span>
+                <span className="text-textBrandAquamarine">
+                  {formatAddress(account.address)}
+                </span>
                 <span className="text-textSecondary">known as</span>
               </p>
               <p className="text-textInverse text-3xl font-semibold my-xs">
-                ciao.noun
+                {resolvedName.data || "No name"}
               </p>
               <div className="flex gap-xxs items-center text-textSecondary text-base font-medium">
-                <span>in</span>
-                <span className="flex gap-xxs items-center px-xs text-textInverse stroke-textInverse">
-                  <span>Nouns</span>
-                  <span className="rotate-180">
-                    <IconChevronUp />
-                  </span>
-                </span>
-                <span>community</span>
+                {selectedCld ? "in" : "as"}
+                <select
+                  id="countries"
+                  className="text-textInverse stroke-textInverse bg-black rounded-lg block"
+                  onChange={(e) => onSelectChange(e.currentTarget.value)}
+                >
+                  <option value="default" selected={selectedCld === null}>
+                    default
+                  </option>
+                  {registries.data?.map((registry) => (
+                    <option
+                      key={registry.id}
+                      value={registry.id}
+                      selected={BigInt(registry.id) === selectedCld}
+                    >
+                      {registry.name}
+                    </option>
+                  ))}
+                </select>
+                {selectedCld ? "community" : null}
                 <span className="flex">
                   <IconInfo size={16} />
                 </span>

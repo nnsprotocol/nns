@@ -116,7 +116,7 @@ function loadOrCreateOwnerStats(
     stats = new OwnerStats(id);
     stats.registry = registryId;
     stats.owner = accountId;
-    stats.numberOfTokens = BigInt.zero();
+    stats.numberOfDomains = BigInt.zero();
     stats.save();
   }
   return stats;
@@ -147,22 +147,22 @@ export function handleTransfer(event: Transfer): void {
     domain.save();
   }
 
-  const fromStats = updateNumberOfTokensForOwner(
+  const fromStats = updateNumberOfDomainsForOwner(
     event.params.from,
     registry.id,
     ONE.neg()
   );
-  if (fromStats != null && fromStats.numberOfTokens.isZero()) {
+  if (fromStats != null && fromStats.numberOfDomains.isZero()) {
     // The old owner has no more domains.
     registry.uniqueOwners = registry.uniqueOwners.minus(ONE);
   }
 
-  const toStats = updateNumberOfTokensForOwner(
+  const toStats = updateNumberOfDomainsForOwner(
     event.params.to,
     registry.id,
     ONE
   );
-  if (toStats != null && toStats.numberOfTokens.equals(ONE)) {
+  if (toStats != null && toStats.numberOfDomains.equals(ONE)) {
     // The new owner has the first domain.
     registry.uniqueOwners = registry.uniqueOwners.plus(ONE);
   }
@@ -170,7 +170,7 @@ export function handleTransfer(event: Transfer): void {
   registry.save();
 }
 
-function updateNumberOfTokensForOwner(
+function updateNumberOfDomainsForOwner(
   account: Address,
   registryId: string,
   delta: BigInt
@@ -179,8 +179,12 @@ function updateNumberOfTokensForOwner(
     return null;
   }
 
+  const accountEntity = fetchAccount(account);
+  accountEntity.numberOfDomains = accountEntity.numberOfDomains.plus(delta);
+  accountEntity.save();
+
   const stats = loadOrCreateOwnerStats(account.toHexString(), registryId);
-  stats.numberOfTokens = stats.numberOfTokens.plus(delta);
+  stats.numberOfDomains = stats.numberOfDomains.plus(delta);
   stats.save();
   return stats;
 }

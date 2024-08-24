@@ -1,23 +1,37 @@
-import { DomainData } from "../../types/domains";
+import { useAccount, useBalance } from "wagmi";
+import { useDomainPrice } from "../../services/controller";
+import { Registry } from "../../services/graph";
+import { formatETH, formatUSD } from "../../utils/formatter";
 import IconArrowRight from "../icons/IconArrowRight";
 import IconInfo from "../icons/IconInfo";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import DomainCheckoutContainer from "./DomainCheckoutContainer";
+import { useMemo } from "react";
 
-const DomainCheckoutBuy: React.FC<{
-  changeDomainCheckoutType: () => void;
-  domainData: DomainData;
-  domainAsPrimaryNameToggle: {
-    domainAsPrimaryName: boolean;
-    setDomainAsPrimaryName: React.Dispatch<React.SetStateAction<boolean>>;
-  };
-}> = ({ domainData, changeDomainCheckoutType, domainAsPrimaryNameToggle }) => {
-  const handleConnectWalletButtonClick = () => {
-    if (!domainData.isAvailable) {
-      return;
+type Props = {
+  name: string;
+  registry: Registry;
+  primaryName: boolean;
+  onPrimaryNameChange: (value: boolean) => void;
+  onNext: () => void;
+};
+
+const DomainCheckoutBuy: React.FC<Props> = (props) => {
+  const price = useDomainPrice({
+    cldId: props.registry.id,
+    name: props.name,
+  });
+  const account = useAccount();
+  const balance = useBalance({
+    address: account.address,
+  });
+
+  const hasEnoughBalance = useMemo(() => {
+    if (!balance.data || !price?.eth) {
+      return true;
     }
-    changeDomainCheckoutType();
-  };
+    return balance.data.value >= (price.eth * 11n) / 10n; // 10% extra
+  }, [balance.data, price?.usd]);
 
   return (
     <DomainCheckoutContainer>
@@ -41,16 +55,17 @@ const DomainCheckoutBuy: React.FC<{
             <p className="text-sm font-medium mb-sm">You Pay</p>
             <div className="flex gap-md justify-between items-center mb-sm">
               <span className="text-2xl text-textPrimary font-medium">
-                0.1 ETH
+                {price?.eth ? formatETH(price?.eth) : "Loading..."}
               </span>
               <img src="/temp/ether-coin.svg" width={25} height={25} />
             </div>
             <div className="flex gap-md justify-between items-center">
               <span className="text-sm text-textSecondary font-medium">
-                $100.34
+                {price?.usd ? formatUSD(price?.usd) : "Loading..."}
               </span>
               <span className="text-sm text-textSecondary font-medium">
-                Balance: 2.14 ETH
+                Balance:{" "}
+                {balance.data ? formatETH(balance.data?.value) : "Loading..."}
               </span>
             </div>
           </div>
@@ -68,7 +83,7 @@ const DomainCheckoutBuy: React.FC<{
               </div>
               <div className="flex flex-col gap-xs justify-center">
                 <p className="text-2xl text-textPrimary font-medium">
-                  {domainData.name}
+                  {[props.name, props.registry.name].join(".")}
                 </p>
                 <p className="text-sm font-normal text-textSecondary">
                   NNS Domain
@@ -94,7 +109,7 @@ const DomainCheckoutBuy: React.FC<{
           </div>
         </div>
         <div className="text-textSecondary grid grid-cols-1 gap-md p-md border-t border-borderLight">
-          <div className="flex gap-xs justify-between text-sm">
+          {/* <div className="flex gap-xs justify-between text-sm">
             <p className="font-medium">Gas Fees</p>
             <div>
               <p className="font-medium text-textPrimary text-end mb-xs">
@@ -102,14 +117,14 @@ const DomainCheckoutBuy: React.FC<{
               </p>
               <p className="font-normal text-end">0.004 ETH</p>
             </div>
-          </div>
+          </div> */}
           <div className="flex gap-xs justify-between">
             <p className="flex gap-xxs items-center text-sm font-medium">
               <span>Set as primary name</span> <IconInfo />
             </p>
             <ToggleDefault
-              isOn={domainAsPrimaryNameToggle.domainAsPrimaryName}
-              setIsOn={domainAsPrimaryNameToggle.setDomainAsPrimaryName}
+              isOn={props.primaryName}
+              setIsOn={props.onPrimaryNameChange}
             />
           </div>
         </div>
@@ -117,9 +132,10 @@ const DomainCheckoutBuy: React.FC<{
           <button
             type="button"
             className="button-brand-lavender button-lg justify-center rounded-2xl"
-            onClick={handleConnectWalletButtonClick}
+            disabled={!hasEnoughBalance || !price?.eth === undefined}
+            onClick={props.onNext}
           >
-            Buy Domain
+            {hasEnoughBalance ? "Buy Domain" : "Insufficient Balance"}
           </button>
         </div>
       </div>

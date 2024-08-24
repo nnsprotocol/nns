@@ -1,20 +1,17 @@
-import IconStar from "../icons/IconStar";
-import { DomainCollection } from "../../types/domains";
 import { useMemo } from "react";
+import { CollectionPreview } from "../../services/graph";
+import IconStar from "../icons/IconStar";
 
-const CollectionCard: React.FC<{
-  collectionItem: DomainCollection;
-  handleManageClick: (collectionItem: DomainCollection) => void;
-}> = ({ collectionItem, handleManageClick }) => {
-  const domainsQuantity = useMemo(
-    () => collectionItem.domains.length,
-    [collectionItem.domains]
-  );
+type Props = {
+  collection: CollectionPreview;
+  defaultCldId: bigint;
+  onManageClick?: () => void;
+};
 
-  const slicedDomains = useMemo(
-    () => collectionItem.domains.slice(0, 3),
-    [collectionItem.domains]
-  );
+const CollectionCard: React.FC<Props> = (props) => {
+  const isDefaultCld = useMemo(() => {
+    return props.defaultCldId === BigInt(props.collection.registry.id);
+  }, [props.defaultCldId, props.collection.registry]);
 
   return (
     <div className="collection-card group border border-borderPrimary rounded-32 bg-surfacePrimary p-lg grid grid-cols-1 gap-xl">
@@ -24,40 +21,36 @@ const CollectionCard: React.FC<{
             className="h-[22px] w-[22px] rounded-full bg-cover bg-no-repeat"
             style={{
               boxShadow: "-7px -7px 8px 0px rgba(0, 0, 0, 0.40) inset",
-              backgroundImage: `url('${collectionItem.imgSrc}')`,
+              backgroundImage: `url('https://picsum.photos/200?random=${props.collection.registry.id}')`,
             }}
           ></div>
           <span className="text-sm font-medium text-textInverse">
-            {collectionItem.name}
+            {props.collection.registry.name}
           </span>
         </div>
         <div className="flex items-center gap-xs">
-          {domainsQuantity && (
-            <span
-              className={`${
-                domainsQuantity > 1
-                  ? "text-textSecondary group-hover:text-textInverse"
-                  : "text-textBrandLavender"
-              } text-sm font-medium`}
-            >
-              {domainsQuantity > 1
-                ? `${domainsQuantity} Domains`
-                : `${domainsQuantity} Domain`}
-            </span>
-          )}
+          <span
+            className={`${
+              isDefaultCld
+                ? "text-textBrandLavender"
+                : "text-textSecondary group-hover:text-textInverse"
+            } text-sm font-medium`}
+          >
+            {parseInt(props.collection.numberOfDomains) > 1
+              ? `${props.collection.numberOfDomains} Domains`
+              : `${props.collection.numberOfDomains} Domain`}
+          </span>
           <span className="w-[30px] h-[30px] rounded-lg bg-surfaceSecondary flex items-center justify-center">
-            <IconStar
-              fill={collectionItem.isPreffered ? "#C496FF" : "#FFFFFF"}
-            />
+            <IconStar fill={isDefaultCld ? "#C496FF" : "#FFFFFF"} />
           </span>
         </div>
       </div>
       <div className="flex items-center justify-center min-h-32">
         <div className="domain-cards">
-          {slicedDomains.map((item) => (
+          {props.collection.registry.previewDomains?.map((domain) => (
             <img
-              key={`${collectionItem.id}-${item.id}-card`}
-              src={item.imgSrc}
+              key={domain.id}
+              src={"https://picsum.photos/200?random=" + domain.id}
               width={100}
               height={100}
               alt=""
@@ -72,13 +65,14 @@ const CollectionCard: React.FC<{
             Resolving as
           </span>
           <span className="text-[18px] text-textInverse font-semibold">
-            {collectionItem.resolvingAs}
+            {props.collection.registry.primaryDomain?.[0]?.name ||
+              "No primary name"}
           </span>
         </div>
         <div>
           <button
             type="button"
-            onClick={() => handleManageClick(collectionItem)}
+            onClick={() => props.onManageClick?.()}
             className="button-secondary button-lg rounded-2xl"
           >
             Manage

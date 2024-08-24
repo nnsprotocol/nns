@@ -5,67 +5,19 @@ import ModalContainer from "../modals/ModalContainer";
 import DomainManage from "./modal-content/DomainManage";
 import DomainRenewSubmitted from "./modal-content/DomainRenewSubmitted";
 import DomainRenewCompleted from "./modal-content/DomainRenewCompleted";
+import { useAccount } from "wagmi";
+import { useCollectionPreview } from "../../services/graph";
+import { useDefaultCld } from "../../services/resolver";
 
 const DomainCollectionsCards: React.FC = () => {
-  const collectionsList: DomainCollection[] = useMemo(
-    () => [
-      {
-        id: "collection-1",
-        name: "NNS",
-        imgSrc: "/temp/nns-sunglasses.png",
-        isPreffered: false,
-        resolvingAs: "ciao.⌐◨-◨",
-        domains: [
-          {
-            id: "domain-1",
-            imgSrc: "/temp/domain-card.png",
-            name: "ciao.⌐◨-◨",
-            rewards: "-- NOGS",
-            expires: "2025-06-10T00:00:00",
-            isPrimary: true,
-            price: 0.1,
-          },
-        ],
-      },
-      {
-        id: "collection-2",
-        name: "Nouns",
-        imgSrc: "/temp/noun-1.svg",
-        isPreffered: true,
-        resolvingAs: "ciao.noun",
-        domains: [
-          {
-            id: "domain-1",
-            imgSrc: "/temp/domain-card.png",
-            name: "ciao.noun",
-            rewards: "-- NOGS",
-            expires: "2025-06-10T00:00:00",
-            isPrimary: true,
-            price: 0.1,
-          },
-          {
-            id: "domain-2",
-            imgSrc: "/temp/domain-card.png",
-            name: "hello.noun",
-            rewards: "-- NOGS",
-            expires: "2025-06-10T00:00:00",
-            isPrimary: false,
-            price: 0.1,
-          },
-          {
-            id: "domain-3",
-            imgSrc: "/temp/domain-card.png",
-            name: "hola.noun",
-            rewards: "-- NOGS",
-            expires: "2025-06-10T00:00:00",
-            isPrimary: false,
-            price: 0.1,
-          },
-        ],
-      },
-    ],
-    []
-  );
+  const account = useAccount();
+  const collections = useCollectionPreview({
+    owner: account.address,
+  });
+  const defaultCldId = useDefaultCld({
+    account: account.address,
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalState, setModalState] = useState<
     "manage" | "manage-renew-submitted" | "manage-renew-completed"
@@ -109,11 +61,12 @@ const DomainCollectionsCards: React.FC = () => {
   return (
     <>
       <div className="min-h-80 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-lg">
-        {collectionsList.map((item) => (
+        {collections.data?.map((item) => (
           <CollectionCard
-            key={item.id}
-            collectionItem={item}
-            handleManageClick={handleManageClick}
+            key={item.registry.id}
+            collection={item}
+            defaultCldId={defaultCldId.data || 0n}
+            // onManageClick={() => handleManageClick(item)}
           />
         ))}
         <div className="min-h-80 group border border-borderPrimary rounded-32 bg-surfacePrimary p-lg flex justify-center items-center relative">

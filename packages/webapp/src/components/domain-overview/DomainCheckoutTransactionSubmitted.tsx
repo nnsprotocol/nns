@@ -1,21 +1,17 @@
-import { useEffect } from "react";
-import { DomainData } from "../../types/domains";
+import { Hash } from "viem";
+import { useAccount } from "wagmi";
+import { Registry } from "../../services/graph";
 import IconArrowRight from "../icons/IconArrowRight";
 import DomainCheckoutContainer from "./DomainCheckoutContainer";
 
-const DomainCheckoutTransactionSubmitted: React.FC<{
-  changeDomainCheckoutType: () => void;
-  domainData: DomainData;
-}> = ({ domainData, changeDomainCheckoutType }) => {
+type Props = {
+  name: string;
+  registry: Registry;
+  txHash?: Hash;
+};
 
-  useEffect(() => {
-    const id = setTimeout(() => {
-      changeDomainCheckoutType()
-    }, 3000);
-
-    return () => clearTimeout(id)
-  }, [])
-
+const DomainCheckoutTransactionSubmitted: React.FC<Props> = (props) => {
+  const { chain } = useAccount();
   return (
     <DomainCheckoutContainer>
       <div>
@@ -58,7 +54,7 @@ const DomainCheckoutTransactionSubmitted: React.FC<{
             </div>
             <div className="flex flex-col text-center">
               <p className="text-2xl text-textPrimary mb-xs font-medium">
-                {domainData.name}
+                {`${props.name}.${props.registry.name}`}
               </p>
               <p className="text-sm font-medium text-textSecondary">
                 NNS Domain
@@ -66,12 +62,18 @@ const DomainCheckoutTransactionSubmitted: React.FC<{
             </div>
           </div>
         </div>
-        <div className="flex justify-center pt-md border-t border-borderLight">
-          <a href="#" target="_blank" className="link-brand-lavender">
-            <span>View Etherscan</span>
-            <IconArrowRight />
-          </a>
-        </div>
+        {chain?.blockExplorers?.default && props.txHash ? (
+          <div className="flex justify-center pt-md border-t border-borderLight">
+            <a
+              href={`${chain.blockExplorers.default.url}/tx/${props.txHash}`}
+              target="_blank"
+              className="link-brand-lavender"
+            >
+              <span>View Etherscan</span>
+              <IconArrowRight />
+            </a>
+          </div>
+        ) : null}
       </div>
     </DomainCheckoutContainer>
   );

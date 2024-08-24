@@ -1,20 +1,13 @@
-import { useEffect } from "react";
-import { DomainData } from "../../types/domains";
-import DomainCheckoutContainer from "./DomainCheckoutContainer";
 import { Link } from "react-router-dom";
+import { Registry } from "../../services/graph";
+import DomainCheckoutContainer from "./DomainCheckoutContainer";
 
-const DomainCheckoutTransactionComplete: React.FC<{
-  changeDomainCheckoutType: () => void;
-  domainData: DomainData;
-}> = ({ domainData, changeDomainCheckoutType }) => {
-  useEffect(() => {
-    const id = setTimeout(() => {
-      changeDomainCheckoutType();
-    }, 3000);
+type Props = {
+  name: string;
+  registry: Registry;
+};
 
-    return () => clearTimeout(id);
-  }, []);
-
+const DomainCheckoutTransactionComplete: React.FC<Props> = (props) => {
   return (
     <DomainCheckoutContainer>
       <div>
@@ -48,7 +41,7 @@ const DomainCheckoutTransactionComplete: React.FC<{
             </div>
             <div className="flex flex-col text-center">
               <p className="text-2xl text-textPrimary mb-xs font-medium">
-                {domainData.name}
+                {`${props.name}.${props.registry.name}`}
               </p>
               <p className="text-sm font-medium text-textSecondary">
                 NNS Domain

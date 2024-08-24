@@ -186,7 +186,7 @@ function Collections() {
           <thead className="bg-gray-200">
             <tr>
               <th>{collection.registry.name}</th>
-              <th>{collection.numberOfTokens} Domains</th>
+              <th>{collection.numberOfDomains} Domains</th>
               <th>
                 Resolving as:{" "}
                 {collection.registry.primaryDomain?.[0]?.name || "no primary"}

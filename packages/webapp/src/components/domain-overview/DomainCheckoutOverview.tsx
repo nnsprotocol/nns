@@ -1,22 +1,25 @@
-import { DomainData } from "../../types/domains";
+import { useDomainPrice } from "../../services/controller";
+import { Registry } from "../../services/graph";
+import { formatETH, formatUSD } from "../../utils/formatter";
 import IconArrowRight from "../icons/IconArrowRight";
 import IconInfo from "../icons/IconInfo";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import DomainCheckoutContainer from "./DomainCheckoutContainer";
 
-const DomainCheckoutOverview: React.FC<{
-  changeDomainCheckoutType: () => void;
-  domainData: DomainData;
-  domainAsPrimaryNameToggle: {
-    domainAsPrimaryName: boolean;
-    setDomainAsPrimaryName: React.Dispatch<React.SetStateAction<boolean>>;
-  };
-}> = ({ domainData, changeDomainCheckoutType, domainAsPrimaryNameToggle }) => {
+type Props = {
+  name: string;
+  registry: Registry;
+  available: boolean;
+  primaryName: boolean;
+  onPrimaryNameChange: (value: boolean) => void;
+  onNext: () => void;
+};
 
-  const handleGetYourNameButtonClick = () => {
-    if(!domainData.isAvailable) { return }
-    changeDomainCheckoutType();
-  };
+const DomainCheckoutOverview: React.FC<Props> = (props) => {
+  const price = useDomainPrice({
+    cldId: props.registry.id,
+    name: props.name,
+  });
 
   return (
     <DomainCheckoutContainer>
@@ -33,13 +36,13 @@ const DomainCheckoutOverview: React.FC<{
           </div>
           <div className="flex flex-col">
             <p className="text-2xl text-textPrimary mb-xs font-medium">
-              {domainData.name}
+              {`${props.name}.${props.registry.name}`}
             </p>
             <p className="text-sm font-normal text-textSecondary mb-xs">
               NNS Domain
             </p>
             <p className="text-2xl text-textBrandLavender mt-auto font-medium">
-              $100
+              {price?.usd ? formatUSD(price?.usd) : "Loading..."}
             </p>
           </div>
         </div>
@@ -56,21 +59,26 @@ const DomainCheckoutOverview: React.FC<{
             <p className="font-medium">Own for</p>
             <div>
               <p className="font-medium text-textPrimary text-end mb-xs">
-                $100.00
+                {price?.usd ? formatUSD(price?.usd) : "Loading..."}
               </p>
-              <p className="font-normal text-end">0.03 ETH</p>
+              <p className="font-normal text-end">
+                {price?.eth ? formatETH(price?.eth) : "Loading..."}
+              </p>
             </div>
           </div>
-          <div className="flex gap-xs justify-between text-sm">
-            <p className="font-medium">Expiration Date</p>
-            <div>
-              <p className="font-medium text-textPrimary text-end mb-xs">
-                18 Jun, 2025
-              </p>
-              <p className="font-normal text-end">1 Year</p>
+          {props.registry.hasExpiringNames ? (
+            <div className="flex gap-xs justify-between text-sm">
+              <p className="font-medium">Expiration Date</p>
+              <div>
+                <p className="font-medium text-textPrimary text-end mb-xs">
+                  18 Jun, 2025
+                </p>
+                <p className="font-normal text-end">1 Year</p>
+              </div>
             </div>
-          </div>
-          <div className="flex gap-xs justify-between text-sm">
+          ) : null}
+
+          {/* <div className="flex gap-xs justify-between text-sm">
             <p className="font-medium">Est. Gas Fees</p>
             <div>
               <p className="font-medium text-textPrimary text-end mb-xs">
@@ -78,14 +86,15 @@ const DomainCheckoutOverview: React.FC<{
               </p>
               <p className="font-normal text-end">0.004 ETH</p>
             </div>
-          </div>
+          </div> */}
+
           <div className="flex gap-xs justify-between">
             <p className="flex gap-xxs items-center text-sm font-medium">
               <span>Set as primary name</span> <IconInfo />
             </p>
             <ToggleDefault
-              isOn={domainAsPrimaryNameToggle.domainAsPrimaryName}
-              setIsOn={domainAsPrimaryNameToggle.setDomainAsPrimaryName}
+              isOn={props.primaryName}
+              setIsOn={props.onPrimaryNameChange}
             />
           </div>
         </div>
@@ -93,15 +102,17 @@ const DomainCheckoutOverview: React.FC<{
           <button
             type="button"
             className="button-brand-lavender button-lg justify-center rounded-2xl"
-            disabled={!domainData.isAvailable}
-            onClick={handleGetYourNameButtonClick}
+            disabled={!props.available}
+            onClick={props.onNext}
           >
             <span>Get your Name</span>
             <IconArrowRight />
           </button>
-          <p className="text-textSecondary text-sm text-center">
-            Your name is forever. Say goodbye to renewal fees!
-          </p>
+          {props.registry.hasExpiringNames ? null : (
+            <p className="text-textSecondary text-sm text-center">
+              Your name is forever. Say goodbye to renewal fees!
+            </p>
+          )}
         </div>
       </div>
     </DomainCheckoutContainer>

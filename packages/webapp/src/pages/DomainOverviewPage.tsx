@@ -1,45 +1,111 @@
-import { useParams } from "react-router-dom";
-import LayoutDefault from "../components/layouts/LayoutDefault";
-import GroupSocialLinks from "../components/ui/groups/GroupSocialLinks";
-import IconChevronUp from "../components/icons/IconChevronUp";
-import { useMemo, useState } from "react";
-import { DomainCheckoutType, DomainData } from "../types/domains";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { namehash } from "viem";
+import { useAccount } from "wagmi";
+import DomainCheckoutBuy from "../components/domain-overview/DomainCheckoutBuy";
 import DomainCheckoutOverview from "../components/domain-overview/DomainCheckoutOverview";
 import DomainCheckoutConnectToWallet from "../components/domain-overview/DomainCheckoutСonnectToWallet";
-import DomainCheckoutBuy from "../components/domain-overview/DomainCheckoutBuy";
+import LayoutDefault from "../components/layouts/LayoutDefault";
+import GroupSocialLinks from "../components/ui/groups/GroupSocialLinks";
+import { useRegistry } from "../services/graph";
+import { DomainCheckoutType } from "../types/domains";
 import DomainCheckoutTransactionSubmitted from "../components/domain-overview/DomainCheckoutTransactionSubmitted";
+import { useWriteContractWaitingForTx } from "../services/shared";
+import CONTROLLER_ABI from "../abi/IController";
+import { CONTROLLER_ADDRESS, useDomainPrice } from "../services/controller";
+import { normalize } from "viem/ens";
 import DomainCheckoutTransactionComplete from "../components/domain-overview/DomainCheckoutTransactionComplete";
 
+/*
+InvalidPricingOracle() 0x2715c316
+CldAlreadyExists() 0x6e12e57b
+UnauthorizedAccount() 0xa97ff08a
+InvalidCld() 0x00ea4de6
+InvalidLabel() 0x3d36cb8d
+InsufficientTransferAmount(uint256,uint256) 0x5338e506
+InvalidRegistrationPeriod() 0xddceada6
+NonExpiringCld(uint256) 0x42cad659
+CldAlreadyRegistered() 0xd36fe932
+UnauthorizedAccount() 0xa97ff08a
+InvalidCld() 0x00ea4de6
+CldAlreadyRegistered(uint256) 0x8099d066
+InvalidCld(uint256) 0x6128427d
+InvalidAccount(address) 0x4b579b22
+InvalidShares() 0x6edcc523
+NothingToWithdraw() 0xd0d04f60
+CallerNotController(address) 0x69867d64
+*/
+
 function DomainOverviewPage() {
-  const [domainCheckoutType, setDomainCheckoutType] = useState<DomainCheckoutType>("overview");
+  const [domainCheckoutType, setDomainCheckoutType] =
+    useState<DomainCheckoutType>("overview");
   const [domainAsPrimaryName, setDomainAsPrimaryName] = useState(true);
 
-  const { domainId } = useParams<{ domainId: string }>();
+  const account = useAccount();
 
-  const domainData = useMemo<DomainData>(() => ({
-    name: domainId,
-    isAvailable: Boolean(domainId?.includes("bob")),
-  }), [domainId]);
+  const navigate = useNavigate();
+  const { domainName: domainFullName } = useParams<{ domainName: string }>();
+  const [domainName, cldName] = useMemo(
+    () => domainFullName?.split(".") || [],
+    [domainFullName]
+  );
+  const cldId = useMemo(() => namehash(cldName), [domainName]);
 
-  const changeDomainCheckoutType = () => {
-    switch (domainCheckoutType) {
-      case "overview":
-        setDomainCheckoutType("connectToWallet");
-        break;
-      case "connectToWallet":
-        setDomainCheckoutType("buy");
-        break;
-      case "buy":
-        setDomainCheckoutType("transactionSubmitted");
-        break;
-      case "transactionSubmitted":
-        setDomainCheckoutType("transactionComplete");
-        break;
+  const registry = useRegistry({ id: cldId });
 
-      default:
-        break;
+  useEffect(() => {
+    if (registry.isSuccess && !registry.data) {
+      navigate("/");
     }
-  };
+  }, [registry.isSuccess, registry.data]);
+
+  const price = useDomainPrice({
+    cldId,
+    name: domainName,
+  });
+
+  const register = useWriteContractWaitingForTx();
+  useEffect(() => {
+    if (
+      register.state.value === "idle" &&
+      domainCheckoutType === "transactionSubmitted"
+    ) {
+      setDomainCheckoutType("buy");
+    } else if (register.state.value === "success") {
+      setDomainCheckoutType("transactionComplete");
+    }
+  }, [register.state.value]);
+
+  const handleNextStep = useCallback(() => {
+    if (domainCheckoutType === "overview" && account.isConnected) {
+      setDomainCheckoutType("buy");
+    } else if (domainCheckoutType === "overview" && !account.isConnected) {
+      setDomainCheckoutType("connectToWallet");
+    } else if (
+      domainCheckoutType === "connectToWallet" &&
+      account.isConnected
+    ) {
+      setDomainCheckoutType("buy");
+    } else if (
+      domainCheckoutType === "buy" &&
+      ["idle", "error"].includes(register.state.value)
+    ) {
+      setDomainCheckoutType("transactionSubmitted");
+      register.writeContract({
+        abi: CONTROLLER_ABI,
+        address: CONTROLLER_ADDRESS,
+        functionName: "register",
+        value: (price!.eth * 11n) / 10n,
+        args: [
+          account.address!,
+          [normalize(domainName), registry.data!.name],
+          domainAsPrimaryName,
+          "0x0000000000000000000000000000000000000000",
+          registry.data?.hasExpiringNames ? 1 : 0,
+        ],
+      });
+    }
+  }, [domainCheckoutType, register.state.value]);
 
   return (
     <LayoutDefault>
@@ -50,12 +116,12 @@ function DomainOverviewPage() {
               Now Registering
             </p>
             <h1 className="text-6.5xl font-semibold text-textInverse mb-sm">
-              {domainData.name}
+              {domainFullName}
             </h1>
             <div className="flex items-center gap-xxs">
               <img
                 src={
-                  domainData.isAvailable
+                  true // TODO: fix me
                     ? "/badges/available-md.svg"
                     : "/badges/unavailable-md.svg"
                 }
@@ -96,26 +162,28 @@ function DomainOverviewPage() {
                       Registered Domains
                     </p>
                     <p className="text-2xl text-textInverse font-medium">
-                      1,234
+                      {registry.data?.totalSupply}
                     </p>
-                    <div className="flex gap-xxs items-center">
+                    {/* <div className="flex gap-xxs items-center">
                       <IconChevronUp />
                       <span className="text-xs text-textSecondary font-medium">
                         <span className="text-[#19BB46]">2.45% </span>Past Week
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                   <div className="flex flex-col items-start justify-center gap-sm">
                     <p className="text-sm text-textSecondary font-medium">
                       Unique Owners
                     </p>
-                    <p className="text-2xl text-textInverse font-medium">879</p>
-                    <div className="flex gap-xxs items-center">
+                    <p className="text-2xl text-textInverse font-medium">
+                      {registry.data?.uniqueOwners}
+                    </p>
+                    {/* <div className="flex gap-xxs items-center">
                       <IconChevronUp />
                       <span className="text-xs text-textSecondary font-medium">
                         <span className="text-[#19BB46]">1.08% </span>Past Week
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -123,46 +191,47 @@ function DomainOverviewPage() {
           </div>
         </div>
         <div className="w-full max-w-[383px]">
-          {domainCheckoutType === "overview" && (
+          {registry.data && domainCheckoutType === "overview" && (
             <DomainCheckoutOverview
-              changeDomainCheckoutType={changeDomainCheckoutType}
-              domainData={domainData}
-              domainAsPrimaryNameToggle={{
-                domainAsPrimaryName,
-                setDomainAsPrimaryName,
-              }}
+              available={true}
+              name={domainName || ""}
+              primaryName={domainAsPrimaryName}
+              onPrimaryNameChange={setDomainAsPrimaryName}
+              onNext={handleNextStep}
+              registry={registry.data}
             />
           )}
-          {domainCheckoutType === "connectToWallet" && (
+          {registry.data && domainCheckoutType === "connectToWallet" && (
             <DomainCheckoutConnectToWallet
-              changeDomainCheckoutType={changeDomainCheckoutType}
-              domainData={domainData}
-              domainAsPrimaryNameToggle={{
-                domainAsPrimaryName,
-                setDomainAsPrimaryName,
-              }}
+              name={domainName || ""}
+              registry={registry.data}
+              primaryName={domainAsPrimaryName}
+              onPrimaryNameChange={setDomainAsPrimaryName}
+              onNext={handleNextStep}
             />
           )}
-          {domainCheckoutType === "buy" && (
+          {registry.data && domainCheckoutType === "buy" && (
             <DomainCheckoutBuy
-              changeDomainCheckoutType={changeDomainCheckoutType}
-              domainData={domainData}
-              domainAsPrimaryNameToggle={{
-                domainAsPrimaryName,
-                setDomainAsPrimaryName,
-              }}
+              name={domainName || ""}
+              registry={registry.data}
+              primaryName={domainAsPrimaryName}
+              onPrimaryNameChange={setDomainAsPrimaryName}
+              onNext={handleNextStep}
             />
           )}
-          {domainCheckoutType === "transactionSubmitted" && (
+          {registry.data && domainCheckoutType === "transactionSubmitted" && (
             <DomainCheckoutTransactionSubmitted
-              changeDomainCheckoutType={changeDomainCheckoutType}
-              domainData={domainData}
+              name={domainName || ""}
+              registry={registry.data}
+              txHash={
+                "hash" in register.state ? register.state.hash : undefined
+              }
             />
           )}
           {domainCheckoutType === "transactionComplete" && (
             <DomainCheckoutTransactionComplete
-              changeDomainCheckoutType={changeDomainCheckoutType}
-              domainData={domainData}
+              name={domainName || ""}
+              registry={registry.data!}
             />
           )}
         </div>

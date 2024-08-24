@@ -18,13 +18,13 @@
   }
 
   .button-light {
-    @apply text-textPrimary hover:text-textPrimary disabled:text-textPrimary bg-surfaceLight hover:bg-surfaceInverse disabled:bg-surfaceSecondary stroke-textPrimary disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs font-medium;
+    @apply text-textPrimary hover:text-textPrimary disabled:text-textSecondary bg-surfaceLight hover:bg-surfaceInverse disabled:bg-surfaceSecondary stroke-textPrimary disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs font-medium;
   }
   .button-secondary {
-    @apply text-textInverse disabled:text-textPrimary bg-surfaceSecondary hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs font-medium;
+    @apply text-textInverse disabled:text-textSecondary bg-surfaceSecondary hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs font-medium;
   }
   .button-brand-lavender {
-    @apply text-textInverse hover:text-textBrandLavender disabled:text-textPrimary bg-surfaceBrandLavender hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse hover:stroke-textBrandLavender disabled:stroke-textPrimary border border-transparent hover:border-borderBrandLavender disabled:border-transparent flex items-center gap-xxs font-medium;
+    @apply text-textInverse hover:text-textBrandLavender disabled:text-textSecondary bg-surfaceBrandLavender hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse hover:stroke-textBrandLavender disabled:stroke-textPrimary border border-transparent hover:border-borderBrandLavender disabled:border-transparent flex items-center gap-xxs font-medium;
   }
   .button-sm {
     @apply text-sm p-xs rounded-lg;

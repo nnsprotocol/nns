@@ -1,24 +1,36 @@
-import { DomainData } from "../../types/domains";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useEffect } from "react";
+import { useAccount } from "wagmi";
+import { useDomainPrice } from "../../services/controller";
+import { Registry } from "../../services/graph";
+import { formatETH, formatUSD } from "../../utils/formatter";
 import IconArrowRight from "../icons/IconArrowRight";
 import IconElectricalPlug from "../icons/IconElectricalPlug";
 import IconInfo from "../icons/IconInfo";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import DomainCheckoutContainer from "./DomainCheckoutContainer";
 
-const DomainCheckoutConnectToWallet: React.FC<{
-  changeDomainCheckoutType: () => void;
-  domainData: DomainData;
-  domainAsPrimaryNameToggle: {
-    domainAsPrimaryName: boolean;
-    setDomainAsPrimaryName: React.Dispatch<React.SetStateAction<boolean>>;
-  };
-}> = ({ domainData, changeDomainCheckoutType, domainAsPrimaryNameToggle }) => {
-  const handleConnectWalletButtonClick = () => {
-    if (!domainData.isAvailable) {
-      return;
+type Props = {
+  name: string;
+  registry: Registry;
+  primaryName: boolean;
+  onPrimaryNameChange: (value: boolean) => void;
+  onNext: () => void;
+};
+
+const DomainCheckoutConnectToWallet: React.FC<Props> = (props) => {
+  const account = useAccount();
+  const price = useDomainPrice({
+    cldId: props.registry.id,
+    name: props.name,
+  });
+  const { openConnectModal } = useConnectModal();
+
+  useEffect(() => {
+    if (account.isConnected) {
+      props.onNext();
     }
-    changeDomainCheckoutType();
-  };
+  }, [props.onNext, account.isConnected]);
 
   return (
     <DomainCheckoutContainer>
@@ -50,17 +62,17 @@ const DomainCheckoutConnectToWallet: React.FC<{
             <p className="text-sm font-medium mb-sm">You Pay</p>
             <div className="flex gap-md justify-between items-center mb-sm">
               <span className="text-2xl text-textPrimary font-medium">
-                0.1 ETH
+                {price?.eth ? formatETH(price?.eth) : "Loading..."}
               </span>
               <img src="/temp/ether-coin.svg" width={25} height={25} />
             </div>
             <div className="flex gap-md justify-between items-center">
               <span className="text-sm text-textSecondary font-medium">
-                $100.34
+                {price?.usd ? formatUSD(price?.usd) : "Loading..."}
               </span>
-              <span className="text-sm text-textSecondary font-medium">
+              {/* <span className="text-sm text-textSecondary font-medium">
                 Balance: --
-              </span>
+              </span> */}
             </div>
           </div>
           <div className="border-t border-borderLight py-md">
@@ -77,7 +89,7 @@ const DomainCheckoutConnectToWallet: React.FC<{
               </div>
               <div className="flex flex-col gap-xs justify-center">
                 <p className="text-2xl text-textPrimary font-medium">
-                  {domainData.name}
+                  {[props.name, props.registry.name].join(".")}
                 </p>
                 <p className="text-sm font-normal text-textSecondary">
                   NNS Domain
@@ -103,7 +115,7 @@ const DomainCheckoutConnectToWallet: React.FC<{
           </div>
         </div>
         <div className="text-textSecondary grid grid-cols-1 gap-md p-md border-t border-borderLight">
-          <div className="flex gap-xs justify-between text-sm">
+          {/* <div className="flex gap-xs justify-between text-sm">
             <p className="font-medium">Gas Fees</p>
             <div>
               <p className="font-medium text-textPrimary text-end mb-xs">
@@ -111,14 +123,14 @@ const DomainCheckoutConnectToWallet: React.FC<{
               </p>
               <p className="font-normal text-end">0.004 ETH</p>
             </div>
-          </div>
+          </div> */}
           <div className="flex gap-xs justify-between">
             <p className="flex gap-xxs items-center text-sm font-medium">
               <span>Set as primary name</span> <IconInfo />
             </p>
             <ToggleDefault
-              isOn={domainAsPrimaryNameToggle.domainAsPrimaryName}
-              setIsOn={domainAsPrimaryNameToggle.setDomainAsPrimaryName}
+              isOn={props.primaryName}
+              setIsOn={props.onPrimaryNameChange}
             />
           </div>
         </div>
@@ -126,7 +138,7 @@ const DomainCheckoutConnectToWallet: React.FC<{
           <button
             type="button"
             className="button-secondary button-lg justify-center rounded-2xl"
-            onClick={handleConnectWalletButtonClick}
+            onClick={openConnectModal}
           >
             Connect Wallet
           </button>

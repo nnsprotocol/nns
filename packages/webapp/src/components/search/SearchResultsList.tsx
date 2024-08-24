@@ -2,15 +2,32 @@ import { Link } from "react-router-dom";
 import BadgeAvailable from "../badges/BadgeAvailable";
 import BadgeUnavailable from "../badges/BadgeUnavailable";
 import IconArrowRight from "../icons/IconArrowRight";
+import { Domain } from "../../services/graph";
+import { normalize } from "viem/ens";
+import { useMemo } from "react";
 
-const SearchResultsList: React.FC<{ showResults: boolean }> = ({ showResults }) => {
-  const searchResults = [
-    { id: "result-1", text: "bob.⌐◨-◨", isAvailable: true, url: "/domain-overview/bob.⌐◨-◨" },
-    { id: "result-2", text: "alice.⌐◨-◨", isAvailable: false, url: "/domain-overview/alice.⌐◨-◨" },
-  ];
+interface Props {
+  searchText: string;
+  cldName: string;
+  domains: Domain[];
+}
 
-  if(!showResults) {
-    return <></>
+const SearchResultsList: React.FC<Props> = ({
+  searchText,
+  cldName,
+  domains,
+}) => {
+  const isAvailable = useMemo(() => {
+    return !domains
+      ?.map((d) => d.name.split(".")[0])
+      .some((d) => normalize(d) === normalize(searchText));
+  }, [searchText, domains]);
+
+  if (!searchText) {
+    return <></>;
+  }
+  if (!domains?.length && !isAvailable) {
+    return <></>;
   }
 
   return (
@@ -22,20 +39,17 @@ const SearchResultsList: React.FC<{ showResults: boolean }> = ({ showResults }) 
             Results
           </p>
           <ul className="grid grid-cols-1 gap-xs">
-            {searchResults.map((item) => (
-              <li key={item.id}>
-                <Link
-                  to={item.url}
-                  className="flex gap-xs items-center hover:bg-surfaceSecondary px-xs py-sm rounded-lg"
-                >
-                  <span className="text-sm text-textInverse font-normal">
-                    {item.text}
-                  </span>
-                  {item.isAvailable ? <BadgeAvailable /> : <BadgeUnavailable />}
-                  <span className="stroke-textSecondary ms-auto">
-                    <IconArrowRight size={16} />
-                  </span>
-                </Link>
+            {isAvailable ? (
+              <li key={searchText}>
+                <DomainLink
+                  name={`${searchText}.${cldName}`}
+                  available={true}
+                />
+              </li>
+            ) : null}
+            {domains.map((d) => (
+              <li key={d.id}>
+                <DomainLink name={d.name} available={false} />
               </li>
             ))}
           </ul>
@@ -44,5 +58,20 @@ const SearchResultsList: React.FC<{ showResults: boolean }> = ({ showResults }) 
     </div>
   );
 };
+
+function DomainLink(props: { name: string; available: boolean }) {
+  return (
+    <Link
+      to={`/domain-overview/${props.name}`}
+      className="flex gap-xs items-center hover:bg-surfaceSecondary px-xs py-sm rounded-lg"
+    >
+      <span className="text-sm text-textInverse font-normal">{props.name}</span>
+      {props.available ? <BadgeAvailable /> : <BadgeUnavailable />}
+      <span className="stroke-textSecondary ms-auto">
+        <IconArrowRight size={16} />
+      </span>
+    </Link>
+  );
+}
 
 export default SearchResultsList;

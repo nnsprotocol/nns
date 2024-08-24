@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import DropdownWallet from "./DropdownWallet";
+import { useAccount } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useNumberOfDomains } from "../../services/graph";
 
 type WalletButtonSectionProps = {
   customConnectWalletButtonColors?: {
@@ -11,9 +14,13 @@ type WalletButtonSectionProps = {
 const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({
   customConnectWalletButtonColors,
 }) => {
-  const [isConnected, setIsConnected] = useState(false);
+  const account = useAccount();
+  const { openConnectModal } = useConnectModal();
   const [connectWalletBackgroundColor, setConnectWalletBackgroundColor] =
     useState("#11101B");
+  const numOfDomains = useNumberOfDomains({
+    owner: account.address,
+  });
 
   const handleMouseEnter = () => {
     if (window.scrollY > 0) {
@@ -36,7 +43,7 @@ const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({
       style={{ backgroundColor: connectWalletBackgroundColor }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={() => setIsConnected(true)}
+      onClick={() => openConnectModal?.()}
     >
       Connect Wallet
     </button>
@@ -44,7 +51,7 @@ const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({
     <button
       id="connect-wallet-button"
       type="button"
-      onClick={() => setIsConnected(true)}
+      onClick={() => openConnectModal?.()}
       className="button-secondary button-md border-borderSecondary"
     >
       Connect Wallet
@@ -53,14 +60,14 @@ const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({
 
   return (
     <div className="flex items-center gap-md">
-      {isConnected ? (
+      {account.isConnected ? (
         <>
           <div className="hidden sm:flex items-center gap-xs">
             <Link to="/my-domains" className="link-default text-nowrap">
               My Domains
             </Link>
             <span className="bg-surfaceBrandLavender rounded-2xl text-textInverse text-xs p-xxs text-center min-w-[28px]">
-              3
+              {numOfDomains.data || ""}
             </span>
           </div>
           <DropdownWallet />

@@ -4,6 +4,7 @@ type Account @entity {
   approvedDomains: [Domain!]! @derivedFrom(field: "approval")
 
   stats: [OwnerStats!]! @derivedFrom(field: "owner")
+  numberOfDomains: BigInt!
   defaultResolverRegistry: Registry
 }
 
@@ -32,7 +33,7 @@ type OwnerStats @entity {
   id: ID!
   owner: Account!
   registry: Registry!
-  numberOfTokens: BigInt!
+  numberOfDomains: BigInt!
 }
 
 type DomainRecord @entity {

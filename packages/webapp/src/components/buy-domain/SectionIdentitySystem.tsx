@@ -1,14 +1,20 @@
 import { useState } from "react";
 import SearchResultsList from "../search/SearchResultsList";
+import { useSearchDomain } from "../../services/graph";
+
+const NOGGLES_REGISTRY_ID =
+  "0x739305fdceb24221237c3dea9f36a6fcc8dc81b45730358192886e1510532739";
 
 function SectionIdentitySystem() {
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  // const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const search = useSearchDomain({
+    name: searchText,
+    cldId: NOGGLES_REGISTRY_ID,
+  });
 
   const handleSearchInput = (event: React.FormEvent<HTMLInputElement>) => {
-    const target = event.target as HTMLInputElement;
-    if (!target.value) {
-      setShowSearchResults(false);
-    }
+    setSearchText(event.currentTarget.value);
   };
 
   const handleSearchClick = () => {
@@ -16,7 +22,7 @@ function SectionIdentitySystem() {
       "buy-domain-search-input"
     ) as HTMLInputElement;
     if (element && element.value) {
-      setShowSearchResults(true);
+      // setShowSearchResults(true);
     }
   };
   return (
@@ -61,7 +67,11 @@ function SectionIdentitySystem() {
                   className="p-6 rounded-2xl border border-borderSecondary bg-transparent outline-none w-full text-lg font-light focus:border-textBrandLavender"
                   placeholder="yourdomain (eg. bob.⌐◨-◨)"
                 />
-                <SearchResultsList showResults={showSearchResults} />
+                <SearchResultsList
+                  searchText={searchText}
+                  cldName="⌐◨-◨"
+                  domains={search.data || []}
+                />
               </div>
               <div>
                 <button

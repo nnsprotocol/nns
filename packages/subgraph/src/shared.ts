@@ -5,6 +5,7 @@ export function fetchAccount(address: Address): Account {
   let account = Account.load(address.toHexString());
   if (account == null) {
     account = new Account(address.toHexString());
+    account.numberOfDomains = BigInt.zero();
     account.save();
   }
   return account;

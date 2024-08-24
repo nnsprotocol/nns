@@ -14,14 +14,21 @@ export type TxState =
   | { value: "success"; hash: Hex }
   | { value: "error"; error: Error & { shortMessage?: string }; hash?: Hex };
 
-interface WriteContractWithServerRequestResponse {
+interface WriteContractWaitingForTxResponse {
   state: TxState;
   isLoading: boolean;
   writeContract: UseWriteContractReturnType<Config, unknown>["writeContract"];
   reset: () => void;
 }
 
-export function useWriteContractWaitingForTx(): WriteContractWithServerRequestResponse {
+interface WriteContractWaitingForTxOptions {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
+export function useWriteContractWaitingForTx(
+  props?: WriteContractWaitingForTxOptions
+): WriteContractWaitingForTxResponse {
   const write = useWriteContract();
   const tx = useWaitForTransactionReceipt({ hash: write.data });
 
@@ -32,12 +39,15 @@ export function useWriteContractWaitingForTx(): WriteContractWithServerRequestRe
       setState({ value: "minting", hash: write.data! });
     } else if (tx.isSuccess) {
       setState({ value: "success", hash: write.data! });
+      props?.onSuccess?.();
     } else if (tx.error) {
       setState({ value: "error", error: tx.error, hash: write.data });
+      props?.onError?.(tx.error);
     } else if (write.error && isUserRejectedRequestError(write.error)) {
       setState({ value: "idle" });
     } else if (write.error) {
       setState({ value: "error", error: write.error, hash: write.data });
+      props?.onError?.(write.error);
     } else if (write.isPending) {
       setState({ value: "signing", hash: write.data! });
     } else {
