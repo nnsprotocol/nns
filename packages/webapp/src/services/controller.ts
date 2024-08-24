@@ -1,9 +1,9 @@
+import { useMemo } from "react";
+import { Hash } from "viem";
 import { useReadContract } from "wagmi";
 import AGGREGATOR_ABI from "../abi/IAggregator";
 import CONTROLLER_ABI from "../abi/IController";
 import PRICING_ORACLE_ABI from "../abi/IPricingOracle";
-import { useMemo } from "react";
-import { Hash } from "viem";
 
 export const CONTROLLER_ADDRESS = import.meta.env.VITE_CONTROLLER_ADDRESS;
 const USD_ETH_AGGREGATOR_ADDRESS = import.meta.env

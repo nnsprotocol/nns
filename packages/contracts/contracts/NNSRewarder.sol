@@ -141,6 +141,7 @@ contract NNSRewarder is IRewarder, Ownable {
         }(params);
 
         // Referral
+        address originalReferer = referer;
         if (referer == address(0)) {
             referer = _communityPayables[cldId];
         }
@@ -172,7 +173,7 @@ contract NNSRewarder is IRewarder, Ownable {
             _holderRewarder.incrementBalance(holdersAmount);
         }
 
-        emit Collected(cldId, referer, msg.value, totalAmount);
+        emit Collected(cldId, originalReferer, msg.value, totalAmount);
     }
 
     function _ecosytemShare(uint256 cldId) internal view returns (uint8) {

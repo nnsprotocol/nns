@@ -26,8 +26,7 @@ task("register-cld", "Registers a new CLD")
         taskArgs.communitypayable,
         taskArgs.communitymanager,
         taskArgs.expiringnames === "true",
-        taskArgs.defaultcldresolver === "true",
-        taskArgs.splitsharecld === "true"
+        taskArgs.defaultcldresolver === "true"
       );
     await tx.wait();
   });

@@ -332,6 +332,12 @@ describe("NNSRewarder", () => {
         const balance = await ctx.accountRewarder.balanceOf(communityPayout);
         expect(balance).to.eq(expBalance);
       });
+
+      it("emits a Collected event", async () => {
+        await expect(tx)
+          .to.emit(ctx.rewarder, "Collected")
+          .withArgs(ctx.cldAId, ethers.ZeroAddress, valueETH, valueERC20);
+      });
     });
   });
 

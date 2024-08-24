@@ -20,6 +20,7 @@ interface IController {
     error InvalidLabel();
     error InsufficientTransferAmount(uint256 required, uint256 provided);
     error InvalidRegistrationPeriod();
+    error NonExpiringCld(uint256 cldId);
 
     function registryOf(uint256 cldId) external view returns (IRegistry);
 
@@ -41,6 +42,8 @@ interface IController {
         address referer,
         uint8 periods
     ) external payable;
+
+    function renew(string[] calldata labels, uint8 periods) external payable;
 
     function setPricingOracle(uint256 cldId, IPricingOracle oracle) external;
 

@@ -4,6 +4,7 @@ import { expect } from "chai";
 import { ContractTransactionResponse, namehash } from "ethers";
 import { ethers } from "hardhat";
 import { CldRegistry } from "../typechain-types";
+import { register } from "module";
 
 async function setup() {
   const [owner, w1, w2, w3, w4, w5] = await ethers.getSigners();
@@ -505,6 +506,130 @@ describe("NNSController", () => {
     });
   });
 
+  describe("renew domain", () => {
+    const cldName = "nouns";
+    const cldId = namehash(cldName);
+    const name = "apbigcod";
+    const tokenId = namehash(`${name}.${cldName}`);
+    let ctx: Context;
+    let registry: CldRegistry;
+
+    before(async () => {
+      ctx = await setup();
+      await ctx.controller
+        .connect(ctx.owner)
+        .registerCld(cldName, 10, 7, ctx.pricer, ctx.w3, ctx.w5, true, true);
+
+      registry = await ethers.getContractAt(
+        "CldRegistry",
+        await ctx.controller.registryOf(cldId)
+      );
+      await ctx.controller.register(
+        ctx.w1,
+        [name, cldName],
+        false,
+        ethers.ZeroAddress,
+        1,
+        { value: 100 }
+      );
+    });
+
+    it("reverts one label is passed", async () => {
+      const tx = ctx.controller.connect(ctx.w1).renew([name], 1, { value: 10 });
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "InvalidLabel"
+      );
+    });
+
+    it("reverts 3 labels are passed", async () => {
+      const tx = ctx.controller
+        .connect(ctx.w1)
+        .renew([name, name, name], 1, { value: 10 });
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "InvalidLabel"
+      );
+    });
+
+    it("reverts the first label is empty", async () => {
+      const tx = ctx.controller
+        .connect(ctx.w1)
+        .renew(["", cldId], 1, { value: 10 });
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "InvalidLabel"
+      );
+    });
+
+    it("reverts the CLD has non expiring domains", async () => {
+      await ctx.controller
+        .connect(ctx.owner)
+        .registerCld("nonexp", 10, 7, ctx.pricer, ctx.w3, ctx.w5, false, false);
+
+      const tx = ctx.controller
+        .connect(ctx.w1)
+        .renew(["name", "nonexp"], 1, { value: 10 });
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "NonExpiringCld"
+      );
+    });
+
+    it("reverts when periods is zero", async () => {
+      const tx = ctx.controller
+        .connect(ctx.w1)
+        .renew([name, cldName], 0, { value: 10 });
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "InvalidRegistrationPeriod"
+      );
+    });
+
+    it("reverts when the amount is below the asking price", async () => {
+      const tx = ctx.controller.connect(ctx.w1).renew(
+        [name, cldName],
+        2, // 2y
+        { value: 7 } // asking price is 10*(2 years)
+      );
+      await expect(tx)
+        .to.revertedWithCustomError(
+          ctx.controller,
+          "InsufficientTransferAmount"
+        )
+        .withArgs(20, 7);
+    });
+
+    describe("successful renewal", () => {
+      let tx: ContractTransactionResponse;
+      let originalExpiry: bigint;
+
+      before(async () => {
+        originalExpiry = await registry.expiryOf(tokenId);
+        tx = await ctx.controller.connect(ctx.w1).renew(
+          [name, cldName],
+          3,
+          { value: 34 } // asking price is 10*(3 years)
+        );
+      });
+
+      it("transfers the payment to the rewarder via collect", async () => {
+        await expect(tx)
+          .to.emit(ctx.rewarder, "Collected")
+          .withArgs(cldId, ethers.ZeroAddress, 30, 60); // the exchange rate is 2
+      });
+
+      it("overpayments are transferred back to the sender", async () => {
+        await expect(tx).to.changeEtherBalance(ctx.w1, -30);
+      });
+
+      it("extends the expirt of the domain", async () => {
+        const expiry = await registry.expiryOf(tokenId);
+        expect(expiry).to.eq(originalExpiry + BigInt(3 * 365 * 24 * 3600));
+      });
+    });
+  });
+
   describe("isExpiringCLD", () => {
     it("reverts when the cld is invalid", async () => {
       const ctx = await setup();
@@ -549,7 +674,7 @@ describe("NNSController", () => {
     });
   });
 
-  describe("isExpiringCLD", () => {
+  describe("pricingOracleOf", () => {
     it("reverts when the cld is invalid", async () => {
       const ctx = await setup();
       const tx = ctx.controller.pricingOracleOf(namehash("INVALID"));

@@ -333,7 +333,7 @@ describe("CLDRegistry", () => {
   describe("renew", () => {
     it("reverts when not called by the minter", async () => {
       const ctx = await setup();
-      const tx = ctx.cld.connect(ctx.w1).renew(namehash("name"), 100);
+      const tx = ctx.cld.connect(ctx.w1).renew("name", 100);
       await expect(tx).to.revertedWithCustomError(
         ctx.cld,
         "AccessControlUnauthorizedAccount"
@@ -342,22 +342,25 @@ describe("CLDRegistry", () => {
 
     it("reverts when the token never expires", async () => {
       const ctx = await setup();
-      const { tokenId } = await registerName(ctx, ctx.w1, {
+      const { name } = await registerName(ctx, ctx.w1, {
         type: "perpetual",
       });
 
-      const tx = ctx.cld.connect(ctx.minter).renew(tokenId, 100);
+      const tx = ctx.cld.connect(ctx.minter).renew(name, 100);
       await expect(tx).to.revertedWithCustomError(ctx.cld, "NonExpiringToken");
     });
 
-    it("reverts when the token never expires", async () => {
+    it("reverts when the token has expired", async () => {
       const ctx = await setup();
-      const { tokenId } = await registerName(ctx, ctx.w1, {
-        type: "perpetual",
+      const { name } = await registerName(ctx, ctx.w1, {
+        type: "expired",
       });
 
-      const tx = ctx.cld.connect(ctx.minter).renew(tokenId, 100);
-      await expect(tx).to.revertedWithCustomError(ctx.cld, "NonExpiringToken");
+      const tx = ctx.cld.connect(ctx.minter).renew(name, 100);
+      await expect(tx).to.revertedWithCustomError(
+        ctx.cld,
+        "ERC721NonexistentToken"
+      );
     });
 
     describe("token not yet expired", async () => {
@@ -378,7 +381,7 @@ describe("CLDRegistry", () => {
 
         tx = await ctx.cld
           .connect(ctx.minter)
-          .renew(d.tokenId, EXTENSION_DURATION);
+          .renew(d.name, EXTENSION_DURATION);
       });
 
       it("extends the expiry by the given duration", async () => {
@@ -390,44 +393,6 @@ describe("CLDRegistry", () => {
         await expect(tx)
           .to.emit(ctx.cld, "NameRenewed")
           .withArgs(ctx.cldId, tokenId, EXTENSION_DURATION + originalExpiry);
-      });
-    });
-
-    describe("token already expired", async () => {
-      let ctx: Context;
-      let tx: ContractTransactionResponse;
-      let extensionTimestamp: number;
-      let tokenId: string;
-      const EXTENSION_DURATION = 12345;
-
-      it("does not revert", async () => {
-        ctx = await setup();
-        const d = await registerName(ctx, ctx.w1, {
-          type: "expired",
-        });
-        tokenId = d.tokenId;
-
-        extensionTimestamp = (await time.latest()) + 100;
-        await time.setNextBlockTimestamp(extensionTimestamp);
-
-        tx = await ctx.cld
-          .connect(ctx.minter)
-          .renew(d.tokenId, EXTENSION_DURATION);
-      });
-
-      it("extends the expiry by the given duration", async () => {
-        const newExpiry = await ctx.cld.expiryOf(tokenId);
-        expect(newExpiry).to.eq(extensionTimestamp + EXTENSION_DURATION);
-      });
-
-      it("emits a NameRenewed event", async () => {
-        await expect(tx)
-          .to.emit(ctx.cld, "NameRenewed")
-          .withArgs(
-            ctx.cldId,
-            tokenId,
-            extensionTimestamp + EXTENSION_DURATION
-          );
       });
     });
   });

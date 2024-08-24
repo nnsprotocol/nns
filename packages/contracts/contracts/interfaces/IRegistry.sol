@@ -60,7 +60,7 @@ interface IRegistry is IERC721, IRecordStorage, IERC721Named {
         bool withReverse
     ) external returns (uint256 tokenId);
 
-    function renew(uint256 tokenId, uint256 duration) external;
+    function renew(string calldata name, uint256 duration) external;
 
     function isApprovedOrOwner(
         address addr,

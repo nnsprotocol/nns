@@ -104,6 +104,21 @@ contract NNSController is IController, Ownable {
         _rewarder.collect{value: price}(cldId, referer);
     }
 
+    function renew(string[] calldata labels, uint8 periods) external payable {
+        _validateLabels(labels);
+        uint256 cldId = _namehash(0, labels[1]);
+        if (!_expiringClds[cldId]) {
+            revert NonExpiringCld(cldId);
+        }
+
+        IRegistry registry = _requireRegistryOf(cldId);
+        uint256 price = _processRegistrationCost(cldId, periods, labels[0]);
+
+        registry.renew(labels[0], _getDuration(cldId, periods));
+
+        _rewarder.collect{value: price}(cldId, address(0));
+    }
+
     function _validateLabels(string[] calldata labels) internal pure {
         if (labels.length != 2) {
             revert InvalidLabel();

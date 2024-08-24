@@ -2,6 +2,9 @@ type Account @entity {
   id: ID!
   domains: [Domain!]! @derivedFrom(field: "owner")
   approvedDomains: [Domain!]! @derivedFrom(field: "approval")
+
+  stats: [OwnerStats!]! @derivedFrom(field: "owner")
+  defaultResolverRegistry: Registry
 }
 
 type DomainOperator @entity {
@@ -47,6 +50,7 @@ type Domain @entity {
   registry: Registry!
   owner: Account!
   approval: Account
+  expiry: BigInt
   resolvedAddress: Bytes
   records: [DomainRecord!]! @derivedFrom(field: "domain")
   subdomains: [Subdomain!]! @derivedFrom(field: "parent")

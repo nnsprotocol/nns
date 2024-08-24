@@ -6,9 +6,9 @@ dataSources:
     name: NNSController
     network: base-sepolia
     source:
-      address: "0xeC99f9c1bD865c20E87c1a0a17BD13F19d54e84e"
+      address: "0xed334F5FFE544def7CFa5A80B21Ac52AF9f20363"
       abi: NNSController
-      startBlock: 13104598
+      startBlock: 14371894
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -22,6 +22,26 @@ dataSources:
       eventHandlers:
         - event: CldRegistered(uint256,string,address,bool)
           handler: handleCldRegistered
+  - kind: ethereum
+    name: NNSResolver
+    network: base-sepolia
+    source:
+      address: "0xCB234A1cC6224CE1abD6A24fEfDc99E59739E3e2"
+      abi: NNSResolver
+      startBlock: 14371860
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/resolver.ts
+      entities:
+        - Registry
+      abis:
+        - name: NNSResolver
+          file: ./abis/IResolver.json
+      eventHandlers:
+        - event: DefaultCldChanged(address,uint256)
+          handler: handleDefaultCldChanged
 templates:
   - name: Registry
     kind: ethereum/contract
@@ -42,6 +62,8 @@ templates:
       eventHandlers:
         - event: NameRegistered(uint256,uint256,string,address,uint256)
           handler: handleNameRegistered
+        - event: NameRenewed(uint256,uint256,uint256)
+          handler: handleNameRenewed
         - event: ReverseChanged(uint256,address,uint256,uint256)
           handler: handleReverseChanged
         - event: Approval(indexed address,indexed address,indexed uint256)

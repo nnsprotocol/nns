@@ -28,6 +28,7 @@ export type Domain = {
   name: string;
   resolvedAddress: Address | null;
   registry: Registry;
+  expiry?: string;
   owner: {
     id: Address;
   };
@@ -61,6 +62,7 @@ parent {
 const DOMAIN_SELECT = `
 id
 name
+expiry
 resolvedAddress
 registry {
   ${REGISTRY_SELECT}
@@ -82,25 +84,21 @@ interface FetchDomainInput {
 }
 
 async function fetchSearchDomains(d: FetchDomainInput) {
-  const res = await fetch(GRAPH_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      query: `
-        {
-          domains(
-            where: {
-              registry: "${d.cldId.toLowerCase()}"
-              name_contains: "${normalize(d.name)}"
-            }
-          ) {
-            ${DOMAIN_SELECT}
+  return sendGraphRequest<Domain[]>(
+    `
+      {
+        domains(
+          where: {
+            registry: "${d.cldId.toLowerCase()}"
+            name_contains: "${normalize(d.name)}"
           }
+        ) {
+          ${DOMAIN_SELECT}
         }
-      `,
-    }),
-  });
-  const { data } = await res.json();
-  return (data.domains || []) as Domain[];
+      }
+    `,
+    "domains"
+  );
 }
 
 export function useSearchDomain(q: Partial<FetchDomainInput>) {
@@ -117,20 +115,16 @@ export function useSearchDomain(q: Partial<FetchDomainInput>) {
 }
 
 export async function fetchRegistry(id: Hash) {
-  const response = await fetch(GRAPH_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      query: `
-        {
-          registry(id: "${id}") {
-            ${REGISTRY_SELECT}
-          }
+  return await sendGraphRequest<Registry>(
+    `
+      {
+        registry(id: "${id}") {
+          ${REGISTRY_SELECT}
         }
-      `,
-    }),
-  });
-  const { data } = await response.json();
-  return data.registry as Registry | null;
+      }
+    `,
+    "registry"
+  );
 }
 
 export function useRegistry(data: { id?: Hash }) {
@@ -139,4 +133,123 @@ export function useRegistry(data: { id?: Hash }) {
     queryFn: () => fetchRegistry(data.id || "0x"),
     enabled: Boolean(data.id),
   });
+}
+
+export async function fetchRegistries() {
+  return await sendGraphRequest<Registry[]>(
+    `
+      {
+        registries {
+          ${REGISTRY_SELECT}
+        }
+      }
+    `,
+    "registries"
+  );
+}
+
+export function useRegistries() {
+  return useQuery({
+    queryKey: ["registries"],
+    queryFn: fetchRegistries,
+  });
+}
+
+type CollectionPreview = {
+  numberOfTokens: number;
+  defaultResolverRegistry: null | Pick<Registry, "id">;
+  registry: {
+    id: Hash;
+    name: string;
+    previewDomains: Domain[] | null;
+    primaryDomain: [Domain] | null;
+  };
+};
+
+async function fetchCollectionPreview(data: {
+  owner: Address;
+  previewCount?: number;
+}) {
+  const accountId = data.owner.toLowerCase();
+  const previewCount = data.previewCount || 3;
+  const res = await sendGraphRequest<{ stats: CollectionPreview[] }>(
+    `
+      {
+        account(id:"${accountId}") {
+          id
+          defaultResolverRegistry {
+            id
+          }
+          stats {
+            numberOfTokens
+            registry {
+              id
+              name
+              previewDomains: domains(first: ${previewCount}, where: { owner: "${accountId}" }) {
+                ${DOMAIN_SELECT}
+              }
+              primaryDomain: domains(where: { resolvedAddress: "${accountId}" }) {
+                name
+              }
+            }
+          }
+        }
+      }
+    `,
+    "account"
+  );
+  return res?.stats || [];
+}
+
+export function useCollectionPreview(
+  data: Partial<Parameters<typeof fetchCollectionPreview>[0]>
+) {
+  return useQuery({
+    queryKey: [data.owner, "collectionPreview", data.previewCount],
+    queryFn: () =>
+      fetchCollectionPreview({
+        ...data,
+        owner: data.owner || "0x",
+      }),
+    enabled: Boolean(data.owner),
+  });
+}
+
+async function fetchDomains(data: { owner: Address; cldId: Hex }) {
+  const accountId = data.owner.toLowerCase();
+  const cldId = data.cldId.toLowerCase();
+  return await sendGraphRequest<Domain[]>(
+    `
+      {
+        domains(where: { 
+          owner: "${accountId}" 
+          registry: "${cldId}"
+        }) {
+          ${DOMAIN_SELECT}
+        }
+      }
+    `,
+    "domains"
+  );
+}
+
+export function useDomains(data: Partial<Parameters<typeof fetchDomains>[0]>) {
+  return useQuery({
+    queryKey: [data.owner, "domains", data.cldId],
+    queryFn: () =>
+      fetchDomains({
+        cldId: data.cldId || "0x",
+        owner: data.owner || "0x",
+      }),
+    enabled: Boolean(data.owner) && Boolean(data.cldId),
+  });
+}
+
+async function sendGraphRequest<T>(query: string, key: string) {
+  const res = await fetch(GRAPH_URL, {
+    method: "POST",
+    body: JSON.stringify({ query }),
+  });
+  const body = await res.json();
+  return body.data[key] as T | null;
 }

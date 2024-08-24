@@ -107,10 +107,12 @@ contract CldRegistry is IRegistry, ERC721, AccessControl, IERC721Rewardable {
     }
 
     function renew(
-        uint256 tokenId,
+        string calldata name,
         uint256 duration
     ) external onlyRole(MINTER_ROLE) {
+        uint256 tokenId = _namehash(_cldId, name);
         _requireOwned(tokenId);
+        _requireNotExpired(tokenId);
 
         uint256 expiry = expiryOf(tokenId);
         if (expiry == 0) {

@@ -1,6 +1,5 @@
 import { Address, BigInt, log, store } from "@graphprotocol/graph-ts";
 import {
-  Account,
   Domain,
   DomainOperator,
   DomainRecord,
@@ -13,6 +12,7 @@ import {
   ApprovalForAll,
   CLDRegistry,
   NameRegistered,
+  NameRenewed,
   RecordSet,
   RecordsReset,
   ReverseChanged,
@@ -20,33 +20,7 @@ import {
   SubdomainRegistered,
   Transfer,
 } from "../generated/templates/Registry/CLDRegistry";
-
-function fetchAccount(address: Address): Account {
-  let account = Account.load(address.toHexString());
-  if (account == null) {
-    account = new Account(address.toHexString());
-    account.save();
-  }
-  return account;
-}
-
-function fetchDomain(tokenId: BigInt): Domain {
-  const domain = Domain.load(domainId(tokenId));
-  if (!domain) {
-    log.error("domain not found: {}", [tokenId.toHexString()]);
-    throw new Error("Domain not found");
-  }
-  return domain;
-}
-
-function fetchRegistry(cldId: BigInt): Registry {
-  const registry = Registry.load(cldId.toHexString());
-  if (registry == null) {
-    log.error("Registry not found: {}", [cldId.toHexString()]);
-    throw new Error("Registry not found");
-  }
-  return registry;
-}
+import { domainId, fetchAccount, fetchDomain, fetchRegistry } from "./shared";
 
 function fetchRegistryByAddress(address: Address): Registry {
   const registry = CLDRegistry.bind(address);
@@ -63,13 +37,18 @@ export function handleNameRegistered(event: NameRegistered): void {
   domain.name = event.params.name + "." + registry.name;
   domain.registry = registry.id;
   domain.owner = account.id;
+  if (!event.params.expiry.isZero()) {
+    domain.expiry = event.params.expiry;
+  }
   domain.approval = null;
   domain.resolvedAddress = null;
   domain.save();
 }
 
-function domainId(tokenId: BigInt): string {
-  return tokenId.toHexString();
+export function handleNameRenewed(event: NameRenewed): void {
+  const domain = fetchDomain(event.params.tokenId);
+  domain.expiry = event.params.expiry;
+  domain.save();
 }
 
 export function handleReverseChanged(event: ReverseChanged): void {

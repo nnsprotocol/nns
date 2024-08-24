@@ -14,12 +14,21 @@ import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { baseSepolia } from "wagmi/chains";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import {
   createBrowserRouter,
   Navigate,
   RouterProvider,
 } from "react-router-dom";
+
+// this is needed to make react-query-devtools work
+if (import.meta.env.DEV) {
+  // @ts-ignore
+  BigInt.prototype["toJSON"] = function () {
+    return this.toString();
+  };
+}
 
 const router = createBrowserRouter([
   {
@@ -67,6 +76,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <RouterProvider router={router} />
+          <ReactQueryDevtools />
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
