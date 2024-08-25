@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Brand } from "../../types/collection-details";
-import SearchResultsList from "../search/SearchResultsList";
 
 interface SectionSearchProps {
   brand: Brand;
@@ -10,7 +9,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ brand }) => {
   const [isInputSearchFocused, setIsInputSearchFocused] = useState(false);
   const [isButtonSearchHovered, setIsButtonSearchHovered] = useState(false);
 
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [, setShowSearchResults] = useState(false);
 
   const handleSearchInput = (event: React.FormEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -48,9 +47,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ brand }) => {
           }}
         ></div>
       </div>
-      <div
-        className="p-lg pt-20 rounded-32 relative"
-      >
+      <div className="p-lg pt-20 rounded-32 relative">
         <div
           className="absolute bottom-[5px] left-[10px] h-[60px] w-3/4 z-0 border-b rounded-32 opacity-30"
           style={{ backgroundColor: brand.themeColor }}
@@ -81,7 +78,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ brand }) => {
               onFocus={() => setIsInputSearchFocused(true)}
               onBlur={() => setIsInputSearchFocused(false)}
             />
-            <SearchResultsList showResults={showSearchResults} />
+            {/* <SearchResultsList showResults={showSearchResults} /> */}
           </div>
           <div>
             <button

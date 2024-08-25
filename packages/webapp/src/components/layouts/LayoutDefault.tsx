@@ -1,22 +1,21 @@
-import { useMemo, useState } from "react";
-import SearchResultsList from "../search/SearchResultsList";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import BrandBackgroundPattern from "../ui/backgrounds/BrandBackgroundPattern";
 import GroupSocialLinks from "../ui/groups/GroupSocialLinks";
-import { Link } from "react-router-dom";
 import WalletButtonSection from "../wallet/WalletButtonSection";
 
 const LayoutDefault: React.FC<{
   children: React.ReactNode;
   customSearchSection?: React.ReactNode;
 }> = ({ children, customSearchSection }) => {
-  const [searchText, setSearchText] = useState("");
+  const [, setSearchText] = useState("");
 
   const handleSearchInput = (event: React.FormEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
     setSearchText(target.value);
   };
 
-  const showSearchResults = useMemo(() => Boolean(searchText), [searchText]);
+  // const showSearchResults = useMemo(() => Boolean(searchText), [searchText]);
 
   const searchSection = customSearchSection ? (
     customSearchSection
@@ -33,7 +32,7 @@ const LayoutDefault: React.FC<{
         className="p-xs ps-12 border border-borderSecondary focus:border-borderBrandLavender rounded-128 h-12 w-full outline-none text-base relative z-10 bg-transparent"
       />
       <div className="absolute bottom-0 left-0 right-0">
-        <SearchResultsList showResults={showSearchResults} />
+        {/* <SearchResultsList showResults={showSearchResults} /> */}
       </div>
     </div>
   );
