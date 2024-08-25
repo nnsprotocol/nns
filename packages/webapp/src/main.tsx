@@ -40,15 +40,15 @@ const router = createBrowserRouter([
         element: <BuyDomainPage />,
       },
       {
-        path: "/domain-overview/:domainName",
+        path: "/domains/:domainName",
         element: <DomainOverviewPage />,
       },
       {
-        path: "/my-domains",
+        path: "/account",
         element: <MyDomainsPage />,
       },
       {
-        path: "/collection-details/:collectionId",
+        path: "/collections/:id",
         element: <CollectionDetailsPage />,
       },
       {

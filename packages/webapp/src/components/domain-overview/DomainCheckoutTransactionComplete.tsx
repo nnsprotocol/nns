@@ -51,7 +51,7 @@ const DomainCheckoutTransactionComplete: React.FC<Props> = (props) => {
         </div>
         <div className="grid grid-cols-1 gap-xs pt-md border-t border-borderLight px-md">
           <Link
-            to="/my-domains"
+            to="/account"
             className="button-brand-lavender button-lg rounded-xl justify-center"
           >
             See your Domains

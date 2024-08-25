@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { namehash } from "viem";
+import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
+import CONTROLLER_ABI from "../abi/IController";
 import DomainCheckoutBuy from "../components/domain-overview/DomainCheckoutBuy";
 import DomainCheckoutOverview from "../components/domain-overview/DomainCheckoutOverview";
+import DomainCheckoutTransactionComplete from "../components/domain-overview/DomainCheckoutTransactionComplete";
+import DomainCheckoutTransactionSubmitted from "../components/domain-overview/DomainCheckoutTransactionSubmitted";
 import DomainCheckoutConnectToWallet from "../components/domain-overview/DomainCheckoutСonnectToWallet";
 import LayoutDefault from "../components/layouts/LayoutDefault";
-import GroupSocialLinks from "../components/ui/groups/GroupSocialLinks";
-import { useRegistry } from "../services/graph";
-import { DomainCheckoutType } from "../types/domains";
-import DomainCheckoutTransactionSubmitted from "../components/domain-overview/DomainCheckoutTransactionSubmitted";
-import { useWriteContractWaitingForTx } from "../services/shared";
-import CONTROLLER_ABI from "../abi/IController";
 import { CONTROLLER_ADDRESS, useDomainPrice } from "../services/controller";
-import { normalize } from "viem/ens";
-import DomainCheckoutTransactionComplete from "../components/domain-overview/DomainCheckoutTransactionComplete";
+import { useRegistry } from "../services/graph";
+import { useWriteContractWaitingForTx } from "../services/shared";
+import { DomainCheckoutType } from "../types/domains";
+import { useCollectionData } from "../components/collection-details/types";
 
 /*
 InvalidPricingOracle() 0x2715c316
@@ -52,6 +52,7 @@ function DomainOverviewPage() {
   const cldId = useMemo(() => namehash(cldName), [domainName]);
 
   const registry = useRegistry({ id: cldId });
+  const collectionData = useCollectionData(cldId);
 
   useEffect(() => {
     if (registry.isSuccess && !registry.data) {
@@ -140,21 +141,27 @@ function DomainOverviewPage() {
                 <p className="text-xs font-medium text-textInverse uppercase">
                   About
                 </p>
-                <GroupSocialLinks
+                {/* <GroupSocialLinks
                   customLinkClassName="button-md py-0 px-1 flex items-center justify-center"
                   iconSize={16}
-                />
+                /> */}
               </div>
               <div className="grid grid-cols-1 gap-md">
                 <div>
                   <div className="my-6 flex justify-center">
-                    <img src="/temp/nns.svg" width={72} height={72} alt="" />
+                    <img
+                      src={collectionData?.logoSrc}
+                      width={72}
+                      height={72}
+                      alt=""
+                    />
                   </div>
-                  <p className="text-2xl font-semibold my-1 text-center">NNS</p>
+                  <p className="text-2xl font-semibold my-1 text-center">
+                    {collectionData?.name}
+                  </p>
                 </div>
                 <p className="text-base text-textSecondary text-center">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  {collectionData?.description}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-md bg-surfaceSecondary rounded-2xl p-md mt-xs">
                   <div className="flex flex-col items-start justify-center gap-sm">

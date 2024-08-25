@@ -1,41 +1,25 @@
-import { useState } from "react";
+import { PropsWithChildren, useState } from "react";
 import { Link } from "react-router-dom";
+import { Registry, useRegistries, useSearchDomain } from "../../services/graph";
+import SearchResultsList from "../search/SearchResultsList";
 import BrandBackgroundPattern from "../ui/backgrounds/BrandBackgroundPattern";
-import GroupSocialLinks from "../ui/groups/GroupSocialLinks";
 import WalletButtonSection from "../wallet/WalletButtonSection";
+import DropdownSearch from "./DropdownSearch";
 
-const LayoutDefault: React.FC<{
-  children: React.ReactNode;
-  customSearchSection?: React.ReactNode;
-}> = ({ children, customSearchSection }) => {
-  const [, setSearchText] = useState("");
+type Props = PropsWithChildren<{
+  defaultRegistry?: Registry;
+}>;
 
-  const handleSearchInput = (event: React.FormEvent<HTMLInputElement>) => {
-    const target = event.target as HTMLInputElement;
-    setSearchText(target.value);
-  };
-
-  // const showSearchResults = useMemo(() => Boolean(searchText), [searchText]);
-
-  const searchSection = customSearchSection ? (
-    customSearchSection
-  ) : (
-    <div className="relative flex max-w-[435px] w-full">
-      <div className="absolute inset-0 backdrop-blur-[7px] bg-surfaceSecondary/50 z-0 rounded-128"></div>
-      <div className="absolute top-0 left-0 bottom-0 p-xs z-10">
-        <img src="/brand/noun-search.svg" alt="Noun" width={32} height={32} />
-      </div>
-      <input
-        type="text"
-        onInput={handleSearchInput}
-        placeholder="Search domain"
-        className="p-xs ps-12 border border-borderSecondary focus:border-borderBrandLavender rounded-128 h-12 w-full outline-none text-base relative z-10 bg-transparent"
-      />
-      <div className="absolute bottom-0 left-0 right-0">
-        {/* <SearchResultsList showResults={showSearchResults} /> */}
-      </div>
-    </div>
+const LayoutDefault: React.FC<Props> = ({ children, defaultRegistry }) => {
+  const [searchText, setSearchText] = useState("");
+  const registries = useRegistries();
+  const [searchCld, setSearchCld] = useState<Registry | undefined>(
+    defaultRegistry
   );
+  const search = useSearchDomain({
+    name: searchText,
+    cldId: searchCld?.id,
+  });
 
   return (
     <>
@@ -48,7 +32,37 @@ const LayoutDefault: React.FC<{
             <Link to="/">
               <img src="/logo.svg" alt="Logo" className="sm:h-6 w-auto" />
             </Link>
-            {searchSection}
+            <div className="relative flex max-w-[435px] w-full">
+              <div className="absolute inset-0 backdrop-blur-[7px] bg-surfaceSecondary/50 z-0 rounded-128"></div>
+              <div className="relative z-10 flex items-center justify-between w-full border border-borderPrimary rounded-128 ps-md pe-xs bg-surfacePrimary">
+                <input
+                  type="text"
+                  onChange={(e) => setSearchText(e.target.value)}
+                  value={searchText}
+                  placeholder="Search domain"
+                  className="p-xs h-12 w-full outline-none text-base bg-transparent"
+                />
+                {registries.data && (
+                  <DropdownSearch
+                    registries={registries.data}
+                    defaultSelection={registries.data[0]}
+                    onRegistryChange={(registry) => {
+                      setSearchCld(registry);
+                    }}
+                  />
+                )}
+              </div>
+              <div className="absolute bottom-0 left-0 right-0">
+                {searchCld && (
+                  <SearchResultsList
+                    cldName={searchCld?.name}
+                    domains={search.data || []}
+                    searchText={searchText}
+                    onClickAway={() => setSearchText("")}
+                  />
+                )}
+              </div>
+            </div>
             <WalletButtonSection />
           </header>
           <main className="relative z-10 min-h-screen px-4 pb-md">
@@ -77,12 +91,12 @@ const LayoutDefault: React.FC<{
                 />
               </p>
             </div>
-            <div>
+            {/* <div>
               <GroupSocialLinks
                 customLinkClassName="button-md py-0 px-1 flex items-center justify-center"
                 iconSize={24}
               />
-            </div>
+            </div> */}
           </div>
         </footer>
       </div>

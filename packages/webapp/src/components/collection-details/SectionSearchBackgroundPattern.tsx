@@ -1,8 +1,8 @@
-import { Brand } from "../../types/collection-details";
+type Props = {
+  themeColor: string;
+};
 
-const SectionSearchBackgroundPattern: React.FC<{
-  themeColor: Brand["themeColor"];
-}> = ({ themeColor }) => {
+const SectionSearchBackgroundPattern: React.FC<Props> = ({ themeColor }) => {
   return (
     <svg
       viewBox="0 0 1480 996"

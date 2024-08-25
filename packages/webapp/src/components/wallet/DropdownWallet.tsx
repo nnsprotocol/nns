@@ -41,7 +41,7 @@ const DropdownWallet: React.FC = () => {
       <ul className="rounded-3xl border border-borderPrimary bg-surfacePrimary p-md">
         <li className="p-3">
           <Link
-            to="/my-domains"
+            to="/account"
             className="text-sm text-textInverse text-nowrap flex items-center gap-xs font-medium"
           >
             <span>My Domains</span>

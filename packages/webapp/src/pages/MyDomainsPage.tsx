@@ -7,9 +7,7 @@ import IconInfo from "../components/icons/IconInfo";
 import IconPlus from "../components/icons/IconPlus";
 import LayoutDefault from "../components/layouts/LayoutDefault";
 import DomainCollectionsCards from "../components/my-domains/DomainCollectionsCards";
-import DropdownSearch from "../components/my-domains/DropdownSearch";
-import SearchResultsList from "../components/search/SearchResultsList";
-import { Registry, useRegistries, useSearchDomain } from "../services/graph";
+import { useRegistries } from "../services/graph";
 import { useResolvedName } from "../services/resolver";
 import { formatAddress } from "../utils/formatter";
 
@@ -17,63 +15,17 @@ function MyDomainsPage() {
   const account = useAccount();
   const registries = useRegistries();
   const [resolverCld, setResolverCld] = useState<bigint | null>(null);
-  const [searchCld, setSearchCld] = useState<Registry | undefined>(undefined);
   const resolvedName = useResolvedName({
     account: account.address,
     cldId: resolverCld || undefined,
   });
-  const [searchText, setSearchText] = useState("");
-  const search = useSearchDomain({
-    name: searchText,
-    cldId: searchCld?.id,
-  });
-
   const navigate = useNavigate();
-
-  const handleSearchInput = (event: React.FormEvent<HTMLInputElement>) => {
-    const target = event.target as HTMLInputElement;
-    setSearchText(target.value);
-  };
 
   useEffect(() => {
     if (!account.isConnected) {
       navigate("/");
     }
   }, [account.isConnected]);
-
-  const customSearchSection = (
-    <div className="relative flex max-w-[435px] w-full">
-      <div className="absolute inset-0 backdrop-blur-[7px] bg-surfaceSecondary/50 z-0 rounded-128"></div>
-      <div className="relative z-10 flex items-center justify-between w-full border border-borderPrimary rounded-128 ps-md pe-xs bg-surfacePrimary">
-        <input
-          type="text"
-          onInput={handleSearchInput}
-          value={searchText}
-          placeholder="Search domain"
-          className="p-xs h-12 w-full outline-none text-base bg-transparent"
-        />
-        {registries.data && (
-          <DropdownSearch
-            registries={registries.data}
-            defaultSelection={registries.data[0]}
-            onRegistryChange={(registry) => {
-              setSearchCld(registry);
-            }}
-          />
-        )}
-      </div>
-      <div className="absolute bottom-0 left-0 right-0">
-        {searchCld && (
-          <SearchResultsList
-            cldName={searchCld?.name}
-            domains={search.data || []}
-            searchText={searchText}
-            onClickAway={() => setSearchText("")}
-          />
-        )}
-      </div>
-    </div>
-  );
 
   const onSelectChange = useCallback(
     (value: string) => {
@@ -88,7 +40,7 @@ function MyDomainsPage() {
   );
 
   return (
-    <LayoutDefault customSearchSection={customSearchSection}>
+    <LayoutDefault>
       <div className="mt-8 flex w-full">
         <div className="mx-auto grid grid-cols-1 gap-xl  w-full max-w-[1200px]">
           <div className="relative max-w-32">

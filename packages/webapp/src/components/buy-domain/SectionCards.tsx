@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const links = [
   { id: "nns", imgSrc: "/temp/nns.svg", text: ".⌐◨-◨" },
-  { id: "noun-1", imgSrc: "/temp/noun-1.svg", text: ".noun" },
+  { id: "nouns", imgSrc: "/temp/noun-1.svg", text: ".noun" },
 ];
 
 function SectionCards() {
@@ -14,7 +14,7 @@ function SectionCards() {
           {links.map((item) => (
             <li key={item.id}>
               <Link
-                to={`/collection-details/${item.id}`}
+                to={`/collections/${item.id}`}
                 className="button-secondary rounded-3xl border-borderPrimary p-lg min-h-[262px] relative overflow-hidden"
               >
                 <div className="absolute inset-0 backdrop-blur-[30px] z-0"></div>

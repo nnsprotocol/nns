@@ -63,7 +63,7 @@ const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({
       {account.isConnected ? (
         <>
           <div className="hidden sm:flex items-center gap-xs">
-            <Link to="/my-domains" className="link-default text-nowrap">
+            <Link to="/account" className="link-default text-nowrap">
               My Domains
             </Link>
             <span className="bg-surfaceBrandLavender rounded-2xl text-textInverse text-xs p-xxs text-center min-w-[28px]">

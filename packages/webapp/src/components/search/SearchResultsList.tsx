@@ -81,7 +81,7 @@ const SearchResultsList: React.FC<Props> = ({
 function DomainLink(props: { name: string; available: boolean }) {
   return (
     <Link
-      to={`/domain-overview/${props.name}`}
+      to={`/domains/${props.name}`}
       className="flex gap-xs items-center hover:bg-surfaceSecondary px-xs py-sm rounded-lg"
     >
       <span className="text-sm text-textInverse font-normal">{props.name}</span>

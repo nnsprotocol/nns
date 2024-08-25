@@ -12,17 +12,6 @@ function SectionIdentitySystem() {
     cldId: NOGGLES_REGISTRY_ID,
   });
 
-  const handleSearchInput = (event: React.FormEvent<HTMLInputElement>) => {
-    setSearchText(event.currentTarget.value);
-  };
-
-  const handleSearchClick = () => {
-    const element = document.getElementById(
-      "buy-domain-search-input"
-    ) as HTMLInputElement;
-    if (element && element.value) {
-    }
-  };
   return (
     <section className="lg:flex lg:justify-center lg:items-center gap-12 lg:min-h-[560px]">
       <div className="lg:max-w-2xl">
@@ -61,7 +50,8 @@ function SectionIdentitySystem() {
               <div className="relative">
                 <input
                   id="buy-domain-search-input"
-                  onInput={handleSearchInput}
+                  onChange={(e) => setSearchText(e.currentTarget.value)}
+                  value={searchText}
                   className="p-6 rounded-2xl border border-borderSecondary bg-transparent outline-none w-full text-lg font-light focus:border-textBrandLavender"
                   placeholder="yourdomain (eg. bob.⌐◨-◨)"
                 />
@@ -73,7 +63,6 @@ function SectionIdentitySystem() {
               </div>
               <div>
                 <button
-                  onClick={handleSearchClick}
                   type="button"
                   className="bg-surfaceBrandLavender text-textInverse text-base font-medium text-center p-md rounded-2xl w-full border border-surfaceBrandLavender hover:bg-surfacePrimary hover:text-surfaceBrandLavender"
                 >

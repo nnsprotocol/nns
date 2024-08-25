@@ -1,36 +1,46 @@
-const GroupSocialLinks: React.FC<{
-  customLinkClassName?: string;
-  iconSize?: number;
-}> = ({ customLinkClassName, iconSize }) => {
-  const socialLinks = [
-    { iconSrc: "/icons/social/x.svg", url: "https://x.com/" },
-    { iconSrc: "/icons/social/farcaster.svg", url: "https://www.farcaster.xyz/" },
-    { iconSrc: "/icons/social/discord.svg", url: "https://discord.com/" },
-  ];
+import { CollectionData } from "../../collection-details/types";
 
+interface Props {
+  collection: CollectionData;
+}
+
+const GroupSocialLinks: React.FC<Props> = ({ collection }) => {
   return (
     <div className="flex gap-xs">
-      {socialLinks.map((link) => (
-        <a
-          key={link.url}
-          href={link.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={
-            customLinkClassName ||
-            "button-secondary button-md h-[38px] w-[38px] flex items-center justify-center"
-          }
-        >
-          <img
-            src={link.iconSrc}
-            width={iconSize || 14}
-            height={iconSize || 14}
-            alt={link.url}
-          />
-        </a>
-      ))}
+      {collection.twitterUrl && (
+        <SocialLink
+          url={collection.twitterUrl}
+          iconSrc="/icons/social/twitter.svg"
+        />
+      )}
+      {collection.discordUrl && (
+        <SocialLink
+          url={collection.discordUrl}
+          iconSrc="/icons/social/discord.svg"
+        />
+      )}
+      {collection.farcasterUrl && (
+        <SocialLink
+          url={collection.farcasterUrl}
+          iconSrc="/icons/social/farcaster.svg"
+        />
+      )}
     </div>
   );
 };
+
+function SocialLink(props: { url: string; iconSrc: string }) {
+  return (
+    <a
+      key={props.url}
+      href={props.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="button-secondary button-md h-[38px] w-[38px] flex items-center justify-center"
+    >
+      <img src={props.iconSrc} width={14} height={14} alt={props.url} />
+    </a>
+  );
+}
 
 export default GroupSocialLinks;
