@@ -49,7 +49,7 @@ function DomainOverviewPage() {
     () => domainFullName?.split(".") || [],
     [domainFullName]
   );
-  const cldId = useMemo(() => namehash(cldName), [domainName]);
+  const cldId = useMemo(() => namehash(cldName), [cldName]);
 
   const registry = useRegistry({ id: cldId });
   const collectionData = useCollectionData(cldId);
