@@ -32,6 +32,9 @@ export function useDomainPrice(opt: { name?: string; cldId?: bigint | Hash }) {
     abi: AGGREGATOR_ABI,
     address: USD_ETH_AGGREGATOR_ADDRESS,
     functionName: "latestRoundData",
+    query: {
+      refetchInterval: 1000,
+    },
   });
 
   return useMemo(() => {

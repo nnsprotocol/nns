@@ -1,13 +1,11 @@
-import { useMemo, useState } from "react";
-import { DomainCollection, DomainItem } from "../../types/domains";
-import CollectionCard from "./CollectionCard";
-import ModalContainer from "../modals/ModalContainer";
-import DomainManage from "./modal-content/DomainManage";
-import DomainRenewSubmitted from "./modal-content/DomainRenewSubmitted";
-import DomainRenewCompleted from "./modal-content/DomainRenewCompleted";
+import { useState } from "react";
+import { Hash } from "viem";
 import { useAccount } from "wagmi";
-import { useCollectionPreview } from "../../services/graph";
+import { CollectionPreview, useCollectionPreview } from "../../services/graph";
 import { useDefaultCld } from "../../services/resolver";
+import ModalContainer from "../modals/ModalContainer";
+import CollectionCard from "./CollectionCard";
+import DomainMgmtModalContent from "./modal-content/DomainMgmtModalContent";
 
 const DomainCollectionsCards: React.FC = () => {
   const account = useAccount();
@@ -18,44 +16,10 @@ const DomainCollectionsCards: React.FC = () => {
     account: account.address,
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalState, setModalState] = useState<
-    "manage" | "manage-renew-submitted" | "manage-renew-completed"
-  >("manage");
-  const [selectedCollectionItem, setSelectedCollectionItem] =
-    useState<DomainCollection | null>(null);
-  const [submittedDomainItem, setSubmittedDomainItem] =
-    useState<DomainItem | null>(null);
+  const [manageCldId, setManageCldId] = useState<Hash | null>(null);
 
-  const modalTitle = useMemo(() => {
-    if (modalState === "manage") return "Manage";
-    if (
-      modalState === "manage-renew-completed" ||
-      modalState === "manage-renew-submitted"
-    )
-      return "Renew";
-
-    return "";
-  }, [modalState]);
-
-  const handleCloseButtonClick = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleManageClick = (collecitonItem: DomainCollection) => {
-    if (collecitonItem) {
-      setSelectedCollectionItem(structuredClone(collecitonItem));
-      setIsModalOpen(true);
-      setModalState("manage");
-    }
-  };
-
-  const handleRenewSubmit = (item: DomainItem) => {
-    setSubmittedDomainItem(item);
-    setModalState("manage-renew-submitted");
-    setTimeout(() => {
-      setModalState("manage-renew-completed");
-    }, 3000);
+  const handleManageClick = (item: CollectionPreview) => {
+    setManageCldId(item.registry.id);
   };
 
   return (
@@ -66,7 +30,7 @@ const DomainCollectionsCards: React.FC = () => {
             key={item.registry.id}
             collection={item}
             defaultCldId={defaultCldId.data || 0n}
-            // onManageClick={() => handleManageClick(item)}
+            onManageClick={() => handleManageClick(item)}
           />
         ))}
         <div className="min-h-80 group border border-borderPrimary rounded-32 bg-surfacePrimary p-lg flex justify-center items-center relative">
@@ -117,45 +81,14 @@ const DomainCollectionsCards: React.FC = () => {
         </div>
       </div>
       <ModalContainer
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        title={modalTitle}
+        isModalOpen={Boolean(manageCldId)}
+        setIsModalOpen={() => setManageCldId(null)}
+        title="Manage your domains"
       >
-        {selectedCollectionItem && (
-          <div>
-            <div className={`${modalState === "manage" ? "block" : "hidden"}`}>
-              <DomainManage
-                selectedCollectionItem={selectedCollectionItem}
-                setSelectedCollectionItem={setSelectedCollectionItem}
-                handleRenewSubmit={handleRenewSubmit}
-              />
-            </div>
-            <div
-              className={`${
-                modalState === "manage-renew-submitted" ? "block" : "hidden"
-              }`}
-            >
-              {submittedDomainItem && (
-                <DomainRenewSubmitted
-                  submittedDomainItem={submittedDomainItem}
-                  handleCloseButtonClick={handleCloseButtonClick}
-                />
-              )}
-            </div>
-            <div
-              className={`${
-                modalState === "manage-renew-completed" ? "block" : "hidden"
-              }`}
-            >
-              {submittedDomainItem && (
-                <DomainRenewCompleted
-                  submittedDomainItem={submittedDomainItem}
-                  handleCloseButtonClick={handleCloseButtonClick}
-                />
-              )}
-            </div>
-          </div>
-        )}
+        <DomainMgmtModalContent
+          cldId={manageCldId!}
+          onClose={() => setManageCldId(null)}
+        />
       </ModalContainer>
     </>
   );

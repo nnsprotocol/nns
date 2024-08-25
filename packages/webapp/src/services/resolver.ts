@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, Hex } from "viem";
 import { useReadContract } from "wagmi";
 import RESOLVER_ABI from "../abi/IResolver";
 
@@ -16,12 +16,16 @@ export function useDefaultCld(opt: { account?: Address }) {
   });
 }
 
-export function useResolvedName(opt: { account?: Address; cldId?: bigint }) {
+export function useResolvedName(opt: {
+  account?: Address;
+  cldId?: Hex | bigint;
+}) {
+  const cldId = typeof opt.cldId === "string" ? BigInt(opt.cldId) : opt.cldId;
   return useReadContract({
     abi: RESOLVER_ABI,
     address: RESOLVER_ADDRESS,
     functionName: "reverseNameOf",
-    args: [opt.account || "0x", opt.cldId ? [opt.cldId] : [], true],
+    args: [opt.account || "0x", cldId ? [cldId] : [], true],
     query: {
       enabled: Boolean(opt.account),
     },

@@ -129,10 +129,15 @@ export async function fetchRegistry(id: Hash) {
   );
 }
 
-export function useRegistry(data: { id?: Hash }) {
+export function useRegistry(data: { id?: Hash | bigint }) {
+  const id =
+    typeof data.id === "bigint"
+      ? (("0x" + data.id.toString(16)) as Hex)
+      : data.id;
+
   return useQuery({
     queryKey: ["registries", data.id],
-    queryFn: () => fetchRegistry(data.id || "0x"),
+    queryFn: () => fetchRegistry(id || "0x"),
     enabled: Boolean(data.id),
   });
 }
@@ -217,9 +222,9 @@ export function useCollectionPreview(
   });
 }
 
-async function fetchDomains(data: { owner: Address; cldId: Hex }) {
+async function fetchDomains(data: { owner: Address; cldId: Hex | bigint }) {
   const accountId = data.owner.toLowerCase();
-  const cldId = data.cldId.toLowerCase();
+  const cldId = "0x" + BigInt(data.cldId).toString(16).toLowerCase();
   return await sendGraphRequest<Domain[]>(
     `
       {

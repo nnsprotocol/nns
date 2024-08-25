@@ -4,24 +4,43 @@ import BadgeUnavailable from "../badges/BadgeUnavailable";
 import IconArrowRight from "../icons/IconArrowRight";
 import { Domain } from "../../services/graph";
 import { normalize } from "viem/ens";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 interface Props {
   searchText: string;
   cldName: string;
   domains: Domain[];
+  onClickAway?: () => void;
 }
 
 const SearchResultsList: React.FC<Props> = ({
   searchText,
   cldName,
   domains,
+  onClickAway,
 }) => {
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const isAvailable = useMemo(() => {
     return !domains
       ?.map((d) => d.name.split(".")[0])
       .some((d) => normalize(d) === normalize(searchText));
   }, [searchText, domains]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        onClickAway?.();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   if (!searchText) {
     return <></>;
@@ -31,7 +50,7 @@ const SearchResultsList: React.FC<Props> = ({
   }
 
   return (
-    <div className="absolute left-0 top-100 w-full py-2 z-20">
+    <div ref={dropdownRef} className="absolute left-0 top-100 w-full py-2 z-20">
       <div className="border border-borderPrimary rounded-xl p-sm relative overflow-hidden">
         <div className="absolute inset-0 z-0 backdrop-blur-lg bg-surfacePrimary rounded-xl"></div>
         <div className="relative z-10">

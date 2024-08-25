@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 import IconArrowRight from "../components/icons/IconArrowRight";
@@ -8,21 +8,27 @@ import IconPlus from "../components/icons/IconPlus";
 import LayoutDefault from "../components/layouts/LayoutDefault";
 import DomainCollectionsCards from "../components/my-domains/DomainCollectionsCards";
 import DropdownSearch from "../components/my-domains/DropdownSearch";
-import { useRegistries } from "../services/graph";
+import SearchResultsList from "../components/search/SearchResultsList";
+import { Registry, useRegistries, useSearchDomain } from "../services/graph";
 import { useResolvedName } from "../services/resolver";
 import { formatAddress } from "../utils/formatter";
 
 function MyDomainsPage() {
   const account = useAccount();
   const registries = useRegistries();
-  const [selectedCld, setSelectedCld] = useState<bigint | null>(null);
+  const [resolverCld, setResolverCld] = useState<bigint | null>(null);
+  const [searchCld, setSearchCld] = useState<Registry | undefined>(undefined);
   const resolvedName = useResolvedName({
     account: account.address,
-    cldId: selectedCld || undefined,
+    cldId: resolverCld || undefined,
   });
-  const navigate = useNavigate();
-
   const [searchText, setSearchText] = useState("");
+  const search = useSearchDomain({
+    name: searchText,
+    cldId: searchCld?.id,
+  });
+
+  const navigate = useNavigate();
 
   const handleSearchInput = (event: React.FormEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement;
@@ -35,8 +41,6 @@ function MyDomainsPage() {
     }
   }, [account.isConnected]);
 
-  const showSearchResults = useMemo(() => Boolean(searchText), [searchText]);
-
   const customSearchSection = (
     <div className="relative flex max-w-[435px] w-full">
       <div className="absolute inset-0 backdrop-blur-[7px] bg-surfaceSecondary/50 z-0 rounded-128"></div>
@@ -44,13 +48,29 @@ function MyDomainsPage() {
         <input
           type="text"
           onInput={handleSearchInput}
+          value={searchText}
           placeholder="Search domain"
           className="p-xs h-12 w-full outline-none text-base bg-transparent"
         />
-        <DropdownSearch />
+        {registries.data && (
+          <DropdownSearch
+            registries={registries.data}
+            defaultSelection={registries.data[0]}
+            onRegistryChange={(registry) => {
+              setSearchCld(registry);
+            }}
+          />
+        )}
       </div>
       <div className="absolute bottom-0 left-0 right-0">
-        {/* <SearchResultsList showResults={false} /> */}
+        {searchCld && (
+          <SearchResultsList
+            cldName={searchCld?.name}
+            domains={search.data || []}
+            searchText={searchText}
+            onClickAway={() => setSearchText("")}
+          />
+        )}
       </div>
     </div>
   );
@@ -58,10 +78,10 @@ function MyDomainsPage() {
   const onSelectChange = useCallback(
     (value: string) => {
       if (value === "default") {
-        setSelectedCld(null);
+        setResolverCld(null);
       } else {
         const reg = registries.data?.find((r) => r.id === value)!;
-        setSelectedCld(BigInt(reg.id));
+        setResolverCld(BigInt(reg.id));
       }
     },
     [registries.data]
@@ -95,29 +115,24 @@ function MyDomainsPage() {
                 <span className="text-textSecondary">known as</span>
               </p>
               <p className="text-textInverse text-3xl font-semibold my-xs">
-                {resolvedName.data || "No name"}
+                {resolvedName.isLoading ? "" : resolvedName.data}
               </p>
               <div className="flex gap-xxs items-center text-textSecondary text-base font-medium">
-                {selectedCld ? "in" : "as"}
+                {resolverCld ? "in" : "as"}
                 <select
                   id="countries"
                   className="text-textInverse stroke-textInverse bg-black rounded-lg block"
                   onChange={(e) => onSelectChange(e.currentTarget.value)}
+                  defaultValue="default"
                 >
-                  <option value="default" selected={selectedCld === null}>
-                    default
-                  </option>
+                  <option value="default">default</option>
                   {registries.data?.map((registry) => (
-                    <option
-                      key={registry.id}
-                      value={registry.id}
-                      selected={BigInt(registry.id) === selectedCld}
-                    >
+                    <option key={registry.id} value={registry.id}>
                       {registry.name}
                     </option>
                   ))}
                 </select>
-                {selectedCld ? "community" : null}
+                {resolverCld ? "community" : null}
                 <span className="flex">
                   <IconInfo size={16} />
                 </span>

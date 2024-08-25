@@ -6,7 +6,6 @@ const NOGGLES_REGISTRY_ID =
   "0x739305fdceb24221237c3dea9f36a6fcc8dc81b45730358192886e1510532739";
 
 function SectionIdentitySystem() {
-  // const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchText, setSearchText] = useState("");
   const search = useSearchDomain({
     name: searchText,
@@ -22,7 +21,6 @@ function SectionIdentitySystem() {
       "buy-domain-search-input"
     ) as HTMLInputElement;
     if (element && element.value) {
-      // setShowSearchResults(true);
     }
   };
   return (
