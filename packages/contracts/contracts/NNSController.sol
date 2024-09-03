@@ -10,28 +10,35 @@ import "./interfaces/ICldFactory.sol";
 import "./libraries/Namehash.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 contract NNSController is IController, Ownable {
     // namehash("crypto.ETH.address")
     uint256 public constant RECORD_CRYPTO_ETH_ADDRESS =
         0x391a42857851a55da4050881bd0d2e6c9978bfa7483b787e07a760028ed71a2b;
 
-    IResolver _resolver;
-    IRewarder _rewarder;
-    ICldFactory _cldFactory;
+    IResolver internal _resolver;
+    IRewarder internal _rewarder;
+    ICldFactory internal _cldFactory;
+    address internal _signer;
 
-    mapping(uint256 => IRegistry) _registries;
-    mapping(uint256 => IPricingOracle) _pricingOracles;
-    mapping(uint256 => bool) _expiringClds;
+    mapping(uint256 cldId => IRegistry) _registries;
+    mapping(uint256 cldId => IPricingOracle) _pricingOracles;
+    mapping(uint256 cldId => bool) _expiringClds;
+    mapping(uint256 cldId => bool) _cldRequiresSignature;
+    mapping(uint256 nonce => bool) _usedRegisterNonces;
 
     constructor(
         IRewarder rewarder,
         IResolver resolver,
-        ICldFactory cldFactory
+        ICldFactory cldFactory,
+        address signer_
     ) Ownable(_msgSender()) {
         _rewarder = rewarder;
         _resolver = resolver;
         _cldFactory = cldFactory;
+        _signer = signer_;
     }
 
     function registryOf(uint256 cldId) public view returns (IRegistry) {
@@ -82,10 +89,62 @@ contract NNSController is IController, Ownable {
         address referer,
         uint8 periods
     ) external payable {
-        _validateLabels(labels);
-        uint256 cldId = _namehash(0, labels[1]);
+        (uint256 cldId, string memory name) = _validateLabels(labels);
+        _register(to, cldId, name, withReverse, referer, periods);
+    }
+
+    function registerWithSignature(
+        address to,
+        string[] calldata labels,
+        bool withReverse,
+        address referer,
+        uint8 periods,
+        uint256 nonce,
+        uint256 expiry,
+        bytes memory signature
+    ) external payable {
+        (uint256 cldId, string memory name) = _validateLabels(labels);
+        bytes32 txHash = keccak256(
+            abi.encodePacked(
+                to,
+                cldId,
+                name,
+                withReverse,
+                referer,
+                periods,
+                expiry,
+                nonce
+            )
+        );
+
+        address msgSigner = ECDSA.recover(
+            MessageHashUtils.toEthSignedMessageHash(txHash),
+            signature
+        );
+        if (msgSigner != _signer) {
+            revert ECDSA.ECDSAInvalidSignature();
+        }
+        if (block.timestamp >= expiry) {
+            revert ECDSA.ECDSAInvalidSignature();
+        }
+        if (_usedRegisterNonces[nonce]) {
+            revert ECDSA.ECDSAInvalidSignature();
+        }
+
+        _register(to, cldId, name, withReverse, referer, periods);
+        _usedRegisterNonces[nonce] = true;
+    }
+
+    function _register(
+        address to,
+        uint256 cldId,
+        string memory name,
+        bool withReverse,
+        address referer,
+        uint8 periods
+    ) internal {
         IRegistry registry = _requireRegistryOf(cldId);
-        uint256 price = _processRegistrationCost(cldId, periods, labels[0]);
+        uint256 price = _processRegistrationCost(cldId, periods, name);
 
         uint256[] memory recordKeys = new uint256[](1);
         string[] memory recordValues = new string[](1);
@@ -94,7 +153,7 @@ contract NNSController is IController, Ownable {
 
         registry.register(
             to,
-            labels[0],
+            name,
             recordKeys,
             recordValues,
             _getDuration(cldId, periods),
@@ -119,13 +178,16 @@ contract NNSController is IController, Ownable {
         _rewarder.collect{value: price}(cldId, address(0));
     }
 
-    function _validateLabels(string[] calldata labels) internal pure {
+    function _validateLabels(
+        string[] calldata labels
+    ) internal pure returns (uint256 cldId, string memory name) {
         if (labels.length != 2) {
             revert InvalidLabel();
         }
         if (bytes(labels[0]).length == 0) {
             revert InvalidLabel();
         }
+        return (_namehash(0, labels[1]), labels[0]);
     }
 
     function _getDuration(
@@ -141,7 +203,7 @@ contract NNSController is IController, Ownable {
     function _processRegistrationCost(
         uint256 cldId,
         uint8 periods,
-        string calldata name
+        string memory name
     ) internal returns (uint256) {
         uint256 price = _pricingOracles[cldId].price(name);
         if (_expiringClds[cldId]) {
@@ -167,6 +229,28 @@ contract NNSController is IController, Ownable {
             revert InvalidLabel();
         }
         return Namehash.namehash(label, tokenId);
+    }
+
+    function setCldSignatureRequired(
+        uint256 cldId,
+        bool requiresSignature
+    ) external onlyOwner {
+        _requireRegistryOf(cldId);
+        _cldRequiresSignature[cldId] = requiresSignature;
+        emit CldSignatureRequiredChanged(cldId, requiresSignature);
+    }
+
+    function isSignatureRequired(uint256 cldId) external view returns (bool) {
+        _requireRegistryOf(cldId);
+        return _cldRequiresSignature[cldId];
+    }
+
+    function updateSigner(address sign) external onlyOwner {
+        _signer = sign;
+    }
+
+    function signer() external view returns (address) {
+        return _signer;
     }
 
     function setPricingOracle(uint256 cldId, IPricingOracle oracle) public {

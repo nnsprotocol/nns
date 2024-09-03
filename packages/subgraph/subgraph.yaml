@@ -6,9 +6,9 @@ dataSources:
     name: NNSController
     network: base-sepolia
     source:
-      address: "0xed334F5FFE544def7CFa5A80B21Ac52AF9f20363"
+      address: "0xE8E0fFE372608122c10544c2445272eD8E79dbAB"
       abi: NNSController
-      startBlock: 14371894
+      startBlock: 14813589
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -22,13 +22,15 @@ dataSources:
       eventHandlers:
         - event: CldRegistered(uint256,string,address,bool)
           handler: handleCldRegistered
+        - event: CldSignatureRequiredChanged(uint256,bool)
+          handler: handleCldSignatureRequiredChanged
   - kind: ethereum
     name: NNSResolver
     network: base-sepolia
     source:
-      address: "0xCB234A1cC6224CE1abD6A24fEfDc99E59739E3e2"
+      address: "0x12F5A379038F286d02dE1317ab86dF3e06660D3f"
       abi: NNSResolver
-      startBlock: 14371860
+      startBlock: 14813589
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

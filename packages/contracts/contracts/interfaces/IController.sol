@@ -12,6 +12,7 @@ interface IController {
         bool hasExpiringNames
     );
     event PricingOracleChanged(uint256 cldId, address oracle);
+    event CldSignatureRequiredChanged(uint256 cldId, bool required);
 
     error InvalidPricingOracle();
     error CldAlreadyExists();
@@ -43,6 +44,17 @@ interface IController {
         uint8 periods
     ) external payable;
 
+    function registerWithSignature(
+        address to,
+        string[] calldata labels,
+        bool withReverse,
+        address referer,
+        uint8 periods,
+        uint256 nonce,
+        uint256 expiry,
+        bytes memory signature
+    ) external payable;
+
     function renew(string[] calldata labels, uint8 periods) external payable;
 
     function setPricingOracle(uint256 cldId, IPricingOracle oracle) external;
@@ -52,4 +64,15 @@ interface IController {
     ) external view returns (IPricingOracle);
 
     function isExpiringCLD(uint256 cldId) external view returns (bool);
+
+    function setCldSignatureRequired(
+        uint256 cldId,
+        bool requiresSignature
+    ) external;
+
+    function isSignatureRequired(uint256 cldId) external view returns (bool);
+
+    function updateSigner(address signer) external;
+
+    function signer() external view returns (address);
 }

@@ -1,13 +1,12 @@
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ContractTransactionResponse, namehash } from "ethers";
+import { BigNumberish, ContractTransactionResponse, namehash } from "ethers";
 import { ethers } from "hardhat";
 import { CldRegistry } from "../typechain-types";
-import { register } from "module";
 
 async function setup() {
-  const [owner, w1, w2, w3, w4, w5] = await ethers.getSigners();
+  const [owner, w1, w2, w3, w4, w5, signer] = await ethers.getSigners();
 
   const erc20F = await ethers.getContractFactory("ERC20Mock");
   const erc20 = await erc20F.deploy();
@@ -38,7 +37,7 @@ async function setup() {
   const cldF = await cldFF.deploy();
 
   const controllerF = await ethers.getContractFactory("NNSController");
-  const controller = await controllerF.deploy(rewarder, resolver, cldF);
+  const controller = await controllerF.deploy(rewarder, resolver, cldF, signer);
   await rewarder.setController(controller);
   await resolver.transferOwnership(controller);
 
@@ -57,10 +56,49 @@ async function setup() {
     w3,
     w4,
     w5,
+    signer,
   };
 }
 
 type Context = Awaited<ReturnType<typeof setup>>;
+
+async function signRegistrationRequest(
+  signer: SignerWithAddress,
+  req: {
+    to: string;
+    cldId: BigNumberish;
+    name: string;
+    withReverse: boolean;
+    referer: string;
+    periods: number;
+    expiry: number;
+    nonce: BigNumberish;
+  }
+) {
+  const hash = ethers.solidityPackedKeccak256(
+    [
+      "address",
+      "uint256",
+      "string",
+      "bool",
+      "address",
+      "uint8",
+      "uint256",
+      "uint256",
+    ],
+    [
+      req.to,
+      req.cldId,
+      req.name,
+      req.withReverse,
+      req.referer,
+      req.periods,
+      req.expiry,
+      req.nonce,
+    ]
+  );
+  return await signer.signMessage(ethers.getBytes(hash));
+}
 
 describe("NNSController", () => {
   describe("registerCld", () => {
@@ -506,6 +544,219 @@ describe("NNSController", () => {
     });
   });
 
+  describe("register with signature", () => {
+    const cldName = "nouns";
+    const cldId = namehash(cldName);
+    const name = "apbigcod";
+    const tokenId = namehash(`${name}.${cldName}`);
+    let communityManager: SignerWithAddress;
+    let ctx: Context;
+    let registry: CldRegistry;
+
+    before(async () => {
+      ctx = await setup();
+      communityManager = ctx.w5;
+      await ctx.controller
+        .connect(ctx.owner)
+        .registerCld(
+          cldName,
+          10,
+          7,
+          ctx.pricer,
+          ctx.w3,
+          communityManager,
+          false,
+          true
+        );
+
+      registry = await ethers.getContractAt(
+        "CldRegistry",
+        await ctx.controller.registryOf(cldId)
+      );
+    });
+
+    it("reverts when the labels are invalid", async () => {
+      const tx = ctx.controller
+        .connect(ctx.w1)
+        .registerWithSignature(
+          ctx.w2.address,
+          ["one"],
+          true,
+          ethers.ZeroAddress,
+          0,
+          345,
+          9999999999,
+          "0x"
+        );
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "InvalidLabel"
+      );
+    });
+
+    it("reverts when the signature is invalid", async () => {
+      const data = {
+        to: ctx.w2.address,
+        cldName,
+        name,
+        withReverse: true,
+        referer: ethers.ZeroAddress,
+        periods: 0,
+        nonce: 666,
+        expiry: (await time.latest()) + 10000,
+      };
+      const tx = ctx.controller.connect(ctx.w1).registerWithSignature(
+        data.to,
+        [data.name, data.cldName],
+        data.withReverse,
+        data.referer,
+        data.periods,
+        data.nonce,
+        data.expiry,
+        await signRegistrationRequest(ctx.signer, {
+          ...data,
+          cldId: namehash(data.cldName),
+          expiry: data.expiry - 1,
+        })
+      );
+
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "ECDSAInvalidSignature"
+      );
+    });
+
+    it("reverts when signature is signed by someone else", async () => {
+      const data = {
+        to: ctx.w2.address,
+        cldName,
+        name,
+        withReverse: true,
+        referer: ethers.ZeroAddress,
+        periods: 0,
+        nonce: 666,
+        expiry: (await time.latest()) + 10000,
+      };
+      const tx = ctx.controller.connect(ctx.w1).registerWithSignature(
+        data.to,
+        [data.name, data.cldName],
+        data.withReverse,
+        data.referer,
+        data.periods,
+        data.nonce,
+        data.expiry,
+        await signRegistrationRequest(ctx.w1, {
+          ...data,
+          cldId: namehash(data.cldName),
+        })
+      );
+
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "ECDSAInvalidSignature"
+      );
+    });
+
+    it("reverts when signature is expired", async () => {
+      const data = {
+        to: ctx.w2.address,
+        cldName,
+        name,
+        withReverse: true,
+        referer: ethers.ZeroAddress,
+        periods: 0,
+        nonce: 666,
+        expiry: (await time.latest()) - 100,
+      };
+      const tx = ctx.controller.connect(ctx.w1).registerWithSignature(
+        data.to,
+        [data.name, data.cldName],
+        data.withReverse,
+        data.referer,
+        data.periods,
+        data.nonce,
+        data.expiry,
+        await signRegistrationRequest(ctx.signer, {
+          ...data,
+          cldId: namehash(data.cldName),
+        })
+      );
+
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "ECDSAInvalidSignature"
+      );
+    });
+
+    describe("success", () => {
+      let params: Parameters<typeof ctx.controller.registerWithSignature>;
+
+      before(async () => {
+        const data = {
+          to: ctx.w2.address,
+          cldName,
+          name,
+          withReverse: true,
+          referer: ctx.w4.address,
+          periods: 0,
+          nonce: 666,
+          expiry: (await time.latest()) + 100,
+        };
+        params = [
+          data.to,
+          [data.name, data.cldName],
+          data.withReverse,
+          data.referer,
+          data.periods,
+          data.nonce,
+          data.expiry,
+          await signRegistrationRequest(ctx.signer, {
+            ...data,
+            cldId: namehash(data.cldName),
+          }),
+          { value: 14 },
+        ];
+        await ctx.controller.connect(ctx.w1).registerWithSignature(...params);
+      });
+
+      describe("domain is minted", () => {
+        it("is owned by the target", async () => {
+          const owner = await registry.ownerOf(tokenId);
+          expect(owner).to.eq(ctx.w2);
+        });
+
+        it("has the expected name", async () => {
+          const registeredName = await registry.nameOf(tokenId);
+          expect(registeredName).to.eq(`${name}.${cldName}`);
+        });
+
+        it("is does not expire", async () => {
+          const expiry = await registry.expiryOf(tokenId);
+          expect(expiry).to.eq(0);
+        });
+
+        it("has been set as reverse", async () => {
+          const reverseTokenId = await registry.reverseOf(ctx.w2);
+          expect(reverseTokenId).to.eq(tokenId);
+
+          const reverseName = await registry.reverseNameOf(ctx.w2);
+          expect(reverseName).to.eq(`${name}.${cldName}`);
+        });
+      });
+
+      it("reverts when using the signature twice", async () => {
+        const tx = ctx.controller
+          .connect(ctx.w1)
+          .registerWithSignature(...params);
+
+        await expect(tx).to.revertedWithCustomError(
+          ctx.controller,
+          "ECDSAInvalidSignature"
+        );
+      });
+    });
+  });
+
   describe("renew domain", () => {
     const cldName = "nouns";
     const cldId = namehash(cldName);
@@ -696,6 +947,110 @@ describe("NNSController", () => {
       );
       const oracle = await ctx.controller.pricingOracleOf(namehash(name));
       expect(oracle).to.eq(ctx.pricer);
+    });
+  });
+
+  describe("setCldSignatureRequired", () => {
+    let cldId: BigNumberish;
+    let ctx: Context;
+
+    before(async () => {
+      ctx = await setup();
+      await ctx.controller.registerCld(
+        "cldxx",
+        10,
+        7,
+        ctx.pricer,
+        ctx.w3,
+        ctx.w2,
+        false,
+        true
+      );
+      cldId = namehash("cldxx");
+    });
+
+    it("reverts when the cld is invalid", async () => {
+      const tx = ctx.controller
+        .connect(ctx.owner)
+        .setCldSignatureRequired(namehash("INVALID"), true);
+      await expect(tx).to.revertedWithCustomError(ctx.controller, "InvalidCld");
+    });
+
+    it("reverts when not called by the owner", async () => {
+      const ctx = await setup();
+      const tx = ctx.controller
+        .connect(ctx.w1)
+        .setCldSignatureRequired(cldId, true);
+
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "OwnableUnauthorizedAccount"
+      );
+    });
+
+    describe("set to true", () => {
+      let tx: ContractTransactionResponse;
+
+      before(async () => {
+        tx = await ctx.controller
+          .connect(ctx.owner)
+          .setCldSignatureRequired(cldId, true);
+      });
+
+      it("emits a CldSignatureRequiredChanged event", async () => {
+        await expect(tx)
+          .to.emit(ctx.controller, "CldSignatureRequiredChanged")
+          .withArgs(cldId, true);
+      });
+
+      it("isSignatureRequired returns true", async () => {
+        const requiresSignature = await ctx.controller.isSignatureRequired(
+          cldId
+        );
+        expect(requiresSignature).to.be.true;
+      });
+    });
+
+    describe("set to false", () => {
+      let tx: ContractTransactionResponse;
+
+      before(async () => {
+        tx = await ctx.controller
+          .connect(ctx.owner)
+          .setCldSignatureRequired(cldId, false);
+      });
+
+      it("emits a CldSignatureRequiredChanged event", async () => {
+        await expect(tx)
+          .to.emit(ctx.controller, "CldSignatureRequiredChanged")
+          .withArgs(cldId, false);
+      });
+
+      it("isSignatureRequired returns false", async () => {
+        const requiresSignature = await ctx.controller.isSignatureRequired(
+          cldId
+        );
+        expect(requiresSignature).to.be.false;
+      });
+    });
+  });
+
+  describe("updateSigner", () => {
+    it("reverts when not called by the owner", async () => {
+      const ctx = await setup();
+      const tx = ctx.controller.connect(ctx.w1).updateSigner(ctx.w2);
+
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "OwnableUnauthorizedAccount"
+      );
+    });
+
+    it("updates the signer", async () => {
+      const ctx = await setup();
+      await ctx.controller.connect(ctx.owner).updateSigner(ctx.w2);
+      const signer = await ctx.controller.getFunction("signer")();
+      expect(signer).to.eq(ctx.w2.address);
     });
   });
 });

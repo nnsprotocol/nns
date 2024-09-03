@@ -4,6 +4,9 @@ import { namehash, parseEther } from "ethers";
 const NNSModule = buildModule("NNSModule", (m) => {
   const deployer = m.getAccount(0);
 
+  const aggregator = "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1";
+  const signer = "0xD83720C12B7AFe4Cb8328a88F1FFC1Ebac90424a";
+
   // Rewarder
   const erc20 = m.contract("ERC20Mock", []);
   const swapRouter = m.contract("SwapRouterMock", [erc20]);
@@ -37,7 +40,12 @@ const NNSModule = buildModule("NNSModule", (m) => {
 
   // Controller
   const cldF = m.contract("CldFactory", []);
-  const controller = m.contract("NNSController", [rewarder, resolver, cldF]);
+  const controller = m.contract("NNSController", [
+    rewarder,
+    resolver,
+    cldF,
+    signer,
+  ]);
   const setControllerOnRewarder = m.call(rewarder, "setController", [
     controller,
   ]);
@@ -45,11 +53,10 @@ const NNSModule = buildModule("NNSModule", (m) => {
 
   // USD Pricing Oracle for .⌐◨-◨
   const prices = [parseEther("50"), parseEther("20"), parseEther("10")];
-  const aggregator = "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1";
   const pricer = m.contract("USDPricingOracle", [prices, aggregator]);
 
   // Deploy .⌐◨-◨ CLD
-  m.call(
+  const registerNoggles = m.call(
     controller,
     "registerCld",
     [
@@ -66,8 +73,13 @@ const NNSModule = buildModule("NNSModule", (m) => {
       after: [setControllerOnRewarder],
     }
   );
+  const nogglesCldId = namehash("⌐◨-◨");
+  m.call(controller, "setCldSignatureRequired", [nogglesCldId, true], {
+    after: [registerNoggles],
+  });
+
   const nogglesRegistry = m.staticCall(controller, "registryOf", [
-    namehash("⌐◨-◨"),
+    nogglesCldId,
   ]);
 
   // Rewarder: Holders

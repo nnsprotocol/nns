@@ -9,7 +9,7 @@ task("set-reverse")
   .setAction(async (taskArgs, hre) => {
     const registry = await getRegistry(hre, taskArgs.cld);
     const domain = `${taskArgs.name}.${taskArgs.cld}`;
-    await registry.setReverse(taskArgs.address, namehash(domain));
+    await registry.setReverse(namehash(domain), [], []);
   });
 
 task("delete-reverse")

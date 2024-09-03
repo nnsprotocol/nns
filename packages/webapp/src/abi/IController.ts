@@ -98,6 +98,25 @@ export default [
       },
       {
         indexed: false,
+        internalType: "bool",
+        name: "required",
+        type: "bool",
+      },
+    ],
+    name: "CldSignatureRequiredChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "cldId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "oracle",
         type: "address",
@@ -115,6 +134,25 @@ export default [
       },
     ],
     name: "isExpiringCLD",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "cldId",
+        type: "uint256",
+      },
+    ],
+    name: "isSignatureRequired",
     outputs: [
       {
         internalType: "bool",
@@ -228,6 +266,54 @@ export default [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "string[]",
+        name: "labels",
+        type: "string[]",
+      },
+      {
+        internalType: "bool",
+        name: "withReverse",
+        type: "bool",
+      },
+      {
+        internalType: "address",
+        name: "referer",
+        type: "address",
+      },
+      {
+        internalType: "uint8",
+        name: "periods",
+        type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "nonce",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "expiry",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes",
+        name: "signature",
+        type: "bytes",
+      },
+    ],
+    name: "registerWithSignature",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "cldId",
         type: "uint256",
@@ -270,12 +356,56 @@ export default [
         type: "uint256",
       },
       {
+        internalType: "bool",
+        name: "requiresSignature",
+        type: "bool",
+      },
+    ],
+    name: "setCldRequiresSignature",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "cldId",
+        type: "uint256",
+      },
+      {
         internalType: "contract IPricingOracle",
         name: "oracle",
         type: "address",
       },
     ],
     name: "setPricingOracle",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "signer",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "signer",
+        type: "address",
+      },
+    ],
+    name: "updateSigner",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

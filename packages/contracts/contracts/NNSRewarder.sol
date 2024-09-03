@@ -17,16 +17,16 @@ contract NNSRewarder is IRewarder, Ownable {
 
     address internal _protocol;
 
-    mapping(uint256 cldId => uint8) _communityRewards;
-    mapping(uint256 cldId => address) _communityPayables;
-    mapping(uint256 cldId => uint8) _referralRewards;
-    mapping(uint256 cldId => IRegistry) _registries;
+    mapping(uint256 cldId => uint8) internal _communityRewards;
+    mapping(uint256 cldId => address) internal _communityPayables;
+    mapping(uint256 cldId => uint8) internal _referralRewards;
+    mapping(uint256 cldId => IRegistry) internal _registries;
 
     IERC721BasedRewarder internal _ecosystemRewarder;
     IERC721BasedRewarder internal _holderRewarder;
     IAccountRewarder internal _accountRewarder;
 
-    IERC20 _rewardToken;
+    IERC20 internal _rewardToken;
     ISwapRouter internal _swapRouter;
     IERC20 internal _weth9;
 

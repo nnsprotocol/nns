@@ -22,11 +22,13 @@ type Registry @entity {
   address: Bytes!
   domains: [Domain!]! @derivedFrom(field: "registry")
   operators: [DomainOperator!]! @derivedFrom(field: "registry")
-  hasExpiringNames: Boolean!
   totalSupply: BigInt!
 
   ownerStats: [OwnerStats!]! @derivedFrom(field: "registry")
   uniqueOwners: BigInt!
+
+  hasExpiringNames: Boolean!
+  registrationWithSignature: Boolean!
 }
 
 type OwnerStats @entity {
