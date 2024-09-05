@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { namehash } from "viem";
+import { namehash, zeroAddress } from "viem";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
 import CONTROLLER_ABI from "../abi/IController";
@@ -12,9 +12,10 @@ import DomainCheckoutConnectToWallet from "../components/domain-overview/DomainC
 import LayoutDefault from "../components/layouts/LayoutDefault";
 import { CONTROLLER_ADDRESS, useDomainPrice } from "../services/controller";
 import { useRegistry } from "../services/graph";
-import { useWriteContractWaitingForTx } from "../services/shared";
+import { useWriteContractWithServerRequest } from "../services/shared";
 import { DomainCheckoutType } from "../types/domains";
 import { useCollectionData } from "../components/collection-details/types";
+import { fetchRegisterSignature } from "../services/api";
 
 /*
 InvalidPricingOracle() 0x2715c316
@@ -65,7 +66,37 @@ function DomainOverviewPage() {
     name: domainName,
   });
 
-  const register = useWriteContractWaitingForTx();
+  // const register = useWriteContractWaitingForTx();
+  const register = useWriteContractWithServerRequest({
+    fetchServerData: () =>
+      fetchRegisterSignature({
+        to: account.address!,
+        labels: [domainName, cldName],
+        periods: registry.data?.hasExpiringNames ? 1 : 0,
+        referer: zeroAddress,
+        withReverse: domainAsPrimaryName,
+      }),
+    startTransaction(serverData, writeContract) {
+      writeContract({
+        abi: CONTROLLER_ABI,
+        address: CONTROLLER_ADDRESS,
+        functionName: "registerWithSignature",
+        value: (price!.eth * 11n) / 10n,
+        args: [
+          serverData.to,
+          [normalize(domainName), registry.data!.name],
+          domainAsPrimaryName,
+          "0x0000000000000000000000000000000000000000",
+          registry.data?.hasExpiringNames ? 1 : 0,
+          BigInt(serverData.nonce),
+          BigInt(serverData.expiry),
+          serverData.signature,
+        ],
+      });
+    },
+    enabled: Boolean(registry.data) && Boolean(account.address),
+  });
+
   useEffect(() => {
     if (
       register.state.value === "idle" &&
@@ -92,19 +123,7 @@ function DomainOverviewPage() {
       ["idle", "error"].includes(register.state.value)
     ) {
       setDomainCheckoutType("transactionSubmitted");
-      register.writeContract({
-        abi: CONTROLLER_ABI,
-        address: CONTROLLER_ADDRESS,
-        functionName: "register",
-        value: (price!.eth * 11n) / 10n,
-        args: [
-          account.address!,
-          [normalize(domainName), registry.data!.name],
-          domainAsPrimaryName,
-          "0x0000000000000000000000000000000000000000",
-          registry.data?.hasExpiringNames ? 1 : 0,
-        ],
-      });
+      register.write();
     }
   }, [domainCheckoutType, register.state.value]);
 

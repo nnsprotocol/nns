@@ -11,6 +11,7 @@ export type Registry = {
   hasExpiringNames: boolean;
   totalSupply: string;
   uniqueOwners: string;
+  registrationWithSignature: boolean;
 };
 
 export type Subdomain = {
