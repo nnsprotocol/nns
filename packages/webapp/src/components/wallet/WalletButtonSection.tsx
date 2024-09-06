@@ -66,9 +66,11 @@ const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({
             <Link to="/account" className="link-default text-nowrap">
               My Domains
             </Link>
-            <span className="bg-surfaceBrandLavender rounded-2xl text-textInverse text-xs p-xxs text-center min-w-[28px]">
-              {numOfDomains.data || ""}
-            </span>
+            {numOfDomains.data && (
+              <span className="bg-surfaceBrandLavender rounded-2xl text-textInverse text-xs p-xxs text-center min-w-[28px]">
+                {numOfDomains.data || ""}
+              </span>
+            )}
           </div>
           <DropdownWallet />
         </>

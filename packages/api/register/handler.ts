@@ -14,7 +14,7 @@ import {
   toBytes,
   toHex,
 } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+import { privateKeyToAccount, PrivateKeyAccount } from "viem/accounts";
 import { mainnet } from "viem/chains";
 import { namehash, normalize } from "viem/ens";
 import z from "zod";
@@ -30,6 +30,7 @@ const inputSchema = z.object({
   referer: zAddress,
   periods: z.number(),
 });
+type Input = z.infer<typeof inputSchema>;
 
 type Output = {
   to: Address;
@@ -46,18 +47,39 @@ export default async function registerHandler(
   req: IRequest,
   env: Env
 ): Promise<Output> {
-  const client = createPublicClient({
-    transport: http(), // TODO: use alchemy
-    chain: mainnet,
-  });
   const signer = privateKeyToAccount(env.SIGNER_PK);
 
   const input = await inputSchema.parseAsync(await req.json());
 
-  const [name, cld] = input.labels; // switch over the cld
-  const normalizedName = normalize(name);
-  const tokenId = BigInt(keccak256(toBytes(normalizedName)));
+  const cld = input.labels[1];
+  const name = normalize(input.labels[0]);
 
+  switch (cld) {
+    case "⌐◨-◨":
+      await validateNoggles(input, env);
+      break;
+
+    default:
+      throw new StatusError(400, "unsupported_cld");
+  }
+
+  const { expiry, nonce, signature } = await signRegistration(signer, input);
+  return {
+    ...input,
+    labels: [name, cld],
+    expiry: toHex(expiry),
+    nonce: toHex(nonce),
+    signature,
+  };
+}
+
+async function validateNoggles(input: Input, env: Env) {
+  const client = createPublicClient({
+    transport: http(), // TODO: use alchemy
+    chain: mainnet,
+  });
+
+  const tokenId = BigInt(keccak256(toBytes(normalize(input.labels[0]))));
   const owner = await client
     .readContract({
       abi: erc721Abi,
@@ -80,6 +102,14 @@ export default async function registerHandler(
   if (owner && !isAddressEqual(owner, input.to)) {
     throw new StatusError(409, "name_already_owned");
   }
+}
+
+async function signRegistration(
+  signer: PrivateKeyAccount,
+  input: Input
+): Promise<{ expiry: bigint; nonce: bigint; signature: Hex }> {
+  const cld = input.labels[1];
+  const name = normalize(input.labels[0]);
 
   const expiry = BigInt(Math.floor(Date.now() / 1000 + 5 * 60));
   const nonce = BigInt(
@@ -100,8 +130,8 @@ export default async function registerHandler(
       ],
       [
         input.to,
-        BigInt(namehash(normalizedName)),
-        name,
+        BigInt(namehash(cld)),
+        normalize(name),
         input.withReverse,
         input.referer,
         input.periods,
@@ -116,10 +146,8 @@ export default async function registerHandler(
     },
   });
   return {
-    ...input,
-    labels: [normalizedName, cld],
-    expiry: toHex(expiry),
-    nonce: toHex(nonce),
+    expiry,
+    nonce,
     signature,
   };
 }

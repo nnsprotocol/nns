@@ -45,9 +45,11 @@ const DropdownWallet: React.FC = () => {
             className="text-sm text-textInverse text-nowrap flex items-center gap-xs font-medium"
           >
             <span>My Domains</span>
-            <span className="bg-surfaceBrandLavender rounded-2xl text-textInverse text-xs p-xxs text-center min-w-[28px]">
-              {numDomains.data || ""}
-            </span>
+            {numDomains.data && (
+              <span className="bg-surfaceBrandLavender rounded-2xl text-textInverse text-xs p-xxs text-center min-w-[28px]">
+                {numDomains.data || ""}
+              </span>
+            )}
           </Link>
         </li>
         <li className="p-3">

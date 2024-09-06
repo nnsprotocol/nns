@@ -54,4 +54,23 @@ task("register-name", "Registers a new name")
     await tx.wait();
   });
 
+task("set-signer", "Sets the signer to register domains")
+  .addParam("signer")
+  .setAction(async (taskArgs, hre) => {
+    const [signer] = await hre.ethers.getSigners();
+    const controller = await getNNSController(hre);
+
+    const tx = await controller.connect(signer).updateSigner(taskArgs.signer);
+    await tx.wait();
+  });
+
+task("get-signer", "Gets the signer used to register domains").setAction(
+  async (_taskArgs, hre) => {
+    const controller = await getNNSController(hre);
+
+    const signer = await controller.getFunction("signer")();
+    console.log(signer);
+  }
+);
+
 export default {};

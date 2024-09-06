@@ -70,14 +70,14 @@ function MyDomainsPage() {
                 {resolvedName.isLoading ? "" : resolvedName.data}
               </p>
               <div className="flex gap-xxs items-center text-textSecondary text-base font-medium">
-                {resolverCld ? "in" : "as"}
+                {resolverCld ? "in" : ""}
                 <select
                   id="countries"
                   className="text-textInverse stroke-textInverse bg-black rounded-lg block"
                   onChange={(e) => onSelectChange(e.currentTarget.value)}
                   defaultValue="default"
                 >
-                  <option value="default">default</option>
+                  <option value="default">Everywhere</option>
                   {registries.data?.map((registry) => (
                     <option key={registry.id} value={registry.id}>
                       {registry.name}
