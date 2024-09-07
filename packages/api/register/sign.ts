@@ -3,7 +3,8 @@ import { Address, encodePacked, Hex, keccak256, toHex } from "viem";
 import { PrivateKeyAccount, privateKeyToAccount } from "viem/accounts";
 import { namehash, normalize } from "viem/ens";
 import z from "zod";
-import { validateNoggles, zAddress } from "./shared";
+import { Env } from "../env";
+import { RegistrationValidator, zAddress } from "./shared";
 
 const inputSchema = z.object({
   to: zAddress,
@@ -30,6 +31,7 @@ export default async function registerHandler(
   env: Env
 ): Promise<Output> {
   const signer = privateKeyToAccount(env.SIGNER_PK);
+  const validator = RegistrationValidator.fromEnv(env);
 
   const input = await inputSchema.parseAsync(await req.json());
 
@@ -38,13 +40,17 @@ export default async function registerHandler(
 
   switch (cld) {
     case "⌐◨-◨": {
-      const canRegister = await validateNoggles({
-        contract: env.NNS_V1_ERC721_ADDRESS,
-        name,
-        to: input.to,
-      });
+      const canRegister = await validator.validateNoggles(input.to, name);
       if (!canRegister) {
-        throw new StatusError(409, "name_already_owned");
+        throw new StatusError(409, "cannot_register");
+      }
+      break;
+    }
+
+    case "nouns": {
+      const canRegister = await validator.validateNouns(input.to, name);
+      if (!canRegister) {
+        throw new StatusError(409, "cannot_register");
       }
       break;
     }

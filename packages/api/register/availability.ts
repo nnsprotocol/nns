@@ -1,7 +1,8 @@
 import { IRequest, StatusError } from "itty-router";
 import { normalize } from "viem/ens";
 import z from "zod";
-import { validateNoggles, zAddress } from "./shared";
+import { Env } from "../env";
+import { RegistrationValidator, zAddress } from "./shared";
 
 const inputSchema = z.object({
   to: zAddress,
@@ -17,6 +18,8 @@ export default async function availabilityHandler(
   req: IRequest,
   env: Env
 ): Promise<Output> {
+  const validator = RegistrationValidator.fromEnv(env);
+
   const input = await inputSchema.parseAsync(req.query);
 
   const cld = input.cld;
@@ -25,11 +28,12 @@ export default async function availabilityHandler(
   let canRegister = false;
   switch (cld) {
     case "⌐◨-◨": {
-      canRegister = await validateNoggles({
-        contract: env.NNS_V1_ERC721_ADDRESS,
-        name,
-        to: input.to,
-      });
+      canRegister = await validator.validateNoggles(input.to, name);
+      break;
+    }
+
+    case "nouns": {
+      canRegister = await validator.validateNouns(input.to, name);
       break;
     }
 

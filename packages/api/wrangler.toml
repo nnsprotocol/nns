@@ -1,7 +1,3 @@
 name = "nns"
 main = "./src/index.ts"
 compatibility_date = "2022-10-10"
-
-[vars]
-SIGNER_PK = "0x"
-NNS_V1_ERC721_ADDRESS = "0x4af84535625fe40990bfb35019b944a9933f7593"
