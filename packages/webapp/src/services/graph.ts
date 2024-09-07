@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Address, Hash, Hex } from "viem";
+import { Address, Hash, Hex, namehash } from "viem";
 import { normalize } from "viem/ens";
 
 const GRAPH_URL: string = import.meta.env.VITE_GRAPH_URL;
@@ -47,6 +47,7 @@ const REGISTRY_SELECT = `
   hasExpiringNames
   totalSupply
   uniqueOwners
+  registrationWithSignature
 `;
 
 const SUBDOMAIN_SELECT = `
@@ -250,6 +251,32 @@ export function useDomains(data: Partial<Parameters<typeof fetchDomains>[0]>) {
         owner: data.owner || "0x",
       }),
     enabled: Boolean(data.owner) && Boolean(data.cldId),
+  });
+}
+
+async function fetchDomain(data: { cld: string; name: string }) {
+  const id = namehash(`${data.name}.${data.cld}`).toLowerCase();
+  return await sendGraphRequest<Domain[]>(
+    `
+      {
+        domain(id: "${id}") {
+          ${DOMAIN_SELECT}
+        }
+      }
+    `,
+    "domain"
+  );
+}
+
+export function useDomain(data: Partial<Parameters<typeof fetchDomain>[0]>) {
+  return useQuery({
+    queryKey: ["domains", data.cld, data.name],
+    queryFn: () =>
+      fetchDomain({
+        cld: data.cld || "",
+        name: data.name || "",
+      }),
+    enabled: Boolean(data.cld) && Boolean(data.name),
   });
 }
 

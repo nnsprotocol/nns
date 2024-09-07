@@ -22,6 +22,7 @@ interface IController {
     error InsufficientTransferAmount(uint256 required, uint256 provided);
     error InvalidRegistrationPeriod();
     error NonExpiringCld(uint256 cldId);
+    error InvalidRegistrationMethod();
 
     function registryOf(uint256 cldId) external view returns (IRegistry);
 

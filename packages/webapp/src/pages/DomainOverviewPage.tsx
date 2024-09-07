@@ -1,21 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { namehash, zeroAddress } from "viem";
+import { Address, namehash, zeroAddress } from "viem";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
 import CONTROLLER_ABI from "../abi/IController";
+import { useCollectionData } from "../components/collection-details/types";
 import DomainCheckoutBuy from "../components/domain-overview/DomainCheckoutBuy";
 import DomainCheckoutOverview from "../components/domain-overview/DomainCheckoutOverview";
 import DomainCheckoutTransactionComplete from "../components/domain-overview/DomainCheckoutTransactionComplete";
 import DomainCheckoutTransactionSubmitted from "../components/domain-overview/DomainCheckoutTransactionSubmitted";
 import DomainCheckoutConnectToWallet from "../components/domain-overview/DomainCheckoutСonnectToWallet";
 import LayoutDefault from "../components/layouts/LayoutDefault";
+import {
+  fetchRegisterSignature,
+  useRegistrationAvailability,
+} from "../services/api";
 import { CONTROLLER_ADDRESS, useDomainPrice } from "../services/controller";
-import { useRegistry } from "../services/graph";
+import { useDomain, useRegistry } from "../services/graph";
 import { useWriteContractWithServerRequest } from "../services/shared";
 import { DomainCheckoutType } from "../types/domains";
-import { useCollectionData } from "../components/collection-details/types";
-import { fetchRegisterSignature } from "../services/api";
 
 /*
 InvalidPricingOracle() 0x2715c316
@@ -36,6 +39,41 @@ InvalidShares() 0x6edcc523
 NothingToWithdraw() 0xd0d04f60
 CallerNotController(address) 0x69867d64
 */
+
+function useRegistrationStatus(d: {
+  cld?: string;
+  name?: string;
+  to?: Address;
+}) {
+  const av = useRegistrationAvailability(d);
+  const domain = useDomain(d);
+  const registry = useRegistry({ id: d.cld ? namehash(d.cld) : undefined });
+
+  const status = useMemo(() => {
+    if (typeof domain.data === "undefined" || !av.data || !registry.data) {
+      return undefined;
+    }
+
+    if (domain.data !== null) {
+      return "owned";
+    }
+    if (!registry.data.registrationWithSignature) {
+      return "available";
+    }
+
+    if (av.data.canRegister) {
+      return "available";
+    }
+
+    return "reserved";
+  }, [av, domain, registry]);
+
+  return {
+    status,
+    isLoading: av.isLoading || domain.isLoading || registry.isLoading,
+    error: av.error || domain.error || registry.error,
+  };
+}
 
 function DomainOverviewPage() {
   const [domainCheckoutType, setDomainCheckoutType] =
@@ -65,6 +103,24 @@ function DomainOverviewPage() {
     cldId,
     name: domainName,
   });
+
+  const regStatus = useRegistrationStatus({
+    cld: registry.data?.name,
+    name: domainName,
+    to: account.address,
+  });
+  const availabilityImgSrc = useMemo(() => {
+    switch (regStatus?.status) {
+      case "owned":
+        return "/badges/unavailable-md.svg";
+      case "reserved":
+        return "/badges/reserved-md.svg";
+      case "available":
+        return "/badges/available-md.svg";
+      default:
+        return null;
+    }
+  }, [regStatus]);
 
   // const register = useWriteContractWaitingForTx();
   const register = useWriteContractWithServerRequest({
@@ -139,15 +195,13 @@ function DomainOverviewPage() {
               {domainFullName}
             </h1>
             <div className="flex items-center gap-xxs">
-              <img
-                src={
-                  true // TODO: fix me
-                    ? "/badges/available-md.svg"
-                    : "/badges/unavailable-md.svg"
-                }
-                className="h-[30px] w-auto"
-                alt=""
-              />
+              {availabilityImgSrc && (
+                <img
+                  src={availabilityImgSrc}
+                  className="h-[30px] w-auto"
+                  alt=""
+                />
+              )}
               <p className="text-base text-textSecondary font-medium">
                 • Popular names are more expensive
               </p>
@@ -217,16 +271,18 @@ function DomainOverviewPage() {
           </div>
         </div>
         <div className="w-full max-w-[383px]">
-          {registry.data && domainCheckoutType === "overview" && (
-            <DomainCheckoutOverview
-              available={true}
-              name={domainName || ""}
-              primaryName={domainAsPrimaryName}
-              onPrimaryNameChange={setDomainAsPrimaryName}
-              onNext={handleNextStep}
-              registry={registry.data}
-            />
-          )}
+          {registry.data &&
+            regStatus.status &&
+            domainCheckoutType === "overview" && (
+              <DomainCheckoutOverview
+                available={regStatus.status === "available"}
+                name={domainName || ""}
+                primaryName={domainAsPrimaryName}
+                onPrimaryNameChange={setDomainAsPrimaryName}
+                onNext={handleNextStep}
+                registry={registry.data}
+              />
+            )}
           {registry.data && domainCheckoutType === "connectToWallet" && (
             <DomainCheckoutConnectToWallet
               name={domainName || ""}

@@ -1,27 +1,9 @@
 import { IRequest, StatusError } from "itty-router";
-import {
-  Address,
-  ContractFunctionExecutionError,
-  ContractFunctionRevertedError,
-  createPublicClient,
-  encodePacked,
-  erc721Abi,
-  Hex,
-  http,
-  isAddress,
-  isAddressEqual,
-  keccak256,
-  toBytes,
-  toHex,
-} from "viem";
-import { privateKeyToAccount, PrivateKeyAccount } from "viem/accounts";
-import { mainnet } from "viem/chains";
+import { Address, encodePacked, Hex, keccak256, toHex } from "viem";
+import { PrivateKeyAccount, privateKeyToAccount } from "viem/accounts";
 import { namehash, normalize } from "viem/ens";
 import z from "zod";
-
-const zAddress = z.custom<Address>(
-  (val) => typeof val === "string" && isAddress(val)
-);
+import { validateNoggles, zAddress } from "./shared";
 
 const inputSchema = z.object({
   to: zAddress,
@@ -55,9 +37,17 @@ export default async function registerHandler(
   const name = normalize(input.labels[0]);
 
   switch (cld) {
-    case "⌐◨-◨":
-      await validateNoggles(input, env);
+    case "⌐◨-◨": {
+      const canRegister = await validateNoggles({
+        contract: env.NNS_V1_ERC721_ADDRESS,
+        name,
+        to: input.to,
+      });
+      if (!canRegister) {
+        throw new StatusError(409, "name_already_owned");
+      }
       break;
+    }
 
     default:
       throw new StatusError(400, "unsupported_cld");
@@ -71,37 +61,6 @@ export default async function registerHandler(
     nonce: toHex(nonce),
     signature,
   };
-}
-
-async function validateNoggles(input: Input, env: Env) {
-  const client = createPublicClient({
-    transport: http(), // TODO: use alchemy
-    chain: mainnet,
-  });
-
-  const tokenId = BigInt(keccak256(toBytes(normalize(input.labels[0]))));
-  const owner = await client
-    .readContract({
-      abi: erc721Abi,
-      address: env.NNS_V1_ERC721_ADDRESS,
-      functionName: "ownerOf",
-      args: [tokenId],
-    })
-    .catch((e) => {
-      if (
-        e instanceof ContractFunctionExecutionError &&
-        e.cause instanceof ContractFunctionRevertedError &&
-        e.cause.reason === "ERC721: invalid token ID"
-      ) {
-        return null;
-      }
-      console.error("error calling contract", e);
-      throw new StatusError(500);
-    });
-
-  if (owner && !isAddressEqual(owner, input.to)) {
-    throw new StatusError(409, "name_already_owned");
-  }
 }
 
 async function signRegistration(

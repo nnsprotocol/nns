@@ -1,7 +1,12 @@
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { BigNumberish, ContractTransactionResponse, namehash } from "ethers";
+import {
+  BigNumberish,
+  ContractTransactionResponse,
+  namehash,
+  ZeroAddress,
+} from "ethers";
 import { ethers } from "hardhat";
 import { CldRegistry } from "../typechain-types";
 
@@ -297,7 +302,7 @@ describe("NNSController", () => {
     let ctx: Context;
     let registry: CldRegistry;
 
-    before(async () => {
+    beforeEach(async () => {
       ctx = await setup();
       communityManager = ctx.w5;
       await ctx.controller
@@ -385,12 +390,32 @@ describe("NNSController", () => {
         .withArgs(10, 1);
     });
 
+    it("reverts when the cld requires a registration with signature", async () => {
+      await ctx.controller
+        .connect(ctx.owner)
+        .setCldSignatureRequired(cldId, true);
+
+      const tx = ctx.controller
+        .connect(ctx.w1)
+        .register(ctx.w2.address, [name, cldName], true, ZeroAddress, 0, {
+          value: 14,
+        });
+
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "InvalidRegistrationMethod"
+      );
+    });
+
     describe("successful registration", () => {
       let tx: ContractTransactionResponse;
       let referer: string;
 
-      it("does not revert", async () => {
+      beforeEach(async () => {
         referer = ctx.w4.address;
+        await ctx.controller
+          .connect(ctx.owner)
+          .setCldSignatureRequired(cldId, false);
         tx = await ctx.controller.connect(ctx.w1).register(
           ctx.w2.address,
           [name, cldName],
@@ -448,7 +473,7 @@ describe("NNSController", () => {
     let ctx: Context;
     let registry: CldRegistry;
 
-    before(async () => {
+    beforeEach(async () => {
       ctx = await setup();
       communityManager = ctx.w5;
       await ctx.controller
@@ -463,6 +488,9 @@ describe("NNSController", () => {
           true,
           true
         );
+      await ctx.controller
+        .connect(ctx.owner)
+        .setCldSignatureRequired(cldId, false);
 
       registry = await ethers.getContractAt(
         "CldRegistry",
@@ -509,7 +537,7 @@ describe("NNSController", () => {
       let referer: string;
       let mintTimestamp: number;
 
-      it("applies the base price times the periods", async () => {
+      beforeEach(async () => {
         referer = ctx.w4.address;
 
         mintTimestamp = (await time.latest()) + 100;
@@ -553,7 +581,7 @@ describe("NNSController", () => {
     let ctx: Context;
     let registry: CldRegistry;
 
-    before(async () => {
+    beforeEach(async () => {
       ctx = await setup();
       communityManager = ctx.w5;
       await ctx.controller
@@ -568,6 +596,9 @@ describe("NNSController", () => {
           false,
           true
         );
+      await ctx.controller
+        .connect(ctx.owner)
+        .setCldSignatureRequired(cldId, true);
 
       registry = await ethers.getContractAt(
         "CldRegistry",
@@ -691,7 +722,7 @@ describe("NNSController", () => {
     describe("success", () => {
       let params: Parameters<typeof ctx.controller.registerWithSignature>;
 
-      before(async () => {
+      beforeEach(async () => {
         const data = {
           to: ctx.w2.address,
           cldName,
@@ -755,6 +786,31 @@ describe("NNSController", () => {
         );
       });
     });
+
+    describe("signature not required", () => {
+      it("reverts when registering with a signature", async () => {
+        await ctx.controller
+          .connect(ctx.owner)
+          .setCldSignatureRequired(cldId, false);
+
+        const tx = ctx.controller
+          .connect(ctx.w1)
+          .registerWithSignature(
+            ctx.w2.address,
+            [name, cldName],
+            true,
+            ethers.ZeroAddress,
+            0,
+            666,
+            9999999999,
+            "0x"
+          );
+        await expect(tx).to.revertedWithCustomError(
+          ctx.controller,
+          "InvalidRegistrationMethod"
+        );
+      });
+    });
   });
 
   describe("renew domain", () => {
@@ -765,7 +821,7 @@ describe("NNSController", () => {
     let ctx: Context;
     let registry: CldRegistry;
 
-    before(async () => {
+    beforeEach(async () => {
       ctx = await setup();
       await ctx.controller
         .connect(ctx.owner)
@@ -855,7 +911,7 @@ describe("NNSController", () => {
       let tx: ContractTransactionResponse;
       let originalExpiry: bigint;
 
-      before(async () => {
+      beforeEach(async () => {
         originalExpiry = await registry.expiryOf(tokenId);
         tx = await ctx.controller.connect(ctx.w1).renew(
           [name, cldName],
@@ -874,7 +930,7 @@ describe("NNSController", () => {
         await expect(tx).to.changeEtherBalance(ctx.w1, -30);
       });
 
-      it("extends the expirt of the domain", async () => {
+      it("extends the expiry of the domain", async () => {
         const expiry = await registry.expiryOf(tokenId);
         expect(expiry).to.eq(originalExpiry + BigInt(3 * 365 * 24 * 3600));
       });

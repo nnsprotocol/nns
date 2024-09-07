@@ -90,6 +90,9 @@ contract NNSController is IController, Ownable {
         uint8 periods
     ) external payable {
         (uint256 cldId, string memory name) = _validateLabels(labels);
+        if (_cldRequiresSignature[cldId]) {
+            revert InvalidRegistrationMethod();
+        }
         _register(to, cldId, name, withReverse, referer, periods);
     }
 
@@ -104,6 +107,10 @@ contract NNSController is IController, Ownable {
         bytes memory signature
     ) external payable {
         (uint256 cldId, string memory name) = _validateLabels(labels);
+        if (!_cldRequiresSignature[cldId]) {
+            revert InvalidRegistrationMethod();
+        }
+
         bytes32 txHash = keccak256(
             abi.encodePacked(
                 to,
