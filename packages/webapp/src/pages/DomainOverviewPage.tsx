@@ -16,8 +16,11 @@ import {
   useRegistrationAvailability,
 } from "../services/api";
 import { CONTROLLER_ADDRESS, useDomainPrice } from "../services/controller";
-import { useDomain, useRegistry } from "../services/graph";
-import { useWriteContractWithServerRequest } from "../services/shared";
+import { Registry, useDomain, useRegistry } from "../services/graph";
+import {
+  useWriteContractWaitingForTx,
+  useWriteContractWithServerRequest,
+} from "../services/shared";
 import { DomainCheckoutType } from "../types/domains";
 
 /*
@@ -41,24 +44,35 @@ CallerNotController(address) 0x69867d64
 */
 
 function useRegistrationStatus(d: {
-  cld?: string;
+  registry?: Registry;
   name?: string;
   to?: Address;
 }) {
-  const av = useRegistrationAvailability(d);
-  const domain = useDomain(d);
-  const registry = useRegistry({ id: d.cld ? namehash(d.cld) : undefined });
+  const av = useRegistrationAvailability({
+    cld: d.registry?.name,
+    name: d.name,
+    to: d.to,
+    enabled: Boolean(d.registry?.registrationWithSignature),
+  });
+  const domain = useDomain({
+    cld: d.registry?.name,
+    name: d.name,
+  });
 
   const status = useMemo(() => {
-    if (typeof domain.data === "undefined" || !av.data || !registry.data) {
+    if (typeof domain.data === "undefined" || !d.registry) {
       return undefined;
     }
 
     if (domain.data !== null) {
       return "owned";
     }
-    if (!registry.data.registrationWithSignature) {
+    if (!d.registry.registrationWithSignature) {
       return "available";
+    }
+
+    if (!av.data) {
+      return undefined;
     }
 
     if (av.data.canRegister) {
@@ -66,12 +80,12 @@ function useRegistrationStatus(d: {
     }
 
     return "reserved";
-  }, [av, domain, registry]);
+  }, [av, domain, d.registry]);
 
   return {
     status,
-    isLoading: av.isLoading || domain.isLoading || registry.isLoading,
-    error: av.error || domain.error || registry.error,
+    isLoading: av.isLoading || domain.isLoading,
+    error: av.error || domain.error,
   };
 }
 
@@ -85,7 +99,7 @@ function DomainOverviewPage() {
   const navigate = useNavigate();
   const { domainName: domainFullName } = useParams<{ domainName: string }>();
   const [domainName, cldName] = useMemo(
-    () => domainFullName?.split(".") || [],
+    () => domainFullName?.toLowerCase()?.split(".") || [],
     [domainFullName]
   );
   const cldId = useMemo(() => namehash(cldName), [cldName]);
@@ -105,7 +119,7 @@ function DomainOverviewPage() {
   });
 
   const regStatus = useRegistrationStatus({
-    cld: registry.data?.name,
+    registry: registry.data || undefined,
     name: domainName,
     to: account.address,
   });
@@ -122,8 +136,8 @@ function DomainOverviewPage() {
     }
   }, [regStatus]);
 
-  // const register = useWriteContractWaitingForTx();
-  const register = useWriteContractWithServerRequest({
+  const register = useWriteContractWaitingForTx();
+  const registerWithSignature = useWriteContractWithServerRequest({
     fetchServerData: () =>
       fetchRegisterSignature({
         to: account.address!,
@@ -153,16 +167,24 @@ function DomainOverviewPage() {
     enabled: Boolean(registry.data) && Boolean(account.address),
   });
 
+  const txStatus = useMemo(() => {
+    if (registry.data?.registrationWithSignature) {
+      return registerWithSignature.state;
+    } else {
+      return register.state;
+    }
+  }, [register.state, registerWithSignature.state]);
+
   useEffect(() => {
     if (
-      register.state.value === "idle" &&
+      txStatus.value === "idle" &&
       domainCheckoutType === "transactionSubmitted"
     ) {
       setDomainCheckoutType("buy");
-    } else if (register.state.value === "success") {
+    } else if (txStatus.value === "success") {
       setDomainCheckoutType("transactionComplete");
     }
-  }, [register.state.value]);
+  }, [txStatus.value]);
 
   const handleNextStep = useCallback(() => {
     if (domainCheckoutType === "overview" && account.isConnected) {
@@ -176,12 +198,28 @@ function DomainOverviewPage() {
       setDomainCheckoutType("buy");
     } else if (
       domainCheckoutType === "buy" &&
-      ["idle", "error"].includes(register.state.value)
+      ["idle", "error"].includes(txStatus.value)
     ) {
       setDomainCheckoutType("transactionSubmitted");
-      register.write();
+      if (registry.data?.registrationWithSignature) {
+        registerWithSignature.write();
+      } else {
+        register.writeContract({
+          abi: CONTROLLER_ABI,
+          address: CONTROLLER_ADDRESS,
+          functionName: "register",
+          value: (price!.eth * 11n) / 10n,
+          args: [
+            account.address!,
+            [normalize(domainName), registry.data!.name],
+            domainAsPrimaryName,
+            "0x0000000000000000000000000000000000000000",
+            registry.data?.hasExpiringNames ? 1 : 0,
+          ],
+        });
+      }
     }
-  }, [domainCheckoutType, register.state.value]);
+  }, [domainCheckoutType, txStatus.value]);
 
   return (
     <LayoutDefault>
@@ -192,7 +230,7 @@ function DomainOverviewPage() {
               Now Registering
             </p>
             <h1 className="text-6.5xl font-semibold text-textInverse mb-sm">
-              {domainFullName}
+              {normalize(domainFullName || "")}
             </h1>
             <div className="flex items-center gap-xxs">
               {availabilityImgSrc && (
@@ -299,15 +337,18 @@ function DomainOverviewPage() {
               primaryName={domainAsPrimaryName}
               onPrimaryNameChange={setDomainAsPrimaryName}
               onNext={handleNextStep}
+              error={
+                txStatus.value === "error"
+                  ? txStatus.error?.shortMessage || txStatus.error?.message
+                  : undefined
+              }
             />
           )}
           {registry.data && domainCheckoutType === "transactionSubmitted" && (
             <DomainCheckoutTransactionSubmitted
               name={domainName || ""}
               registry={registry.data}
-              txHash={
-                "hash" in register.state ? register.state.hash : undefined
-              }
+              txHash={"hash" in txStatus ? txStatus.hash : undefined}
             />
           )}
           {domainCheckoutType === "transactionComplete" && (

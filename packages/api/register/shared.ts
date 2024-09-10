@@ -1,6 +1,13 @@
 import { Alchemy, Network } from "alchemy-sdk";
 import { StatusError } from "itty-router";
-import { Address, isAddress, isAddressEqual, keccak256, toBytes } from "viem";
+import {
+  Address,
+  isAddress,
+  isAddressEqual,
+  keccak256,
+  toBytes,
+  zeroAddress,
+} from "viem";
 import { normalize } from "viem/ens";
 import z from "zod";
 import { Env } from "../env";
@@ -35,6 +42,10 @@ export class RegistrationValidator {
   }
 
   async validateNoggles(to: Address, name: string) {
+    if (isAddressEqual(to, zeroAddress)) {
+      return false;
+    }
+
     const tokenId = BigInt(keccak256(toBytes(normalize(name))));
     const owner = await this.fetchERC721Owner(this.nnsERC721, tokenId);
 
@@ -45,6 +56,10 @@ export class RegistrationValidator {
   }
 
   async validateNouns(to: Address, name: string) {
+    if (isAddressEqual(to, zeroAddress)) {
+      return false;
+    }
+
     const nameAsNumber = parseInt(name, 10);
     if (isNaN(nameAsNumber)) {
       const [erc721Balance, erc20Balance] = await Promise.all([

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Address, Hex } from "viem";
+import { Address, Hex, zeroAddress } from "viem";
 
 const API_URL = import.meta.env.VITE_NNS_API_URL;
 
@@ -52,15 +52,17 @@ async function fetchAvilability(
   return body as AvailabilityResponse;
 }
 
-export function useRegistrationAvailability(req: Partial<AvailabilityRequest>) {
+export function useRegistrationAvailability(
+  req: Partial<AvailabilityRequest & { enabled: boolean }>
+) {
   return useQuery({
     queryKey: ["availability", ...Object.values(req)],
     queryFn: () =>
       fetchAvilability({
         cld: req.cld || "",
         name: req.name || "",
-        to: req.to || "0x",
+        to: req.to || zeroAddress,
       }),
-    enabled: Boolean(req.cld) && Boolean(req.name) && Boolean(req.to),
+    enabled: Boolean(req.cld) && Boolean(req.name) && Boolean(req.enabled),
   });
 }

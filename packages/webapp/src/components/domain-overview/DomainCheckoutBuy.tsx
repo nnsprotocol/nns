@@ -12,6 +12,7 @@ type Props = {
   name: string;
   registry: Registry;
   primaryName: boolean;
+  error?: string;
   onPrimaryNameChange: (value: boolean) => void;
   onNext: () => void;
 };
@@ -137,6 +138,9 @@ const DomainCheckoutBuy: React.FC<Props> = (props) => {
           >
             {hasEnoughBalance ? "Buy Domain" : "Insufficient Balance"}
           </button>
+          {props.error && (
+            <p className="text-red-500 text-sm text-center">{props.error}</p>
+          )}
         </div>
       </div>
     </DomainCheckoutContainer>

@@ -110,7 +110,7 @@ const DomainCheckoutOverview: React.FC<Props> = (props) => {
           </button>
           {props.registry.hasExpiringNames ? null : (
             <p className="text-textSecondary text-sm text-center">
-              Your name is forever. Say goodbye to renewal fees!
+              This name is forever. No renewal fees!
             </p>
           )}
         </div>
