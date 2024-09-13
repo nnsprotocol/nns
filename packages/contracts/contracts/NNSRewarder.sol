@@ -6,11 +6,10 @@ import "./interfaces/IRegistry.sol";
 import "./interfaces/IERC721Reward.sol";
 import "./interfaces/IAccountRewarder.sol";
 import "./interfaces/IERC721BasedRewarder.sol";
+import "./interfaces/IV3SwapRouter.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
-import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 
 contract NNSRewarder is IRewarder, Ownable {
     uint8 public constant PROTOCOL_SHARE = 5;
@@ -27,13 +26,13 @@ contract NNSRewarder is IRewarder, Ownable {
     IAccountRewarder internal _accountRewarder;
 
     IERC20 internal _rewardToken;
-    ISwapRouter internal _swapRouter;
+    IV3SwapRouter internal _swapRouter;
     IERC20 internal _weth9;
 
     address internal _controller;
 
     constructor(
-        ISwapRouter swapRouter,
+        IV3SwapRouter swapRouter,
         IERC20 rewardToken,
         IERC20 weth9,
         address protocol
@@ -124,13 +123,12 @@ contract NNSRewarder is IRewarder, Ownable {
     ) external payable onlyController {
         _requireRegistryOf(cldId);
 
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+        IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter
             .ExactInputSingleParams(
                 address(_weth9),
                 address(_rewardToken),
                 3000,
                 address(this),
-                block.timestamp + 15,
                 address(this).balance,
                 0,
                 0

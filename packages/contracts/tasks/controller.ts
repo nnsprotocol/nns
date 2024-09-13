@@ -36,6 +36,7 @@ task("register-name", "Registers a new name")
   .addParam("cld")
   .addParam("to", "Address to register the name to", undefined, undefined, true)
   .addParam("withreverse")
+  .addParam("period", "Period in years", undefined, undefined, true)
   .setAction(async (taskArgs, hre) => {
     const [signer] = await hre.ethers.getSigners();
 
@@ -48,7 +49,7 @@ task("register-name", "Registers a new name")
         [taskArgs.name, taskArgs.cld],
         taskArgs.withreverse === "true",
         hre.ethers.ZeroAddress,
-        0,
+        taskArgs.period || 0,
         { value: hre.ethers.parseEther("0.01") }
       );
     await tx.wait();

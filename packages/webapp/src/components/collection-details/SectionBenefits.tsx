@@ -8,7 +8,7 @@ const SectionBenefits: React.FC<SectionBenefitsProps> = ({ collection }) => {
   return (
     <section className="mt-4">
       <p className="text-textInverse text-center text-2.5xl my-2 font-semibold">
-        Discover a growing set of benefits
+        {collection.benefits.header}
       </p>
       <div className="flex flex-col lg:flex-row gap-lg w-full justify-center mt-12 mb-10">
         <div className="w-full lg:max-w-[790px] border border-borderPrimary rounded-32 bg-cardSurfaceGradient p-lg">

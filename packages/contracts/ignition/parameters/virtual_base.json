@@ -1,0 +1,15 @@
+{
+  "NNSModule": {
+    "erc20": "0x13741c5df9ab03e7aa9fb3bf1f714551dd5a5f8a",
+    "swapRouter": "0x2626664c2603336E57B271c5C0b26F421741e481",
+    "weth": "0x4200000000000000000000000000000000000006",
+    "aggregator": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
+    "signer": "0xD83720C12B7AFe4Cb8328a88F1FFC1Ebac90424a"
+  },
+  "NounsModule": {
+    "aggregator": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70"
+  },
+  "TestModule": {
+    "aggregator": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70"
+  }
+}

@@ -17,7 +17,7 @@ function SectionIdentitySystem() {
       <div className="lg:max-w-2xl">
         <div className="text-6.5xl font-semibold">
           <span>
-            <span>An open and shared Identity System </span>
+            <span>A shared identity system for everyone </span>
             <br className="hidden lg:inline" /> for
           </span>
 

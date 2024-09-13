@@ -2,13 +2,15 @@ import { Link } from "react-router-dom";
 
 const links = [
   { id: "nns", imgSrc: "/temp/nns.svg", text: ".⌐◨-◨" },
-  { id: "nouns", imgSrc: "/temp/noun-1.svg", text: ".noun" },
+  { id: "nouns", imgSrc: "/temp/noun-1.svg", text: ".nouns" },
 ];
 
 function SectionCards() {
   return (
     <section className="flex flex-col items-center gap-lg">
-      <p className="text-lg text-textSecondary font-semibold">Lorem Ipsum</p>
+      <p className="text-lg text-textSecondary font-semibold">
+        Explore communities
+      </p>
       <div className="w-full max-w-6xl">
         <ul className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
           {links.map((item) => (

@@ -2,9 +2,9 @@
 pragma solidity >=0.8.4;
 
 import "./ERC20Mock.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "../interfaces/IV3SwapRouter.sol";
 
-contract SwapRouterMock is ISwapRouter {
+contract SwapRouterMock is IV3SwapRouter {
     ERC20Mock _erc20;
     uint256 _exchange = 2;
 
@@ -17,7 +17,7 @@ contract SwapRouterMock is ISwapRouter {
     }
 
     function exactInputSingle(
-        ISwapRouter.ExactInputSingleParams calldata params
+        IV3SwapRouter.ExactInputSingleParams calldata params
     ) external payable returns (uint256 amountOut) {
         require(params.tokenOut == address(_erc20), "invalid erc20");
 
@@ -26,28 +26,4 @@ contract SwapRouterMock is ISwapRouter {
 
         return amountOut;
     }
-
-    function exactInput(
-        ISwapRouter.ExactInputParams calldata
-    ) external payable returns (uint256) {
-        revert("not implemented");
-    }
-
-    function exactOutputSingle(
-        ISwapRouter.ExactOutputSingleParams calldata
-    ) external payable returns (uint256) {
-        revert("not implemented");
-    }
-
-    function exactOutput(
-        ISwapRouter.ExactOutputParams calldata
-    ) external payable returns (uint256) {
-        revert("not implemented");
-    }
-
-    function uniswapV3SwapCallback(
-        int256 amount0Delta,
-        int256 amount1Delta,
-        bytes calldata data
-    ) external {}
 }

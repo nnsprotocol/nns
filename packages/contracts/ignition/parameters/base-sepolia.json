@@ -1,0 +1,9 @@
+{
+  "NNSModule": {
+    "erc20": "",
+    "swapRouter": "",
+    "weth": "",
+    "aggregator": "",
+    "signer": ""
+  }
+}

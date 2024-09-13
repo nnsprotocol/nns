@@ -4,17 +4,18 @@ import { namehash, parseEther } from "ethers";
 const NNSModule = buildModule("NNSModule", (m) => {
   const deployer = m.getAccount(0);
 
-  const aggregator = "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1";
-  const signer = "0xD83720C12B7AFe4Cb8328a88F1FFC1Ebac90424a";
-
   // Rewarder
-  const erc20 = m.contract("ERC20Mock", []);
-  const swapRouter = m.contract("SwapRouterMock", [erc20]);
+  const erc20 = m.getParameter<string>("erc20");
+  const swapRouter = m.getParameter<string>("swapRouter");
+  const weth = m.getParameter<string>("weth");
+  const aggregator = m.getParameter<string>("aggregator");
+  const signer = m.getParameter<string>("signer");
+
   const rewarder = m.contract("NNSRewarder", [
     swapRouter,
     erc20,
-    erc20,
-    deployer,
+    weth,
+    deployer, // TODO: change me.
   ]);
   // Rewarder: Ecosystem
   const ecosystemToken = m.contract("NNSResolverToken", []);
@@ -97,7 +98,6 @@ const NNSModule = buildModule("NNSModule", (m) => {
   m.call(rewarder, "setHolderRewarder", [holdersRewarder]);
 
   return {
-    erc20,
     rewarder,
     resolver,
     controller,

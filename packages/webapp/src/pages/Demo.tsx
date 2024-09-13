@@ -261,7 +261,7 @@ function Profile() {
       <label>
         in{"  "}
         <select onChange={(e) => onSelectChange(e.target.value)}>
-          <option value="default">Default</option>
+          <option value="default">Everywhere</option>
           {registries.data?.map((registry) => (
             <option key={registry.id} value={registry.id}>
               {registry.name}

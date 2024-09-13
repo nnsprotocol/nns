@@ -13,6 +13,7 @@ export type CollectionData = {
   discordUrl?: string;
   farcasterUrl?: string;
   benefits: {
+    header: string;
     imageSrc: string;
     title: string;
     description: string;
@@ -30,7 +31,7 @@ const COLLECTIONS: Record<string, CollectionData> = {
     cldId: namehash("nouns"),
     name: "Nouns",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "The .nouns is a special domain reserved to members of NounsDAO and $nouns holders. 0-9999 numbers are claimable only by the owner of the correspondent Noun.",
     themeColor: "#E9C80B",
     textColor: "#000000",
     nameImgSrc: "/logo-nouns.svg",
@@ -39,8 +40,9 @@ const COLLECTIONS: Record<string, CollectionData> = {
     twitterUrl: undefined,
     farcasterUrl: undefined,
     benefits: {
+      header: "Learn more about .nouns names",
       imageSrc: "/brand/nouns-benefits.png",
-      title: "Lorem Ipsum",
+      title: "Exclusive and nounish",
       description:
         ".nouns names are reserved to Nouns NFTs and $nouns token holders.",
       revenues: [
@@ -78,6 +80,7 @@ const COLLECTIONS: Record<string, CollectionData> = {
     twitterUrl: undefined,
     farcasterUrl: undefined,
     benefits: {
+      header: "Learn more about .⌐◨-◨ names",
       imageSrc: "/brand/nouns-benefits.png",
       title: "Lorem Ipsum",
       description: ".⌐◨-◨ hello",

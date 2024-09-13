@@ -1,23 +1,22 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+import { parseEther } from "ethers";
 import NNSModule from "./NNS";
-import { namehash, parseEther } from "ethers";
 
-const NounsModule = buildModule("NounsModule", (m) => {
+const TestModule = buildModule("TestModule", (m) => {
   const deployer = m.getAccount(0);
   const { controller } = m.useModule(NNSModule);
 
-  const aggregator = m.getParameter<string>("aggregator");
-
   // USD Pricing Oracle
-  const prices = [parseEther("100"), parseEther("40"), parseEther("20")];
+  const prices = [parseEther("10"), parseEther("5"), parseEther("2")];
+  const aggregator = m.getParameter("aggregator");
   const pricer = m.contract("USDPricingOracle", [prices, aggregator], {
-    id: "NounsUSDPricingOracle",
+    id: "LizardUSDPricingOracle",
   });
 
   // Deploy CLD
-  const register = m.call(controller, "registerCld", [
-    "nouns", // string memory name
-    80, // uint8 communityReward
+  m.call(controller, "registerCld", [
+    "lizard", // string memory name
+    90, // uint8 communityReward
     5, // uint8 referralReward
     pricer, // IPricingOracle pricingOracle
     deployer, // address communityPayable
@@ -25,14 +24,10 @@ const NounsModule = buildModule("NounsModule", (m) => {
     true, // bool hasExpiringNames
     false, // bool isDefaultCldResolver
   ]);
-  const cldId = namehash("nouns");
-  m.call(controller, "setCldSignatureRequired", [cldId, true], {
-    after: [register],
-  });
 
   return {
     pricer,
   };
 });
 
-export default NounsModule;
+export default TestModule;
