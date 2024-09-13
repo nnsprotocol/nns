@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
+import REWARDER_ABI from "../abi/IRewarder";
 import IconArrowRight from "../components/icons/IconArrowRight";
 import IconCopy from "../components/icons/IconCopy";
 import IconInfo from "../components/icons/IconInfo";
@@ -9,7 +10,9 @@ import LayoutDefault from "../components/layouts/LayoutDefault";
 import DomainCollectionsCards from "../components/my-domains/DomainCollectionsCards";
 import { useRegistries } from "../services/graph";
 import { useResolvedName } from "../services/resolver";
-import { formatAddress } from "../utils/formatter";
+import { REWARDER_ADDRESS, useRewardBalance } from "../services/rewarder";
+import { useWriteContractWaitingForTx } from "../services/shared";
+import { formatAddress, formatNOGS } from "../utils/formatter";
 
 function MyDomainsPage() {
   const account = useAccount();
@@ -20,6 +23,20 @@ function MyDomainsPage() {
     cldId: resolverCld || undefined,
   });
   const navigate = useNavigate();
+  const rewardBalance = useRewardBalance(account);
+  const claimReward = useWriteContractWaitingForTx();
+  const handleOnClaim = useCallback(() => {
+    if (!account.address || claimReward.isLoading) {
+      return;
+    }
+
+    claimReward.writeContract({
+      abi: REWARDER_ABI,
+      address: REWARDER_ADDRESS!,
+      functionName: "withdraw",
+      args: [account.address, [], []],
+    });
+  }, []);
 
   useEffect(() => {
     if (!account.isConnected) {
@@ -92,28 +109,24 @@ function MyDomainsPage() {
             </div>
             <div className="border border-borderPrimary rounded-3xl py-md sm:px-md bg-surfacePrimary grid grid-cols-1 gap-md min-w-[332px]">
               <div>
-                <div className="border-b border-borderPrimary mb-xs pb-xs">
-                  <div className="flex items-center justify-between mb-xs w-full text-sm font-medium">
-                    <span className="text-textSecondary">Referral Rewards</span>
-                    <span className="text-textInverse">105.23 NOGS</span>
-                  </div>
-                  <div className="flex items-center justify-end gap-xxs text-xs text-textSecondary font-medium">
-                    <IconCopy />
-                    <span>Share Referral</span>
-                  </div>
-                </div>
                 <div>
                   <div className="flex items-center justify-between mb-xs w-full text-sm font-medium">
-                    <span className="text-textSecondary">Total Rewards</span>
+                    <span className="text-textSecondary">Referral Rewards</span>
                     <span className="total-rewards-text-gradient">
-                      535.43 NOGS
+                      {typeof rewardBalance.data !== "undefined"
+                        ? formatNOGS(rewardBalance.data)
+                        : "..."}
                     </span>
                   </div>
-                  <div className="flex items-center justify-end gap-xxs">
+                  <div className="flex items-center justify-between mb-xs mt-xs w-full text-sm font-medium">
                     <a href="#" className="link-default text-xs">
                       <span>Learn More</span>
                       <IconArrowRight size={12} />
                     </a>
+                    <div className="flex items-center justify-end gap-xxs text-xs text-textSecondary font-medium">
+                      <IconCopy />
+                      <span>Share Referral</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -121,6 +134,12 @@ function MyDomainsPage() {
                 <button
                   type="button"
                   className="button-md button-secondary justify-center"
+                  onClick={handleOnClaim}
+                  disabled={Boolean(
+                    !rewardBalance.data ||
+                      rewardBalance.data === 0n ||
+                      claimReward.isLoading
+                  )}
                 >
                   Claim All
                 </button>
