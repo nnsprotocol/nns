@@ -22,7 +22,7 @@ class Domain {
 
   private getImageURL(): string {
     if (this.cld === "nouns") {
-      return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1726423660/nns/nouns_jiavmh.png";
+      return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1726602781/nns/nouns_dmksx2.png";
     }
 
     const length = Array.from(this.name).length;
@@ -30,13 +30,13 @@ class Domain {
       case 1:
       case 2:
         // Gold
-        return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1726423663/nns/nns_gold_rmyrwn.png";
+        return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1726602782/nns/nns_gold_uy3pz1.png";
       // Silver
       case 3:
-        return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1726423664/nns/nns_silver_a2ux6p.png";
+        return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1726602781/nns/nouns_dmksx2.png";
       default:
         // Red
-        return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1726423661/nns/nns_red_k41htu.png";
+        return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1726602781/nns/nns_red_whxvdq.png";
     }
   }
 

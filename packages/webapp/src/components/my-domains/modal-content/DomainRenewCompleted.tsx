@@ -3,6 +3,7 @@ import { Domain } from "../../../services/graph";
 import { covertDateToHumanReadable } from "../../../utils/date";
 import IconArrowRight from "../../icons/IconArrowRight";
 import { useAccount } from "wagmi";
+import { getDomainImageURL } from "../../../utils/metadata";
 
 type Props = {
   txHash?: Hash;
@@ -46,7 +47,7 @@ const DomainRenewCompleted: React.FC<Props> = (props) => {
         <div className="pt-md border-t border-borderPrimary">
           <div className="flex items-start gap-md">
             <img
-              src={`https://picsum.photos/200?random=${props.domain.id}`}
+              src={getDomainImageURL(props.domain)}
               width={116}
               height={116}
               className="rounded-lg border border-borderPrimary"

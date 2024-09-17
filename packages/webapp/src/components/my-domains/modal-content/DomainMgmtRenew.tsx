@@ -16,6 +16,7 @@ import { useWriteContractWaitingForTx } from "../../../services/shared";
 import CONTROLLER_ABI from "../../../abi/IController";
 import DomainRenewSubmitted from "./DomainRenewSubmitted";
 import DomainRenewCompleted from "./DomainRenewCompleted";
+import { getDomainImageURL } from "../../../utils/metadata";
 
 type Props = {
   registry: Registry;
@@ -158,7 +159,7 @@ function DomainRow(props: DomainRowProps) {
       <td className="py-md pe-xs">
         <div className="flex items-center gap-xs">
           <img
-            src={"https://picsum.photos/200?random=" + props.domain.id}
+            src={getDomainImageURL(props.domain)}
             width={72}
             height={72}
             className="rounded-lg border border-borderPrimary"

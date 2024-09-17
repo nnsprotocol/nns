@@ -28,6 +28,7 @@ export type Subdomain = {
 export type Domain = {
   id: Hash;
   name: string;
+  tokenId: string;
   resolvedAddress: Address | null;
   registry: Registry;
   expiry?: string;
@@ -65,6 +66,7 @@ parent {
 
 const DOMAIN_SELECT = `
 id
+tokenId
 name
 expiry
 resolvedAddress

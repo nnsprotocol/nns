@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { CollectionPreview } from "../../services/graph";
+import { getDomainImageURL } from "../../utils/metadata";
 import IconStar from "../icons/IconStar";
 
 type Props = {
@@ -50,11 +51,11 @@ const CollectionCard: React.FC<Props> = (props) => {
           {props.collection.registry.previewDomains?.map((domain) => (
             <img
               key={domain.id}
-              src={"https://picsum.photos/200?random=" + domain.id}
+              src={getDomainImageURL(domain)}
               width={100}
               height={100}
               alt=""
-              className="border-2 border-borderPrimary rounded-2xl"
+              className="border-2 border-borderPrimary"
             />
           ))}
         </div>

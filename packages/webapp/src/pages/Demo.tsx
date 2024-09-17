@@ -21,6 +21,7 @@ import {
   useResolvedName,
 } from "../services/resolver";
 import { useWriteContractWaitingForTx } from "../services/shared";
+import { getDomainImageURL } from "../utils/metadata";
 
 const NOGGLES_REGISTRY_ID =
   "0x739305fdceb24221237c3dea9f36a6fcc8dc81b45730358192886e1510532739";
@@ -216,7 +217,7 @@ function Collections() {
                 <td className="border border-gray-300 p-2">
                   <img
                     className="w-[50px] h-[50px] object-cover"
-                    src={`https://picsum.photos/200?random=${domain.id}`}
+                    src={getDomainImageURL(domain)}
                   />
                 </td>
                 <td colSpan={3} className="border border-gray-300 p-2">
@@ -330,7 +331,7 @@ function CollectionMgmt(props: { registry: Registry }) {
               <td className="border border-gray-300 p-2">
                 <img
                   className="w-[50px] h-[50px] object-cover"
-                  src={`https://picsum.photos/200?random=${domain.id}`}
+                  src={getDomainImageURL(domain)}
                 />
               </td>
               <td className="border border-gray-300 p-2">{domain.name}</td>

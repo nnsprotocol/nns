@@ -7,6 +7,7 @@ import { covertDateToHumanReadable } from "../../../utils/date";
 import IconChevronUp from "../../icons/IconChevronUp";
 import IconPersonCard from "../../icons/IconPersonCard";
 import BadgePrimaryName from "../../ui/badges/BadgePrimaryName";
+import { getDomainImageURL } from "../../../utils/metadata";
 
 type Props = {
   registry: Registry;
@@ -54,38 +55,38 @@ export default function DomainMgmtSetPrimary(props: Props) {
           </tr>
         </thead>
         <tbody>
-          {domains.data?.map((item) => (
-            <tr key={item.id} className="border-b border-borderPrimary">
+          {domains.data?.map((domain) => (
+            <tr key={domain.id} className="border-b border-borderPrimary">
               <td className="py-md pe-md">
                 <div className="flex items-center gap-xs">
                   <img
-                    src={`https://picsum.photos/200?random=${item.id}`}
+                    src={getDomainImageURL(domain)}
                     width={72}
                     height={72}
                     className="rounded-lg border border-borderPrimary"
                     alt=""
                   />
                   <span className="text-textInverse text-sm font-medium">
-                    {item.name}
+                    {domain.name}
                   </span>
                 </div>
               </td>
               {props.registry.hasExpiringNames && (
                 <td className="py-md pe-md">
                   <span className="text-sm text-textInverse font-medium">
-                    {covertDateToHumanReadable(item.expiry || "0")}
+                    {covertDateToHumanReadable(domain.expiry || "0")}
                   </span>
                 </td>
               )}
               <td className="py-md">
-                {isPrimaryName(item, account.address) ? (
+                {isPrimaryName(domain, account.address) ? (
                   <BadgePrimaryName />
                 ) : (
                   <button
                     type="button"
                     className="button-md button-secondary w-full justify-center"
                     disabled={setPrimary.isLoading}
-                    onClick={() => handleSetPrimary(item.id)}
+                    onClick={() => handleSetPrimary(domain.id)}
                   >
                     {setPrimary.isLoading ? "Loading..." : "Set as Primary"}
                   </button>

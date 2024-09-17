@@ -58,7 +58,7 @@ type ImageRequest = {
 
 function validateRequest(req: Pick<CloudFrontRequest, "uri">): ImageRequest {
   const parts = req.uri.split("/");
-  if (parts.length !== 4) {
+  if (parts.length !== 5) {
     throw new Error("invalid url");
   }
 
