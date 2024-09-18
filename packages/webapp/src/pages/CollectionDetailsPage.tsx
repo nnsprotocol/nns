@@ -4,7 +4,7 @@ import SectionAbout from "../components/collection-details/SectionAbout";
 import SectionBenefits from "../components/collection-details/SectionBenefits";
 import SectionSearch from "../components/collection-details/SectionSearch";
 import SectionSearchBackgroundPattern from "../components/collection-details/SectionSearchBackgroundPattern";
-import { useCollectionData } from "../components/collection-details/types";
+import { useCollectionData } from "../services/collections";
 import WalletButtonSection from "../components/wallet/WalletButtonSection";
 
 function CollectionDetailsPage() {
@@ -30,7 +30,7 @@ function CollectionDetailsPage() {
           <div className="relative z-10 flex justify-between items-center">
             <Link className="block" to="/">
               <img
-                src="/logo-nouns.svg"
+                src={collection.nnsFontLogoUrl}
                 alt="Logo nouns"
                 className="h-10 w-auto"
               />

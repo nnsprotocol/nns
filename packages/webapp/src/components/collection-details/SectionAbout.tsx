@@ -1,6 +1,6 @@
 import { useRegistry } from "../../services/graph";
 import GroupSocialLinks from "../ui/groups/GroupSocialLinks";
-import { CollectionData } from "./types";
+import { CollectionData } from "../../services/collections";
 
 interface SectionAboutProps {
   collection: CollectionData;

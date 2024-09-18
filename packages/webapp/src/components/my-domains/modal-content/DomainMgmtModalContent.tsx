@@ -12,6 +12,7 @@ import { useWriteContractWaitingForTx } from "../../../services/shared";
 import IconInfo from "../../icons/IconInfo";
 import DomainMgmtSetPrimary from "./DomainMgmtSetPrimary";
 import DomainMgmtRenew from "./DomainMgmtRenew";
+import { getCollectionLogoURL } from "../../../services/collections";
 
 type Tab = "domains" | "renew";
 
@@ -60,7 +61,9 @@ export default function DomainMgmtModalContent(props: Props) {
             className="h-[50px] w-[50px] rounded-full bg-cover bg-no-repeat"
             style={{
               boxShadow: "-7px -7px 8px 0px rgba(0, 0, 0, 0.40) inset",
-              backgroundImage: `url('https://picsum.photos/200?random=${registry.data.id}')`,
+              backgroundImage: `url('${getCollectionLogoURL(
+                registry.data.id
+              )}')`,
             }}
           ></div>
         </div>

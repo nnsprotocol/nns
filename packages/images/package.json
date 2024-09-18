@@ -1,5 +1,5 @@
 {
-  "name": "metadata",
+  "name": "@nns/images",
   "packageManager": "yarn@4.2.2",
   "scripts": {
     "build": "rm -rf dist && rollup -c"

@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Registry } from "../../services/graph";
 import IconCheck from "../icons/IconCheck";
 import IconChevronUp from "../icons/IconChevronUp";
+import { getCollectionLogoURL } from "../../services/collections";
 
 type Props = {
   registries: Registry[];
@@ -59,7 +60,7 @@ const DropdownSearch: React.FC<Props> = (props) => {
           className="h-[24px] w-[24px] rounded-full bg-cover bg-no-repeat"
           style={{
             boxShadow: "-7px -7px 8px 0px rgba(0, 0, 0, 0.40) inset",
-            backgroundImage: `url('https://picsum.photos/200?random=${selectedItem.id}')`,
+            backgroundImage: `url('${getCollectionLogoURL(selectedItem.id)}')`,
           }}
         ></div>
         <span className="text-sm font-medium text-textInverse text-nowrap">
@@ -86,7 +87,7 @@ const DropdownSearch: React.FC<Props> = (props) => {
                 }}
               >
                 <img
-                  src={"https://picsum.photos/200?random=" + reg.id}
+                  src={getCollectionLogoURL(reg.id)}
                   alt=""
                   width={32}
                   height={32}

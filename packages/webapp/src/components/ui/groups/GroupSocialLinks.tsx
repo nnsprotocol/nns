@@ -1,4 +1,4 @@
-import { CollectionData } from "../../collection-details/types";
+import { CollectionData } from "../../../services/collections";
 
 interface Props {
   collection: CollectionData;

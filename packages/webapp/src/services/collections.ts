@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Hex, namehash } from "viem";
+import { Hex, isHex, namehash } from "viem";
 
 export type CollectionData = {
   cldId: Hex;
@@ -9,6 +9,7 @@ export type CollectionData = {
   textColor: string;
   nameImgSrc: string;
   logoSrc: string;
+  nnsFontLogoUrl: string;
   twitterUrl?: string;
   discordUrl?: string;
   farcasterUrl?: string;
@@ -36,6 +37,7 @@ const COLLECTIONS: Record<string, CollectionData> = {
     textColor: "#000000",
     nameImgSrc: "/logo-nouns.svg",
     logoSrc: "/temp/noun-1.svg",
+    nnsFontLogoUrl: "/logo-nouns.svg",
     discordUrl: undefined,
     twitterUrl: undefined,
     farcasterUrl: undefined,
@@ -79,9 +81,10 @@ const COLLECTIONS: Record<string, CollectionData> = {
     discordUrl: undefined,
     twitterUrl: undefined,
     farcasterUrl: undefined,
+    nnsFontLogoUrl: "/logo.svg",
     benefits: {
       header: "Learn more about .⌐◨-◨ names",
-      imageSrc: "/brand/nouns-benefits.png",
+      imageSrc: "/brand/nns-benefits.png",
       title: "Lorem Ipsum",
       description: ".⌐◨-◨ hello",
       revenues: [
@@ -102,16 +105,24 @@ const COLLECTIONS: Record<string, CollectionData> = {
   },
 };
 
-export function useCollectionData(id?: string) {
+export function useCollectionData(nameOrCldId?: string) {
   return useMemo(() => {
-    if (!id) {
+    if (!nameOrCldId) {
       return undefined;
     }
-    if (id.startsWith("0x")) {
-      return Object.values(COLLECTIONS).find(
-        (collection) => collection.cldId.toLowerCase() === id.toLowerCase()
-      );
+    if (isHex(nameOrCldId)) {
+      return findCollectionByCldId(nameOrCldId as Hex);
     }
-    return COLLECTIONS[id];
-  }, [id]);
+    return COLLECTIONS[nameOrCldId];
+  }, [nameOrCldId]);
+}
+
+function findCollectionByCldId(id: Hex) {
+  return Object.values(COLLECTIONS).find(
+    (collection) => collection.cldId.toLowerCase() === id.toLowerCase()
+  );
+}
+
+export function getCollectionLogoURL(cldId: Hex) {
+  return findCollectionByCldId(cldId)?.logoSrc;
 }

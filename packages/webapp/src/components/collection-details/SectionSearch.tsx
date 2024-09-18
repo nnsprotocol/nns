@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CollectionData } from "./types";
+import { CollectionData } from "../../services/collections";
 import { useRegistry, useSearchDomain } from "../../services/graph";
 import SearchResultsList from "../search/SearchResultsList";
 

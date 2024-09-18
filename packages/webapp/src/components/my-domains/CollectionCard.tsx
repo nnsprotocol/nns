@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { CollectionPreview } from "../../services/graph";
 import { getDomainImageURL } from "../../utils/metadata";
 import IconStar from "../icons/IconStar";
+import { getCollectionLogoURL } from "../../services/collections";
 
 type Props = {
   collection: CollectionPreview;
@@ -22,7 +23,9 @@ const CollectionCard: React.FC<Props> = (props) => {
             className="h-[22px] w-[22px] rounded-full bg-cover bg-no-repeat"
             style={{
               boxShadow: "-7px -7px 8px 0px rgba(0, 0, 0, 0.40) inset",
-              backgroundImage: `url('https://picsum.photos/200?random=${props.collection.registry.id}')`,
+              backgroundImage: `url('${getCollectionLogoURL(
+                props.collection.registry.id
+              )}')`,
             }}
           ></div>
           <span className="text-sm font-medium text-textInverse">

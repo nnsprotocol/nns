@@ -4,7 +4,7 @@ import { Address, namehash, zeroAddress } from "viem";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
 import CONTROLLER_ABI from "../abi/IController";
-import { useCollectionData } from "../components/collection-details/types";
+import { useCollectionData } from "../services/collections";
 import DomainCheckoutBuy from "../components/domain-overview/DomainCheckoutBuy";
 import DomainCheckoutOverview from "../components/domain-overview/DomainCheckoutOverview";
 import DomainCheckoutTransactionComplete from "../components/domain-overview/DomainCheckoutTransactionComplete";

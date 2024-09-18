@@ -1,4 +1,4 @@
-import { CollectionData } from "./types";
+import { CollectionData } from "../../services/collections";
 
 interface SectionBenefitsProps {
   collection: CollectionData;

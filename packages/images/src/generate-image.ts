@@ -114,6 +114,7 @@ async function renderImage(d: Domain, creds: HTMLCSS2IImageKeys) {
     body: JSON.stringify({
       html: d.getHTML(),
       css: d.getCSS(),
+      device_scale: 1,
     }),
     headers: {
       "Content-Type": "application/json",

@@ -2,6 +2,7 @@ import { AutoRouter, json, error, cors, StatusError } from "itty-router";
 import registerHandler from "../register/sign";
 import availabilityHandler from "../register/availability";
 import { ZodError } from "zod";
+import domainMetadataHandler from "../metadata/domain";
 
 const { preflight, corsify } = cors();
 
@@ -26,5 +27,6 @@ const router = AutoRouter({
 
 router.post("/register", registerHandler);
 router.get("/availability", availabilityHandler);
+router.get("/:chainId/:contract/:tokenId", domainMetadataHandler);
 
 export default { ...router };
