@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Registry, useRegistries, useSearchDomain } from "../../services/graph";
 import SearchResultsList from "../search/SearchResultsList";
@@ -16,6 +16,11 @@ const LayoutDefault: React.FC<Props> = ({ children, defaultRegistry }) => {
   const [searchCld, setSearchCld] = useState<Registry | undefined>(
     defaultRegistry
   );
+  useEffect(() => {
+    console.log("setting default registry", defaultRegistry?.name);
+    setSearchCld(defaultRegistry);
+  }, [defaultRegistry]);
+
   const search = useSearchDomain({
     name: searchText,
     cldId: searchCld?.id,
@@ -39,13 +44,13 @@ const LayoutDefault: React.FC<Props> = ({ children, defaultRegistry }) => {
                   type="text"
                   onChange={(e) => setSearchText(e.target.value)}
                   value={searchText}
-                  placeholder="Search domain"
+                  placeholder="Search name"
                   className="p-xs h-12 w-full outline-none text-base bg-transparent"
                 />
                 {registries.data && (
                   <DropdownSearch
                     registries={registries.data}
-                    defaultSelection={registries.data[0]}
+                    defaultSelection={searchCld}
                     onRegistryChange={(registry) => {
                       setSearchCld(registry);
                     }}

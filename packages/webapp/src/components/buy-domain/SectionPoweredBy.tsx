@@ -28,7 +28,7 @@ function SectionPoweredBy() {
         id: "list-item-3",
         type: "mint",
         coin: "NNS Identity",
-        valueFormatted: "bob.⌐◨-◨",
+        valueFormatted: "jp.⌐◨-◨",
       },
     ],
     []
@@ -44,12 +44,12 @@ function SectionPoweredBy() {
                 Powered by $NOGS
               </p>
               <p className="text-textSecondary text-lg font-medium leading-6 max-w-[587px]">
-                NNS is fully integrated with $NOGS, a nounish currency. Get NOGS
-                by joining NNS and use it to get the best of the nouniverse.
+                Fully integrated with $NOGS, NNS allows you to earn and spend
+                this nounish currency to get the most out of the Nouniverse.
               </p>
               <div>
                 <button type="button" className="button-secondary button-md">
-                  <span className="w-full text-center">Discover NOGS</span>
+                  <span className="w-full text-center">What is $NOGS</span>
                 </button>
               </div>
             </div>
@@ -101,9 +101,15 @@ function SectionPoweredBy() {
                   <div className="flex gap-xxs text-base font-medium">
                     <div className="overflow-hidden h-[20px]">
                       <div className="animate-earnWithNNSBalanceTranslate flex flex-col text-end">
-                        <span className="balance-text-gradient leading-5">2,000.00</span>
-                        <span className="balance-text-gradient leading-5">1,000.00</span>
-                        <span className="balance-text-gradient leading-5">0.00</span>
+                        <span className="balance-text-gradient leading-5">
+                          2,000.00
+                        </span>
+                        <span className="balance-text-gradient leading-5">
+                          1,000.00
+                        </span>
+                        <span className="balance-text-gradient leading-5">
+                          0.00
+                        </span>
                       </div>
                     </div>
                     <span className="text-textSecondary leading-5">NOGS</span>

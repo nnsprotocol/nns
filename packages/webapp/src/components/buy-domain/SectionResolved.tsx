@@ -42,9 +42,8 @@ function SectionResolved() {
             Resolved in the Nouniverse and beyond
           </p>
           <p className="text-textSecondary text-lg font-medium leading-6 max-w-[550px]">
-            NNS names are natively resolved in the Nouns ecosystem and much
-            more. Every resolver becomes part of the protocol getting benefits
-            and rewards.
+            NNS names are natively resolved in the Nouns ecosystem. Every
+            resolver is part of the system and gains benefits and rewards.
           </p>
           <div className="mt-2xl grid grid-cols-1 md:grid-cols-2 gap-lg">
             {cardsList.map((item) => (
@@ -79,7 +78,7 @@ function SectionResolved() {
         </div>
         <div className="hidden lg:flex justify-center items-center">
           <div className="h-96 w-96 bg-[url('/brand/decor-resolved-outer.svg')] bg-no-repeat bg-contain bg-center flex justify-center items-center relative">
-          <div className="absolute inset-0 z-10 bg-surfacePrimary/50"></div>
+            <div className="absolute inset-0 z-10 bg-surfacePrimary/50"></div>
             <img
               src="/brand/decor-resolved-inner.png"
               alt="Decor"

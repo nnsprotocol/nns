@@ -15,10 +15,10 @@ const headerNavLinks = [
 ];
 
 const footerSocialItems = [
-  { id: "footer-social-1", src: "/social/social-1.svg" },
-  { id: "footer-social-2", src: "/social/social-2.svg" },
-  { id: "footer-social-3", src: "/social/social-3.svg" },
-  { id: "footer-social-4", src: "/social/social-4.svg" },
+  { id: "footer-x", src: "/social/x.svg" },
+  { id: "footer-farcaster", src: "/social/farcaster.svg" },
+  { id: "footer-github", src: "/social/github.svg" },
+  { id: "footer-discord", src: "/social/discord.svg" },
 ];
 
 function BuyDomainPage() {
@@ -44,10 +44,10 @@ function BuyDomainPage() {
               </ul>
             </nav>
             <div>
-              <WalletButtonSection 
+              <WalletButtonSection
                 customConnectWalletButtonColors={{
-                  hoverThemedBackgroundColor: "#C496FF"
-                }} 
+                  hoverThemedBackgroundColor: "#C496FF",
+                }}
               />
             </div>
           </div>
@@ -77,13 +77,13 @@ function BuyDomainPage() {
             </div>
             <div className="grid grid-cols-1 gap-md  max-w-3xl">
               <p className="text-6.5xl text-textInverse font-semibold text-center">
-                Let’s Start
+                Find us here
               </p>
-              <p className="text-lg text-surfacePrimary font-light text-center">
+              {/* <p className="text-lg text-surfacePrimary font-light text-center">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
                 eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
                 enim ad minim veniam, quis nostrud exercitation ullamco.
-              </p>
+              </p> */}
             </div>
             <div>
               <ul className="flex space-x-md">

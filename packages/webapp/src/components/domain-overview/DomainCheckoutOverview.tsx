@@ -56,7 +56,7 @@ const DomainCheckoutOverview: React.FC<Props> = (props) => {
         </div>
         <div className="mb-md text-textSecondary grid grid-cols-1 gap-md">
           <div className="flex gap-xs justify-between text-sm">
-            <p className="font-medium">Own for</p>
+            <p className="font-medium">Yours for</p>
             <div>
               <p className="font-medium text-textPrimary text-end mb-xs">
                 {price?.usd ? formatUSD(price?.usd) : "Loading..."}
@@ -71,7 +71,9 @@ const DomainCheckoutOverview: React.FC<Props> = (props) => {
               <p className="font-medium">Expiration Date</p>
               <div>
                 <p className="font-medium text-textPrimary text-end mb-xs">
-                  18 Jun, 2025
+                  {new Date(
+                    Date.now() + 365 * 3600 * 24 * 1000
+                  ).toLocaleDateString()}
                 </p>
                 <p className="font-normal text-end">1 Year</p>
               </div>
@@ -110,7 +112,7 @@ const DomainCheckoutOverview: React.FC<Props> = (props) => {
           </button>
           {props.registry.hasExpiringNames ? null : (
             <p className="text-textSecondary text-sm text-center">
-              This name is forever. No renewal fees!
+              This name is yours forever. No renewal fees!
             </p>
           )}
         </div>

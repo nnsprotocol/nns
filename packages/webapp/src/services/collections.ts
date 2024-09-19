@@ -3,6 +3,7 @@ import { Hex, isHex, namehash } from "viem";
 
 export type CollectionData = {
   cldId: Hex;
+  cld: string;
   name: string;
   description: string;
   themeColor: string;
@@ -15,9 +16,6 @@ export type CollectionData = {
   farcasterUrl?: string;
   benefits: {
     header: string;
-    imageSrc: string;
-    title: string;
-    description: string;
     revenues: {
       iconSrc: string;
       name: string;
@@ -25,14 +23,16 @@ export type CollectionData = {
       themeColor: string;
     }[];
   };
+  nameDescription: (name: string) => string;
 };
 
 const COLLECTIONS: Record<string, CollectionData> = {
   nouns: {
     cldId: namehash("nouns"),
+    cld: "nouns",
     name: "Nouns",
     description:
-      "The .nouns is a special domain reserved to members of NounsDAO and $nouns holders. 0-9999 numbers are claimable only by the owner of the correspondent Noun.",
+      "Exclusive and nounish, .nouns names can only be claimed by holders of Nouns NFTs or $NOUNS tokens. Numbers 0-9999 are reserved for the holders of the corresponding Noun and can only be claimed by them.",
     themeColor: "#E9C80B",
     textColor: "#000000",
     nameImgSrc: "/logo-nouns.svg",
@@ -43,10 +43,6 @@ const COLLECTIONS: Record<string, CollectionData> = {
     farcasterUrl: undefined,
     benefits: {
       header: "Learn more about .nouns names",
-      imageSrc: "/brand/nouns-benefits.png",
-      title: "Exclusive and nounish",
-      description:
-        ".nouns names are reserved to Nouns NFTs and $nouns token holders.",
       revenues: [
         {
           iconSrc: "/temp/noun-1.svg",
@@ -68,9 +64,25 @@ const COLLECTIONS: Record<string, CollectionData> = {
         },
       ],
     },
+    nameDescription: (name: string) => {
+      if (parseInt(name) >= 0 && parseInt(name) < 9999) {
+        return "This name can only be claimed by the owner of the corresponding Noun";
+      }
+      switch (Array.from(name).length) {
+        case 1:
+          return "This is one of the rarest (and most expensive) names!";
+        case 2:
+          return "The rarer the name, the higher the price";
+        case 3:
+          return "A perfect mix of rarity and affordability";
+        default:
+          return "Great name! Claim it before someone else does!";
+      }
+    },
   },
   nns: {
     cldId: namehash("⌐◨-◨"),
+    cld: "⌐◨-◨",
     name: "NNS",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
@@ -84,9 +96,6 @@ const COLLECTIONS: Record<string, CollectionData> = {
     nnsFontLogoUrl: "/logo.svg",
     benefits: {
       header: "Learn more about .⌐◨-◨ names",
-      imageSrc: "/brand/nns-benefits.png",
-      title: "Lorem Ipsum",
-      description: ".⌐◨-◨ hello",
       revenues: [
         {
           iconSrc: "/temp/noun-1.svg",
@@ -101,6 +110,16 @@ const COLLECTIONS: Record<string, CollectionData> = {
           themeColor: "#828187",
         },
       ],
+    },
+    nameDescription: (name: string) => {
+      switch (Array.from(name).length) {
+        case 2:
+          return "The rarer the name, the higher the price!";
+        case 3:
+          return "A perfect mix of rarity and affordability";
+        default:
+          return "Great name! Claim it before someone else does!";
+      }
     },
   },
 };

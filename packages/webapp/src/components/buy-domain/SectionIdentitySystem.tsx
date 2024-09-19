@@ -15,8 +15,9 @@ function SectionIdentitySystem() {
   return (
     <section className="lg:flex lg:justify-center lg:items-center gap-12 lg:min-h-[560px]">
       <div className="lg:max-w-2xl">
-        <div className="text-6.5xl font-semibold">
-          <span>
+        <div className="text-5xl text-center lg:text-left lg:text-6.5xl font-semibold">
+          Secure Your Unique Name in the Nouniverse
+          {/* <span>
             <span>A shared identity system for everyone </span>
             <br className="hidden lg:inline" /> for
           </span>
@@ -29,7 +30,7 @@ function SectionIdentitySystem() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="pt-10">
@@ -53,7 +54,7 @@ function SectionIdentitySystem() {
                   onChange={(e) => setSearchText(e.currentTarget.value)}
                   value={searchText}
                   className="p-6 rounded-2xl border border-borderSecondary bg-transparent outline-none w-full text-lg font-light focus:border-textBrandLavender"
-                  placeholder="yourdomain (eg. bob.⌐◨-◨)"
+                  placeholder="Find your identity (eg. toady.⌐◨-◨)"
                 />
                 <SearchResultsList
                   searchText={searchText}
@@ -66,7 +67,7 @@ function SectionIdentitySystem() {
                   type="button"
                   className="bg-surfaceBrandLavender text-textInverse text-base font-medium text-center p-md rounded-2xl w-full border border-surfaceBrandLavender hover:bg-surfacePrimary hover:text-surfaceBrandLavender"
                 >
-                  Search
+                  Claim
                 </button>
               </div>
             </div>

@@ -9,7 +9,7 @@ function SectionCards() {
   return (
     <section className="flex flex-col items-center gap-lg">
       <p className="text-lg text-textSecondary font-semibold">
-        Explore communities
+        Find your community
       </p>
       <div className="w-full max-w-6xl">
         <ul className="grid grid-cols-1 lg:grid-cols-2 gap-lg">

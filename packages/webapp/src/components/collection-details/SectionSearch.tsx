@@ -59,7 +59,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ collection }) => {
             <input
               id="collection-details-search-input"
               className="p-6 rounded-2xl border bg-transparent outline-none w-full text-lg font-light"
-              placeholder="yourdomain (eg. bob.nouns)"
+              placeholder="Find your identity (eg. toady.nouns)"
               style={{
                 borderColor: isInputSearchFocused
                   ? collection.themeColor
@@ -94,7 +94,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ collection }) => {
               onMouseEnter={() => setIsButtonSearchHovered(true)}
               onMouseLeave={() => setIsButtonSearchHovered(false)}
             >
-              Search
+              Claim
             </button>
           </div>
         </div>

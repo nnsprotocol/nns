@@ -222,28 +222,28 @@ function DomainOverviewPage() {
   }, [domainCheckoutType, txStatus.value]);
 
   return (
-    <LayoutDefault>
+    <LayoutDefault defaultRegistry={registry.data || undefined}>
       <div className="flex flex-col justify-center items-center lg:items-start gap-lg lg:flex-row lg:gap-3.5xl mt-7 md:mt-14">
         <div className="w-full lg:max-w-[692px] grid grid-cols-1 gap-2xl">
           <div>
             <p className="text-base font-medium text-textBrandAquamarine mb-xs">
-              Now Registering
+              Claiming
             </p>
-            <h1 className="text-6.5xl font-semibold text-textInverse mb-sm">
+            <h1 className="text-6.5xl font-semibold text-textInverse mb-sm text-nowrap">
               {normalize(domainFullName || "")}
             </h1>
-            <div className="flex items-center gap-xxs">
-              {availabilityImgSrc && (
+            {availabilityImgSrc && (
+              <div className="flex items-center gap-xxs">
                 <img
                   src={availabilityImgSrc}
                   className="h-[30px] w-auto"
                   alt=""
                 />
-              )}
-              <p className="text-base text-textSecondary font-medium">
-                • Popular names are more expensive
-              </p>
-            </div>
+                <p className="text-base text-textSecondary font-medium">
+                  • {collectionData?.nameDescription(domainName) || ""}
+                </p>
+              </div>
+            )}
           </div>
           <div className="p-lg border border-borderPrimary rounded-32 relative bg-cardPrimaryGradient">
             <div className="absolute inset-0 backdrop-blur-[8px] rounded-32 z-0"></div>
@@ -277,7 +277,7 @@ function DomainOverviewPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-md bg-surfaceSecondary rounded-2xl p-md mt-xs">
                   <div className="flex flex-col items-start justify-center gap-sm">
                     <p className="text-sm text-textSecondary font-medium">
-                      Registered Domains
+                      Registered Names
                     </p>
                     <p className="text-2xl text-textInverse font-medium">
                       {registry.data?.totalSupply}

@@ -14,7 +14,9 @@ const SectionAbout: React.FC<SectionAboutProps> = ({ collection }) => {
   return (
     <section className="w-full lg:max-w-[1200px] border border-borderPrimary rounded-32 bg-cardSurfaceGradient p-lg m-auto">
       <div className="flex justify-between">
-        <p className="text-xs font-medium text-textInverse uppercase">About</p>
+        <p className="text-xs font-medium text-textInverse">
+          Why you need a .{collection.cld} name
+        </p>
         <GroupSocialLinks collection={collection} />
       </div>
       <div className="grid grid-cols-1 gap-lg pb-lg">
@@ -33,7 +35,7 @@ const SectionAbout: React.FC<SectionAboutProps> = ({ collection }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
             <div className="bg-surfaceSecondary rounded-2xl p-md flex flex-col items-center gap-sm justify-center">
               <p className="text-sm text-textSecondary font-medium">
-                Registered Domains
+                Registered Names
               </p>
               <p className="text-2xl text-textInverse font-medium">
                 {registry.data?.totalSupply}

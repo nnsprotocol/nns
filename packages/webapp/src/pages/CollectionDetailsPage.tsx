@@ -1,11 +1,10 @@
 import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import SectionAbout from "../components/collection-details/SectionAbout";
 import SectionBenefits from "../components/collection-details/SectionBenefits";
 import SectionSearch from "../components/collection-details/SectionSearch";
 import SectionSearchBackgroundPattern from "../components/collection-details/SectionSearchBackgroundPattern";
-import { useCollectionData } from "../services/collections";
 import WalletButtonSection from "../components/wallet/WalletButtonSection";
+import { useCollectionData } from "../services/collections";
 
 function CollectionDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -57,7 +56,6 @@ function CollectionDetailsPage() {
               <SectionSearch collection={collection} />
             </div>
             <SectionBenefits collection={collection} />
-            <SectionAbout collection={collection} />
           </div>
         </main>
       </div>
