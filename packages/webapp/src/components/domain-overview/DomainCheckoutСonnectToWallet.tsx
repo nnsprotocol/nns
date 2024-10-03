@@ -6,8 +6,8 @@ import { Registry } from "../../services/graph";
 import { formatETH, formatUSD } from "../../utils/formatter";
 import IconArrowRight from "../icons/IconArrowRight";
 import IconElectricalPlug from "../icons/IconElectricalPlug";
-import IconInfo from "../icons/IconInfo";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
+import Tooltip from "../ui/Tooltip";
 import DomainCheckoutContainer from "./DomainCheckoutContainer";
 
 type Props = {
@@ -126,7 +126,7 @@ const DomainCheckoutConnectToWallet: React.FC<Props> = (props) => {
           </div> */}
           <div className="flex gap-xs justify-between">
             <p className="flex gap-xxs items-center text-sm font-medium">
-              <span>Set as primary name</span> <IconInfo />
+              <span>Set as primary name</span> <Tooltip text="lorem ipsum" />
             </p>
             <ToggleDefault
               isOn={props.primaryName}

@@ -17,8 +17,12 @@ const LayoutDefault: React.FC<Props> = ({ children, defaultRegistry }) => {
     defaultRegistry
   );
   useEffect(() => {
-    console.log("setting default registry", defaultRegistry?.name);
-    setSearchCld(defaultRegistry);
+    if (defaultRegistry) {
+      setSearchCld(defaultRegistry);
+    }
+    if (!defaultRegistry && !searchCld && registries.data?.length) {
+      setSearchCld(registries.data[0]);
+    }
   }, [defaultRegistry]);
 
   const search = useSearchDomain({

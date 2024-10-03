@@ -21,6 +21,12 @@ const DropdownSearch: React.FC<Props> = (props) => {
   );
 
   useEffect(() => {
+    if (!selectedItem && props.defaultSelection) {
+      setSelectedItem(props.defaultSelection);
+    }
+  }, [props.defaultSelection]);
+
+  useEffect(() => {
     if (selectedItem) {
       props.onRegistryChange?.(selectedItem);
     }

@@ -22,7 +22,7 @@ export default async function availabilityHandler(
 
   const input = await inputSchema.parseAsync(req.query);
 
-  const cld = input.cld;
+  const cld = decodeURIComponent(input.cld);
   const name = normalize(input.name);
 
   let canRegister = false;

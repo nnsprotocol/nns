@@ -80,4 +80,14 @@
   .collection-card:hover .domain-cards img:nth-child(3) {
     transform: translateX(15%) rotate(10deg);
   }
+
+  .info-point:hover .info-point-text {
+    @apply block;
+  }
+  .info-point:hover .info-point-icon {
+    @apply opacity-50;
+  }
+  .info-point .info-point-text {
+    @apply hidden absolute max-w-60 p-4 text-xs bg-surfacePrimary text-textSecondary border border-borderPrimary rounded-lg -translate-x-3/4 -translate-y-full;
+  }
 }

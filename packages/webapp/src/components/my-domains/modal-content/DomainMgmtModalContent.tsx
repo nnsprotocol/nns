@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Hash } from "viem";
 import { useAccount } from "wagmi";
 import RESOLVER_ABI from "../../../abi/IResolver";
+import { getCollectionLogoURL } from "../../../services/collections";
 import { useRegistry } from "../../../services/graph";
 import {
   RESOLVER_ADDRESS,
@@ -9,10 +10,9 @@ import {
   useResolvedName,
 } from "../../../services/resolver";
 import { useWriteContractWaitingForTx } from "../../../services/shared";
-import IconInfo from "../../icons/IconInfo";
-import DomainMgmtSetPrimary from "./DomainMgmtSetPrimary";
+import Tooltip from "../../ui/Tooltip";
 import DomainMgmtRenew from "./DomainMgmtRenew";
-import { getCollectionLogoURL } from "../../../services/collections";
+import DomainMgmtSetPrimary from "./DomainMgmtSetPrimary";
 
 type Tab = "domains" | "renew";
 
@@ -90,7 +90,7 @@ export default function DomainMgmtModalContent(props: Props) {
             <p className="text-textSecondary text-xs font-medium mb-md flex items-center gap-xxs">
               <span>What does it mean?</span>
               <span>
-                <IconInfo />
+                <Tooltip text="This is the collection that will be used to resolve your domain names." />
               </span>
             </p>
             {defaultCld.data !== BigInt(props.cldId) ? (

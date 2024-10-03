@@ -4,10 +4,10 @@ import { useAccount } from "wagmi";
 import REWARDER_ABI from "../abi/IRewarder";
 import IconArrowRight from "../components/icons/IconArrowRight";
 import IconCopy from "../components/icons/IconCopy";
-import IconInfo from "../components/icons/IconInfo";
-import IconPlus from "../components/icons/IconPlus";
 import LayoutDefault from "../components/layouts/LayoutDefault";
 import DomainCollectionsCards from "../components/my-domains/DomainCollectionsCards";
+import Tooltip from "../components/ui/Tooltip";
+import { useAvatar } from "../services/ens";
 import { useRegistries } from "../services/graph";
 import { useResolvedName } from "../services/resolver";
 import { REWARDER_ADDRESS, useRewardBalance } from "../services/rewarder";
@@ -22,6 +22,7 @@ function MyDomainsPage() {
     account: account.address,
     cldId: resolverCld || undefined,
   });
+  const avatarURL = useAvatar(account);
   const navigate = useNavigate();
   const rewardBalance = useRewardBalance(account);
   const claimReward = useWriteContractWaitingForTx();
@@ -62,18 +63,12 @@ function MyDomainsPage() {
         <div className="mx-auto grid grid-cols-1 gap-xl  w-full max-w-[1200px]">
           <div className="relative max-w-32">
             <img
-              src="/temp/profile-lg.png"
+              src={avatarURL.data || "/icons/profile.svg"}
               width={128}
               height={128}
               alt=""
               className="rounded-full"
             />
-            <button
-              type="button"
-              className="flex items-center justify-center rounded-full button-brand-lavender h-7 w-7 absolute right-0 bottom-0"
-            >
-              <IconPlus />
-            </button>
           </div>
           <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-lg">
             <div>
@@ -103,7 +98,7 @@ function MyDomainsPage() {
                 </select>
                 {resolverCld ? "community" : null}
                 <span className="flex">
-                  <IconInfo size={16} />
+                  <Tooltip text="lorem ipsum" />
                 </span>
               </div>
             </div>

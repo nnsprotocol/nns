@@ -1,4 +1,7 @@
-const IconInfo: React.FC<{size?: number}> = ({size}) => {
+const IconInfo: React.FC<{ size?: number; className?: string }> = ({
+  size,
+  className,
+}) => {
   return (
     <svg
       width={size || 15}
@@ -6,6 +9,7 @@ const IconInfo: React.FC<{size?: number}> = ({size}) => {
       viewBox="0 0 15 14"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
       <g id="Standard-Icons">
         <path
