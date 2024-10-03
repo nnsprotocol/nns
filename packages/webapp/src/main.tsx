@@ -22,14 +22,10 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-// this is needed to make react-query-devtools work
-if (import.meta.env.DEV) {
-  // @ts-ignore
-  BigInt.prototype["toJSON"] = function () {
-    return this.toString();
-  };
-}
-
+// @ts-ignore
+BigInt.prototype["toJSON"] = function () {
+  return this.toString();
+};
 const router = createBrowserRouter([
   {
     path: "/",

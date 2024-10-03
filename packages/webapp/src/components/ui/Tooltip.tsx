@@ -8,7 +8,7 @@ const Tooltip: React.FC<Props> = ({ text }) => {
   return (
     <>
       <div className="info-point">
-        <p className="info-point-text">{text}</p>
+        <span className="info-point-text">{text}</span>
         <IconInfo className="info-point-icon" />
       </div>
     </>
