@@ -89,12 +89,20 @@ function useRegistrationStatus(d: {
   };
 }
 
+import * as Sentry from "@sentry/react";
+
 function DomainOverviewPage() {
   const [domainCheckoutType, setDomainCheckoutType] =
     useState<DomainCheckoutType>("overview");
   const [domainAsPrimaryName, setDomainAsPrimaryName] = useState(true);
 
   const account = useAccount();
+
+  useEffect(() => {
+    Sentry.setUser(
+      account.address ? { id: account.address.toLowerCase() } : null
+    );
+  }, [account.address]);
 
   const navigate = useNavigate();
   const { domainName: domainFullName } = useParams<{ domainName: string }>();
