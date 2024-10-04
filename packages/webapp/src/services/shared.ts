@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Hex, TransactionExecutionError, UserRejectedRequestError } from "viem";
+import { Hex, UserRejectedRequestError } from "viem";
 import {
   Config,
   useSignMessage,
