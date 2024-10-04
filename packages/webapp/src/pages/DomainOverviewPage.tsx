@@ -317,6 +317,7 @@ function DomainOverviewPage() {
         </div>
         <div className="w-full max-w-[383px]">
           {registry.data &&
+            price &&
             regStatus.status &&
             domainCheckoutType === "overview" && (
               <DomainCheckoutOverview
