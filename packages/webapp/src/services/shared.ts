@@ -239,9 +239,17 @@ export function useSignedServerRequest<MutationRequest, MutationResult>(
 }
 
 function isUserRejectedRequestError(e: Error): boolean {
-  return (
-    e instanceof UserRejectedRequestError ||
-    (e instanceof TransactionExecutionError &&
-      e.cause instanceof UserRejectedRequestError)
-  );
+  let error: Error | undefined = e;
+  while (true) {
+    if (!error) {
+      return false;
+    }
+
+    if (error instanceof UserRejectedRequestError) {
+      return true;
+    }
+    if ("cause" in error) {
+      error = error.cause as Error;
+    }
+  }
 }

@@ -167,6 +167,13 @@ function DomainOverviewPage() {
     enabled: Boolean(registry.data) && Boolean(account.address),
   });
 
+  useEffect(() => {
+    if (registerWithSignature.state.value === "error") {
+      console.error("----- TX error -----");
+      console.error(registerWithSignature.state.error);
+    }
+  }, [registerWithSignature]);
+
   const txStatus = useMemo(() => {
     if (registry.data?.registrationWithSignature) {
       return registerWithSignature.state;
