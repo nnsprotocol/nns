@@ -78,7 +78,9 @@ async function signRegistration(
 
   const expiry = BigInt(Math.floor(Date.now() / 1000 + 5 * 60));
   const nonce = BigInt(
-    keccak256(encodePacked(["address", "string"], [input.to, name]))
+    keccak256(
+      encodePacked(["address", "string", "string"], [input.to, name, cld])
+    )
   );
 
   const messageHash = keccak256(

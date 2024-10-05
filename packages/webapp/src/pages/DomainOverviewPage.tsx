@@ -162,7 +162,7 @@ function DomainOverviewPage() {
         value: (price!.eth * 11n) / 10n,
         args: [
           serverData.to,
-          [normalize(domainName + "a"), registry.data!.name],
+          [normalize(domainName), registry.data!.name],
           domainAsPrimaryName,
           "0x0000000000000000000000000000000000000000",
           registry.data?.hasExpiringNames ? 1 : 0,
@@ -352,9 +352,7 @@ function DomainOverviewPage() {
               onPrimaryNameChange={setDomainAsPrimaryName}
               onNext={handleNextStep}
               error={
-                txStatus.value === "error"
-                  ? txStatus.formattedError
-                  : undefined
+                txStatus.value === "error" ? txStatus.formattedError : undefined
               }
             />
           )}
