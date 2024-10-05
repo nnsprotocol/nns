@@ -4,7 +4,6 @@ import { Address, namehash, zeroAddress } from "viem";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
 import CONTROLLER_ABI from "../abi/IController";
-import { useCollectionData } from "../services/collections";
 import DomainCheckoutBuy from "../components/domain-overview/DomainCheckoutBuy";
 import DomainCheckoutOverview from "../components/domain-overview/DomainCheckoutOverview";
 import DomainCheckoutTransactionComplete from "../components/domain-overview/DomainCheckoutTransactionComplete";
@@ -15,6 +14,7 @@ import {
   fetchRegisterSignature,
   useRegistrationAvailability,
 } from "../services/api";
+import { useCollectionData } from "../services/collections";
 import { CONTROLLER_ADDRESS, useDomainPrice } from "../services/controller";
 import { Registry, useDomain, useRegistry } from "../services/graph";
 import {
@@ -162,7 +162,7 @@ function DomainOverviewPage() {
         value: (price!.eth * 11n) / 10n,
         args: [
           serverData.to,
-          [normalize(domainName), registry.data!.name],
+          [normalize(domainName + "a"), registry.data!.name],
           domainAsPrimaryName,
           "0x0000000000000000000000000000000000000000",
           registry.data?.hasExpiringNames ? 1 : 0,
@@ -174,13 +174,6 @@ function DomainOverviewPage() {
     },
     enabled: Boolean(registry.data) && Boolean(account.address),
   });
-
-  useEffect(() => {
-    if (registerWithSignature.state.value === "error") {
-      console.error("----- TX error -----");
-      console.error(registerWithSignature.state.error);
-    }
-  }, [registerWithSignature]);
 
   const txStatus = useMemo(() => {
     if (registry.data?.registrationWithSignature) {
@@ -198,6 +191,11 @@ function DomainOverviewPage() {
       setDomainCheckoutType("buy");
     } else if (txStatus.value === "success") {
       setDomainCheckoutType("transactionComplete");
+    } else if (
+      txStatus.value === "error" &&
+      domainCheckoutType === "transactionSubmitted"
+    ) {
+      setDomainCheckoutType("buy");
     }
   }, [txStatus.value]);
 
@@ -355,7 +353,7 @@ function DomainOverviewPage() {
               onNext={handleNextStep}
               error={
                 txStatus.value === "error"
-                  ? txStatus.error?.shortMessage || txStatus.error?.message
+                  ? txStatus.formattedError
                   : undefined
               }
             />

@@ -12,9 +12,9 @@ import MyDomainsPage from "./pages/MyDomainsPage.tsx";
 
 import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { WagmiProvider } from "wagmi";
 import { baseSepolia } from "wagmi/chains";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import {
   createBrowserRouter,

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Hex, UserRejectedRequestError } from "viem";
+import { BaseError, Hex, UserRejectedRequestError } from "viem";
 import {
   Config,
   useSignMessage,
@@ -14,7 +14,7 @@ export type TxState =
   | { value: "signing"; hash: Hex }
   | { value: "minting"; hash: Hex }
   | { value: "success"; hash: Hex }
-  | { value: "error"; error: Error & { shortMessage?: string }; hash?: Hex };
+  | { value: "error"; error: Error; formattedError: string; hash?: Hex };
 
 interface WriteContractWaitingForTxResponse {
   state: TxState;
@@ -43,12 +43,22 @@ export function useWriteContractWaitingForTx(
       setState({ value: "success", hash: write.data! });
       props?.onSuccess?.();
     } else if (tx.error) {
-      setState({ value: "error", error: tx.error, hash: write.data });
+      setState({
+        value: "error",
+        error: tx.error,
+        hash: write.data,
+        formattedError: formatError(tx.error),
+      });
       props?.onError?.(tx.error);
     } else if (write.error && isUserRejectedRequestError(write.error)) {
       setState({ value: "idle" });
     } else if (write.error) {
-      setState({ value: "error", error: write.error, hash: write.data });
+      setState({
+        value: "error",
+        error: write.error,
+        hash: write.data,
+        formattedError: formatError(write.error),
+      });
       props?.onError?.(write.error);
     } else if (write.isPending) {
       setState({ value: "signing", hash: write.data! });
@@ -77,7 +87,7 @@ type TxWithServerState =
   | { value: "signing"; hash: Hex }
   | { value: "minting"; hash: Hex }
   | { value: "success"; hash: Hex }
-  | { value: "error"; error: Error & { shortMessage?: string }; hash?: Hex };
+  | { value: "error"; error: Error; formattedError: string; hash?: Hex };
 
 interface Props<serverData> {
   fetchServerData: () => Promise<serverData>;
@@ -112,17 +122,31 @@ export function useWriteContractWithServerRequest<serverData>(
     if (serverData.isPending) {
       setState({ value: "loading" });
     } else if (serverData.error) {
-      setState({ value: "error", error: serverData.error });
+      setState({
+        value: "error",
+        error: serverData.error,
+        formattedError: formatError(serverData.error),
+      });
     } else if (tx.isLoading) {
       setState({ value: "minting", hash: write.data! });
     } else if (tx.isSuccess) {
       setState({ value: "success", hash: write.data! });
     } else if (tx.error) {
-      setState({ value: "error", error: tx.error, hash: write.data });
+      setState({
+        value: "error",
+        error: tx.error,
+        hash: write.data,
+        formattedError: formatError(tx.error),
+      });
     } else if (write.error && isUserRejectedRequestError(write.error)) {
       setState({ value: "idle" });
     } else if (write.error) {
-      setState({ value: "error", error: write.error, hash: write.data });
+      setState({
+        value: "error",
+        error: write.error,
+        hash: write.data,
+        formattedError: formatError(write.error),
+      });
     } else if (write.isPending) {
       setState({ value: "signing", hash: write.data! });
     } else {
@@ -250,6 +274,15 @@ function isUserRejectedRequestError(e: Error): boolean {
     }
     if ("cause" in error) {
       error = error.cause as Error;
+    } else {
+      return false;
     }
   }
+}
+
+function formatError(e: Error) {
+  if (e instanceof BaseError) {
+    return e.shortMessage || e.message;
+  }
+  return e.message;
 }
