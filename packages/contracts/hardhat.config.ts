@@ -4,12 +4,10 @@ import "solidity-coverage";
 import "hardhat-abi-exporter";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
-import * as tenderly from "@tenderly/hardhat-tenderly";
 import dotenv from "dotenv";
 import "./tasks";
 
 dotenv.config();
-tenderly.setup({ automaticVerifications: true });
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -35,11 +33,6 @@ const config: HardhatUserConfig = {
       chainId: 8453,
       accounts: [process.env.SEPOLIA_DEPLOYER_PRIVATE_KEY!],
     },
-  },
-  tenderly: {
-    // https://docs.tenderly.co/account/projects/account-project-slug
-    project: "nns",
-    username: "apbigcod",
   },
 };
 

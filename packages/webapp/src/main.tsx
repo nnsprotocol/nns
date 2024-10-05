@@ -23,6 +23,7 @@ import {
 } from "react-router-dom";
 
 import * as Sentry from "@sentry/react";
+import ReferralProvider from "./utils/Referral";
 
 Sentry.init({
   dsn: "https://79e15b51ee52260f821b2ff23d16bd9f@o4508065305985024.ingest.us.sentry.io/4508065312014336",
@@ -85,8 +86,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <RouterProvider router={router} />
-          <ReactQueryDevtools />
+          <ReferralProvider>
+            <RouterProvider router={router} />
+            <ReactQueryDevtools />
+          </ReferralProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Address, namehash, zeroAddress } from "viem";
+import { Address, namehash } from "viem";
 import { normalize } from "viem/ens";
 import { useAccount } from "wagmi";
 import CONTROLLER_ABI from "../abi/IController";
@@ -90,6 +90,7 @@ function useRegistrationStatus(d: {
 }
 
 import * as Sentry from "@sentry/react";
+import { useReferral } from "../utils/Referral";
 
 function DomainOverviewPage() {
   const [domainCheckoutType, setDomainCheckoutType] =
@@ -97,6 +98,7 @@ function DomainOverviewPage() {
   const [domainAsPrimaryName, setDomainAsPrimaryName] = useState(true);
 
   const account = useAccount();
+  const referrer = useReferral();
 
   useEffect(() => {
     Sentry.setUser(
@@ -151,7 +153,7 @@ function DomainOverviewPage() {
         to: account.address!,
         labels: [domainName, cldName],
         periods: registry.data?.hasExpiringNames ? 1 : 0,
-        referer: zeroAddress,
+        referer: referrer,
         withReverse: domainAsPrimaryName,
       }),
     startTransaction(serverData, writeContract) {
@@ -164,7 +166,7 @@ function DomainOverviewPage() {
           serverData.to,
           [normalize(domainName), registry.data!.name],
           domainAsPrimaryName,
-          "0x0000000000000000000000000000000000000000",
+          referrer,
           registry.data?.hasExpiringNames ? 1 : 0,
           BigInt(serverData.nonce),
           BigInt(serverData.expiry),

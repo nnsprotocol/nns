@@ -140,7 +140,11 @@ contract NNSRewarder is IRewarder, Ownable {
 
         // Referral
         address originalReferer = referer;
-        if (referer == address(0)) {
+        if (
+            referer == address(0) ||
+            (referer != address(0) &&
+                IERC721(_holderRewarder.erc721()).balanceOf(referer) == 0)
+        ) {
             referer = _communityPayables[cldId];
         }
         uint256 refererAmount = (totalAmount * _referralRewards[cldId]) / 100;

@@ -199,7 +199,7 @@ describe("NNSRewarder", () => {
         .withArgs(ctx.cldAId);
     });
 
-    describe("success with referer", () => {
+    describe("success with referer holding a holder token", () => {
       let ctx: Context;
       let tx: ContractTransactionResponse;
       let communityPayout: string;
@@ -232,6 +232,8 @@ describe("NNSRewarder", () => {
         await ctx.cldB.register(ctx.w2, "b3", [], [], 0, false);
         await ctx.cldB.register(ctx.w2, "b4", [], [], 0, false);
         await ctx.cldB.register(ctx.w2, "b5", [], [], 0, false);
+
+        await ctx.holdersToken.mint(referer, 99);
 
         await ctx.rewarder
           .connect(ctx.controller)
@@ -337,6 +339,51 @@ describe("NNSRewarder", () => {
         await expect(tx)
           .to.emit(ctx.rewarder, "Collected")
           .withArgs(ctx.cldAId, ethers.ZeroAddress, valueETH, valueERC20);
+      });
+    });
+
+    describe("success with referer not holding a holder token", () => {
+      let ctx: Context;
+      let tx: ContractTransactionResponse;
+      let communityPayout: string;
+      let referer: string;
+      const referralShare = 13;
+      const communityShare = 54;
+      const valueETH = 203947;
+      const valueERC20 = valueETH * 2; // the mock swap router will return 2x the value
+
+      beforeEach(async () => {
+        ctx = await setup();
+        communityPayout = ctx.w5.address;
+        referer = ctx.w4.address;
+
+        await ctx.rewarder
+          .connect(ctx.controller)
+          .registerCld(
+            ctx.cldA,
+            communityPayout,
+            referralShare,
+            communityShare
+          );
+
+        await ctx.erc20.mint(ctx.swapRouter, 1e9);
+
+        tx = await ctx.rewarder
+          .connect(ctx.controller)
+          .collect(ctx.cldAId, referer, { value: valueETH });
+      });
+
+      it("assigns the referer balance to the community", async () => {
+        const expShare = communityShare + referralShare;
+        const expBalance = Math.floor((expShare * valueERC20) / 100);
+        const balance = await ctx.accountRewarder.balanceOf(communityPayout);
+        expect(balance).to.eq(expBalance);
+      });
+
+      it("emits a Collected event", async () => {
+        await expect(tx)
+          .to.emit(ctx.rewarder, "Collected")
+          .withArgs(ctx.cldAId, referer, valueETH, valueERC20);
       });
     });
   });

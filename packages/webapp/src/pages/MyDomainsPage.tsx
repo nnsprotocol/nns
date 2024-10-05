@@ -13,6 +13,7 @@ import { useResolvedName } from "../services/resolver";
 import { REWARDER_ADDRESS, useRewardBalance } from "../services/rewarder";
 import { useWriteContractWaitingForTx } from "../services/shared";
 import { formatAddress, formatNOGS } from "../utils/formatter";
+import { generateReferralLink } from "../utils/Referral";
 
 function MyDomainsPage() {
   const account = useAccount();
@@ -118,8 +119,17 @@ function MyDomainsPage() {
                       <span>Learn More</span>
                       <IconArrowRight size={12} />
                     </a>
-                    <div className="flex items-center justify-end gap-xxs text-xs text-textSecondary font-medium">
-                      <IconCopy />
+                    <div
+                      className="flex items-center justify-end gap-xxs text-xs text-textSecondary hover:text-textInverse font-medium cursor-pointer group"
+                      onClick={() => {
+                        if (account.address) {
+                          navigator.clipboard.writeText(
+                            generateReferralLink(account.address)
+                          );
+                        }
+                      }}
+                    >
+                      <IconCopy className="fill-textSecondary group-hover:fill-textInverse" />
                       <span>Share Referral</span>
                     </div>
                   </div>

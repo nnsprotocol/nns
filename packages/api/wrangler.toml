@@ -1,3 +1,11 @@
 name = "nns"
 main = "./src/index.ts"
 compatibility_date = "2022-10-10"
+
+[vars]
+NNS_V1_ERC721_ADDRESS = "0x4af84535625fe40990bfb35019b944a9933f7593"
+NNS_V1_ERC721_NETWORK = "eth-mainnet"
+NOUNS_ERC721_ADDRESS = "0x9c8ff314c9bc7f6e59a9d9225fb22946427edc03"
+NOUNS_ERC721_NETWORK = "eth-mainnet"
+NOUNS_ERC20_ADDRESS = "0x3aeb149485fb57259af22c3bf81b18779045a773"
+NOUNS_ERC20_NETWORK = "base-sepolia"

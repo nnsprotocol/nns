@@ -13,6 +13,11 @@ export async function getNNSResolver(hre: HardhatRuntimeEnvironment) {
   return hre.ethers.getContractAt(name, await _getAddress(hre, name));
 }
 
+export async function getNNSRewarder(hre: HardhatRuntimeEnvironment) {
+  const name = "NNSRewarder";
+  return hre.ethers.getContractAt(name, await _getAddress(hre, name));
+}
+
 export async function getRegistry(
   hre: HardhatRuntimeEnvironment,
   name: string

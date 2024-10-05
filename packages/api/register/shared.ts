@@ -87,11 +87,13 @@ export class RegistrationValidator {
 
     const res = await alchemy.nft
       .getOwnersForNft(contract.address, tokenId)
-      .catch((e) => {
+      .catch((e: Error) => {
         if (e.message.includes("ERC721: invalid token ID")) {
           return null;
         }
-        console.error("error calling getOwnersForNft", e);
+        if (e.message.startsWith("404:")) {
+          return null;
+        }
         throw new StatusError(500);
       });
     if (!res?.owners || res.owners.length === 0) {
