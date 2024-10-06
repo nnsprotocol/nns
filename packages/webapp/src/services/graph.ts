@@ -4,6 +4,8 @@ import { normalize } from "viem/ens";
 
 const GRAPH_URL: string = import.meta.env.VITE_GRAPH_URL;
 
+export const NOGGLES_CLD_ID = namehash("⌐◨-◨");
+
 export type Registry = {
   id: Hash;
   name: string;

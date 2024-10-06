@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import { Address, isAddress, zeroAddress } from "viem";
+import { NOGGLES_CLD_ID, useDomains } from "../services/graph";
 
 const LS_KEY = "nns:referrer";
 
@@ -13,6 +14,14 @@ const ReferralContext = createContext<Address>(zeroAddress);
 
 export function useReferral() {
   return useContext(ReferralContext);
+}
+
+export function useCanRefer(account: { address?: Address }) {
+  const domains = useDomains({
+    owner: account.address,
+    cldId: NOGGLES_CLD_ID,
+  });
+  return domains.data?.length && domains.data?.length > 0;
 }
 
 export function generateReferralLink(address: Address) {

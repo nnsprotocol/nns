@@ -13,7 +13,7 @@ import { useResolvedName } from "../services/resolver";
 import { REWARDER_ADDRESS, useRewardBalance } from "../services/rewarder";
 import { useWriteContractWaitingForTx } from "../services/shared";
 import { formatAddress, formatNOGS } from "../utils/formatter";
-import { generateReferralLink } from "../utils/Referral";
+import { generateReferralLink, useCanRefer } from "../utils/Referral";
 
 function MyDomainsPage() {
   const account = useAccount();
@@ -25,6 +25,7 @@ function MyDomainsPage() {
   });
   const avatarURL = useAvatar(account);
   const navigate = useNavigate();
+  const canRefer = useCanRefer(account);
   const rewardBalance = useRewardBalance(account);
   const claimReward = useWriteContractWaitingForTx();
   const handleOnClaim = useCallback(() => {
@@ -122,15 +123,20 @@ function MyDomainsPage() {
                     <div
                       className="flex items-center justify-end gap-xxs text-xs text-textSecondary hover:text-textInverse font-medium cursor-pointer group"
                       onClick={() => {
-                        if (account.address) {
+                        if (account.address && canRefer) {
                           navigator.clipboard.writeText(
                             generateReferralLink(account.address)
                           );
                         }
                       }}
                     >
-                      <IconCopy className="fill-textSecondary group-hover:fill-textInverse" />
-                      <span>Share Referral</span>
+                      {!canRefer && <Tooltip text="Lorem ipsum" />}
+                      {canRefer && (
+                        <>
+                          <IconCopy className="fill-textSecondary group-hover:fill-textInverse" />
+                          <span>Share Referral</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
