@@ -7,7 +7,7 @@ import {
 } from "ethers";
 import { ethers } from "hardhat";
 import { AccountRewarder, ERC721BasedRewarder } from "../typechain-types";
-import { erc20 } from "../typechain-types/@openzeppelin/contracts/token";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 async function setup() {
   const [owner, w1, w2, w3, w4, w5, controller, protocol] =
@@ -156,6 +156,12 @@ describe("NNSRewarder", () => {
       it("emits a CldRegistered event", async () => {
         await expect(tx)
           .to.emit(ctx.rewarder, "CldRegistered")
+          .withArgs(ctx.cldAId);
+      });
+
+      it("emits a CldConfigurationChanged event", async () => {
+        await expect(tx)
+          .to.emit(ctx.rewarder, "CldConfigurationChanged")
           .withArgs(
             ctx.cldAId,
             payout,
@@ -644,6 +650,99 @@ describe("NNSRewarder", () => {
             .to.emit(accountRewarder, "RewardClaimed")
             .withArgs(account, 853);
         }
+      });
+    });
+  });
+
+  describe("setCldConfiguration", () => {
+    let ctx: Context;
+
+    beforeEach(async () => {
+      ctx = await setup();
+      await ctx.rewarder
+        .connect(ctx.controller)
+        .registerCld(ctx.cldA, ctx.w5.address, 6, 7);
+    });
+
+    it("reverts when not called by the community manager", async () => {
+      const op = ctx.rewarder
+        .connect(ctx.w1)
+        .setCldConfiguration(ctx.cldAId, ctx.w3, 10, 10);
+      await expect(op)
+        .to.be.revertedWithCustomError(
+          ctx.rewarder,
+          "CallerNotCommunityManager"
+        )
+        .withArgs(ctx.cldAId, ctx.w1);
+    });
+
+    it("reverts when the cld is not registered", async () => {
+      const op = ctx.rewarder
+        .connect(ctx.w1)
+        .setCldConfiguration(ctx.cldDId, ctx.w3, 10, 10);
+      await expect(op)
+        .to.be.revertedWithCustomError(ctx.rewarder, "InvalidCld")
+        .withArgs(ctx.cldDId);
+    });
+
+    it("reverts when the shares are invalid", async () => {
+      await ctx.cldA.transferCommunityRole(ctx.w1);
+
+      const op = ctx.rewarder
+        .connect(ctx.w1)
+        .setCldConfiguration(ctx.cldAId, ctx.w3, 90, 20);
+
+      await expect(op).to.be.revertedWithCustomError(
+        ctx.rewarder,
+        "InvalidShares"
+      );
+    });
+
+    describe("success", () => {
+      let commManager: HardhatEthersSigner;
+      let payoutTarget: string;
+      const referralShare = 34;
+      const communityShare = 56;
+      const ecosystemReward = Math.floor(
+        (100 - referralShare - communityShare - 5) / 2
+      );
+      let tx: ContractTransactionResponse;
+
+      beforeEach(async () => {
+        commManager = ctx.w5;
+        payoutTarget = ctx.w4.address;
+        await ctx.cldA.transferCommunityRole(commManager);
+
+        tx = await ctx.rewarder
+          .connect(commManager)
+          .setCldConfiguration(
+            ctx.cldAId,
+            payoutTarget,
+            referralShare,
+            communityShare
+          );
+      });
+
+      it("updates the cld configuration", async () => {
+        const cfg = await ctx.rewarder.configurationOf(ctx.cldAId);
+        expect(cfg.referralShare).to.eq(referralShare);
+        expect(cfg.communityShare).to.eq(communityShare);
+        expect(cfg.ecosystemShare).to.eq(ecosystemReward);
+        expect(cfg.protocolShare).to.eq(5);
+        expect(cfg.payoutTarget).to.eq(payoutTarget);
+        expect(cfg.registry).to.eq(ctx.cldA);
+      });
+
+      it("emits a CldConfigurationChanged event", async () => {
+        await expect(tx)
+          .to.emit(ctx.rewarder, "CldConfigurationChanged")
+          .withArgs(
+            ctx.cldAId,
+            payoutTarget,
+            referralShare,
+            communityShare,
+            ecosystemReward
+          );
       });
     });
   });

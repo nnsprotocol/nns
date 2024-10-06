@@ -89,32 +89,54 @@ contract NNSRewarder is IRewarder, Ownable {
             );
     }
 
+    function setCldConfiguration(
+        uint256 cldId,
+        address target,
+        uint8 referralShare,
+        uint8 communityShare
+    ) external {
+        IRegistry registry = _requireRegistryOf(cldId);
+        if (!registry.hasCommunityRole(_msgSender())) {
+            revert CallerNotCommunityManager(cldId, _msgSender());
+        }
+        _setCldConfiguration(cldId, target, referralShare, communityShare);
+    }
+
+    function _setCldConfiguration(
+        uint256 cldId,
+        address target,
+        uint8 referralShare,
+        uint8 communityShare
+    ) internal {
+        if (referralShare + communityShare + PROTOCOL_SHARE > 100) {
+            revert InvalidShares();
+        }
+        _communityPayables[cldId] = target;
+        _communityRewards[cldId] = communityShare;
+        _referralRewards[cldId] = referralShare;
+        emit CldConfigurationChanged(
+            cldId,
+            target,
+            referralShare,
+            communityShare,
+            _ecosytemShare(cldId)
+        );
+    }
+
     function registerCld(
         IRegistry registry,
         address payout,
         uint8 referralShare,
         uint8 communityShare
     ) external onlyController {
-        if (referralShare + communityShare + PROTOCOL_SHARE > 100) {
-            revert InvalidShares();
-        }
-
         (, uint256 cldId) = registry.cld();
         if (address(_registries[cldId]) != address(0)) {
             revert CldAlreadyRegistered(cldId);
         }
-
-        _communityPayables[cldId] = payout;
-        _communityRewards[cldId] = communityShare;
-        _referralRewards[cldId] = referralShare;
         _registries[cldId] = registry;
-        emit CldRegistered(
-            cldId,
-            payout,
-            referralShare,
-            communityShare,
-            _ecosytemShare(cldId)
-        );
+        emit CldRegistered(cldId);
+
+        _setCldConfiguration(cldId, payout, referralShare, communityShare);
     }
 
     function collect(

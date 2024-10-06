@@ -181,8 +181,9 @@ describe("NNSController", () => {
       });
 
       it("registers the cld with the rewarder", async () => {
+        await expect(tx).to.emit(ctx.rewarder, "CldRegistered").withArgs(cldId);
         await expect(tx)
-          .to.emit(ctx.rewarder, "CldRegistered")
+          .to.emit(ctx.rewarder, "CldConfigurationChanged")
           .withArgs(cldId, ctx.w3.address, 7, 10, (100 - 5 - 10 - 7) / 2);
       });
 

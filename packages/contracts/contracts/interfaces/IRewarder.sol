@@ -7,7 +7,8 @@ import "./IERC721BasedRewarder.sol";
 import "./IAccountRewarder.sol";
 
 interface IRewarder {
-    event CldRegistered(
+    event CldRegistered(uint256 cldId);
+    event CldConfigurationChanged(
         uint256 cldId,
         address target,
         uint8 referralShare,
@@ -33,6 +34,7 @@ interface IRewarder {
     error InvalidShares();
     error NothingToWithdraw();
     error CallerNotController(address addr);
+    error CallerNotCommunityManager(uint256 cldId, address addr);
 
     struct CldConfiguration {
         uint8 referralShare;
@@ -54,6 +56,13 @@ interface IRewarder {
     function configurationOf(
         uint256 cldId
     ) external returns (CldConfiguration memory);
+
+    function setCldConfiguration(
+        uint256 cldId,
+        address target,
+        uint8 referralShare,
+        uint8 communityShare
+    ) external;
 
     /** Collection of rewards */
     function collect(uint256 cldId, address referer) external payable;
