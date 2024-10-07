@@ -27,6 +27,7 @@ const NNSModule = buildModule("NNSModule", (m) => {
     ],
     {
       id: "EcosystemRewarder",
+      after: [ecosystemToken],
     }
   );
   m.call(ecosystemRewarder, "transferOwnership", [rewarder]);
@@ -57,11 +58,12 @@ const NNSModule = buildModule("NNSModule", (m) => {
   const pricer = m.contract("USDPricingOracle", [prices, aggregator]);
 
   // Deploy .⌐◨-◨ CLD
+  const nogglesCldName = "⌐◨-◨";
   const registerNoggles = m.call(
     controller,
     "registerCld",
     [
-      "⌐◨-◨", // string memory name
+      nogglesCldName, // string memory name
       35, // uint8 communityReward
       10, // uint8 referralReward
       pricer, // IPricingOracle pricingOracle
@@ -74,14 +76,16 @@ const NNSModule = buildModule("NNSModule", (m) => {
       after: [setControllerOnRewarder],
     }
   );
-  const nogglesCldId = namehash("⌐◨-◨");
+  const nogglesCldId = namehash(nogglesCldName);
   m.call(controller, "setCldSignatureRequired", [nogglesCldId, true], {
     after: [registerNoggles],
   });
 
-  const nogglesRegistry = m.staticCall(controller, "registryOf", [
-    nogglesCldId,
-  ]);
+  const nogglesRegistry = m.readEventArgument(
+    registerNoggles,
+    "CldRegistered",
+    "registry"
+  );
 
   // Rewarder: Holders
   const holdersRewarder = m.contract(
@@ -92,6 +96,7 @@ const NNSModule = buildModule("NNSModule", (m) => {
     ],
     {
       id: "HoldersRewarder",
+      after: [nogglesRegistry],
     }
   );
   m.call(holdersRewarder, "transferOwnership", [rewarder]);

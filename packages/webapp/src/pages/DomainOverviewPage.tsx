@@ -183,7 +183,11 @@ function DomainOverviewPage() {
     } else {
       return register.state;
     }
-  }, [register.state, registerWithSignature.state]);
+  }, [
+    register.state,
+    registerWithSignature.state,
+    registry.data?.registrationWithSignature,
+  ]);
 
   useEffect(() => {
     if (

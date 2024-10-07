@@ -23,6 +23,11 @@ const config: HardhatUserConfig = {
     except: ["test", "@uniswap", "@openzeppelin"],
     flat: true,
   },
+  etherscan: {
+    apiKey: {
+      baseSepolia: process.env.BASESCAN_API_KEY!,
+    },
+  },
   networks: {
     "base-sepolia": {
       url: "https://sepolia.base.org",

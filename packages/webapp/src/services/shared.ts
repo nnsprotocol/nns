@@ -36,12 +36,13 @@ export function useWriteContractWaitingForTx(
 
   const [state, setState] = useState<TxState>({ value: "idle" });
 
+  const { onError, onSuccess } = props || {};
   useEffect(() => {
     if (tx.isLoading) {
       setState({ value: "minting", hash: write.data! });
     } else if (tx.isSuccess) {
       setState({ value: "success", hash: write.data! });
-      props?.onSuccess?.();
+      onSuccess?.();
     } else if (tx.error) {
       setState({
         value: "error",
@@ -49,7 +50,7 @@ export function useWriteContractWaitingForTx(
         hash: write.data,
         formattedError: formatError(tx.error),
       });
-      props?.onError?.(tx.error);
+      onError?.(tx.error);
     } else if (write.error && isUserRejectedRequestError(write.error)) {
       setState({ value: "idle" });
     } else if (write.error) {
@@ -59,7 +60,7 @@ export function useWriteContractWaitingForTx(
         hash: write.data,
         formattedError: formatError(write.error),
       });
-      props?.onError?.(write.error);
+      onError?.(write.error);
     } else if (write.isPending) {
       setState({ value: "signing", hash: write.data! });
     } else {
@@ -72,6 +73,8 @@ export function useWriteContractWaitingForTx(
     tx.error,
     write.error,
     write.isPending,
+    onError,
+    onSuccess,
   ]);
   return {
     state,
@@ -232,6 +235,7 @@ export function useSignedServerRequest<MutationRequest, MutationResult>(
     serverMutation.isPending,
     serverMutation.error,
     serverMutation.isSuccess,
+    serverMutation.data,
   ]);
 
   return {
