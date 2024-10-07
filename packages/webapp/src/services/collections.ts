@@ -47,13 +47,13 @@ const COLLECTIONS: Record<string, CollectionData> = {
         {
           iconSrc: "/temp/noun-1.svg",
           name: "Nouns DAO",
-          share: 80,
+          share: 70,
           themeColor: "#E9C80B",
         },
         {
           iconSrc: "/temp/ecosystem.svg",
           name: "Ecosystem",
-          share: 25,
+          share: 10,
           themeColor: "#828187",
         },
         {
@@ -98,15 +98,15 @@ const COLLECTIONS: Record<string, CollectionData> = {
       header: "Learn more about .⌐◨-◨ names",
       revenues: [
         {
-          iconSrc: "/temp/noun-1.svg",
+          iconSrc: "/temp/nns.svg",
           name: "NNS",
-          share: 35,
+          share: 5,
           themeColor: "#E9C80B",
         },
         {
           iconSrc: "/temp/ecosystem.svg",
           name: "Ecosystem",
-          share: 65,
+          share: 60,
           themeColor: "#828187",
         },
       ],

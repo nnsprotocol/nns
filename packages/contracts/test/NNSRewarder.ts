@@ -104,7 +104,7 @@ describe("NNSRewarder", () => {
       const ctx = await setup();
       const tx = ctx.rewarder
         .connect(ctx.w1)
-        .registerCld(ctx.cldA, ctx.w2, 10, 10);
+        .registerCld(ctx.cldA, ctx.w2, 10, 10, 10);
       await expect(tx).to.revertedWithCustomError(
         ctx.rewarder,
         "CallerNotController"
@@ -115,7 +115,7 @@ describe("NNSRewarder", () => {
       const ctx = await setup();
       const tx = ctx.rewarder
         .connect(ctx.controller)
-        .registerCld(ctx.cldA, ctx.w2, 70, 29); // 70 + 29 + 5 = 104
+        .registerCld(ctx.cldA, ctx.w2, 70, 29, 2); // 70 + 29 + 2 + 5 = 106
       await expect(tx).to.revertedWithCustomError(
         ctx.rewarder,
         "InvalidShares"
@@ -126,11 +126,11 @@ describe("NNSRewarder", () => {
       const ctx = await setup();
       await ctx.rewarder
         .connect(ctx.controller)
-        .registerCld(ctx.cldA, ctx.w2, 10, 10);
+        .registerCld(ctx.cldA, ctx.w2, 10, 10, 10);
 
       const tx = ctx.rewarder
         .connect(ctx.controller)
-        .registerCld(ctx.cldA, ctx.w2, 10, 10);
+        .registerCld(ctx.cldA, ctx.w2, 10, 10, 10);
       await expect(tx)
         .to.revertedWithCustomError(ctx.rewarder, "CldAlreadyRegistered")
         .withArgs(ctx.cldAId);
@@ -142,7 +142,7 @@ describe("NNSRewarder", () => {
       let payout: string;
       const referralShare = 13;
       const communityShare = 54;
-      const ecosystemShare = (100 - 5 - communityShare - referralShare) / 2;
+      const ecosystemShare = 27;
 
       it("does not revert", async () => {
         ctx = await setup();
@@ -150,7 +150,13 @@ describe("NNSRewarder", () => {
 
         tx = await ctx.rewarder
           .connect(ctx.controller)
-          .registerCld(ctx.cldA, payout, referralShare, communityShare);
+          .registerCld(
+            ctx.cldA,
+            payout,
+            referralShare,
+            communityShare,
+            ecosystemShare
+          );
       });
 
       it("emits a CldRegistered event", async () => {
@@ -212,7 +218,7 @@ describe("NNSRewarder", () => {
       let referer: string;
       const referralShare = 13;
       const communityShare = 54;
-      const ecosystemShare = (100 - 5 - communityShare - referralShare) / 2;
+      const ecosystemShare = 27;
       const valueETH = 203947;
       const valueERC20 = valueETH * 2; // the mock swap router will return 2x the value
 
@@ -227,7 +233,8 @@ describe("NNSRewarder", () => {
             ctx.cldA,
             communityPayout,
             referralShare,
-            communityShare
+            communityShare,
+            ecosystemShare
           );
         await ctx.cldA.register(ctx.w1, "hey1", [], [], 0, false);
         await ctx.cldA.register(ctx.w2, "hey2", [], [], 0, false);
@@ -247,7 +254,8 @@ describe("NNSRewarder", () => {
             ctx.cldB,
             communityPayout,
             referralShare,
-            communityShare
+            communityShare,
+            ecosystemShare
           );
 
         await ctx.erc20.mint(ctx.swapRouter, 1e9);
@@ -311,6 +319,7 @@ describe("NNSRewarder", () => {
       let communityPayout: string;
       const referralShare = 13;
       const communityShare = 54;
+      const ecosystemShare = 27;
       const valueETH = 203947;
       const valueERC20 = valueETH * 2; // the mock swap router will return 2x the value
 
@@ -324,7 +333,8 @@ describe("NNSRewarder", () => {
             ctx.cldA,
             communityPayout,
             referralShare,
-            communityShare
+            communityShare,
+            ecosystemShare
           );
 
         await ctx.erc20.mint(ctx.swapRouter, 1e9);
@@ -355,6 +365,7 @@ describe("NNSRewarder", () => {
       let referer: string;
       const referralShare = 13;
       const communityShare = 54;
+      const ecosystemShare = 27;
       const valueETH = 203947;
       const valueERC20 = valueETH * 2; // the mock swap router will return 2x the value
 
@@ -369,7 +380,8 @@ describe("NNSRewarder", () => {
             ctx.cldA,
             communityPayout,
             referralShare,
-            communityShare
+            communityShare,
+            ecosystemShare
           );
 
         await ctx.erc20.mint(ctx.swapRouter, 1e9);
@@ -390,6 +402,33 @@ describe("NNSRewarder", () => {
         await expect(tx)
           .to.emit(ctx.rewarder, "Collected")
           .withArgs(ctx.cldAId, referer, valueETH, valueERC20);
+      });
+    });
+
+    describe("success with no holder rewards", () => {
+      let ctx: Context;
+
+      beforeEach(async () => {
+        ctx = await setup();
+        await ctx.rewarder.connect(ctx.controller).registerCld(
+          ctx.cldA,
+          ctx.w5.address,
+          35, // referral
+          10, // community
+          50 // ecosystem
+        );
+        // sum is 95 + protocol (5) = 100
+
+        await ctx.erc20.mint(ctx.swapRouter, 1e9);
+
+        await ctx.rewarder
+          .connect(ctx.controller)
+          .collect(ctx.cldAId, ctx.w4.address, { value: 100000 });
+      });
+
+      it("assigns zero balance to the holders", async () => {
+        const balance = await ctx.holdersRewarder.balance();
+        expect(balance).to.eq(0);
       });
     });
   });
@@ -645,7 +684,7 @@ describe("NNSRewarder", () => {
       });
 
       it("emits a RewardClaimed event for account", async () => {
-        for (const tokenId of ecosystemTokenIds) {
+        for (const _token of ecosystemTokenIds) {
           await expect(tx)
             .to.emit(accountRewarder, "RewardClaimed")
             .withArgs(account, 853);
@@ -661,13 +700,13 @@ describe("NNSRewarder", () => {
       ctx = await setup();
       await ctx.rewarder
         .connect(ctx.controller)
-        .registerCld(ctx.cldA, ctx.w5.address, 6, 7);
+        .registerCld(ctx.cldA, ctx.w5.address, 6, 7, 3);
     });
 
     it("reverts when not called by the community manager", async () => {
       const op = ctx.rewarder
         .connect(ctx.w1)
-        .setCldConfiguration(ctx.cldAId, ctx.w3, 10, 10);
+        .setCldConfiguration(ctx.cldAId, ctx.w3, 10, 10, 10);
       await expect(op)
         .to.be.revertedWithCustomError(
           ctx.rewarder,
@@ -679,7 +718,7 @@ describe("NNSRewarder", () => {
     it("reverts when the cld is not registered", async () => {
       const op = ctx.rewarder
         .connect(ctx.w1)
-        .setCldConfiguration(ctx.cldDId, ctx.w3, 10, 10);
+        .setCldConfiguration(ctx.cldDId, ctx.w3, 10, 10, 10);
       await expect(op)
         .to.be.revertedWithCustomError(ctx.rewarder, "InvalidCld")
         .withArgs(ctx.cldDId);
@@ -690,7 +729,7 @@ describe("NNSRewarder", () => {
 
       const op = ctx.rewarder
         .connect(ctx.w1)
-        .setCldConfiguration(ctx.cldAId, ctx.w3, 90, 20);
+        .setCldConfiguration(ctx.cldAId, ctx.w3, 70, 20, 14);
 
       await expect(op).to.be.revertedWithCustomError(
         ctx.rewarder,
@@ -701,11 +740,9 @@ describe("NNSRewarder", () => {
     describe("success", () => {
       let commManager: HardhatEthersSigner;
       let payoutTarget: string;
-      const referralShare = 34;
-      const communityShare = 56;
-      const ecosystemReward = Math.floor(
-        (100 - referralShare - communityShare - 5) / 2
-      );
+      const referralShare = 21;
+      const communityShare = 22;
+      const ecosystemShare = 23;
       let tx: ContractTransactionResponse;
 
       beforeEach(async () => {
@@ -719,7 +756,8 @@ describe("NNSRewarder", () => {
             ctx.cldAId,
             payoutTarget,
             referralShare,
-            communityShare
+            communityShare,
+            ecosystemShare
           );
       });
 
@@ -727,7 +765,7 @@ describe("NNSRewarder", () => {
         const cfg = await ctx.rewarder.configurationOf(ctx.cldAId);
         expect(cfg.referralShare).to.eq(referralShare);
         expect(cfg.communityShare).to.eq(communityShare);
-        expect(cfg.ecosystemShare).to.eq(ecosystemReward);
+        expect(cfg.ecosystemShare).to.eq(ecosystemShare);
         expect(cfg.protocolShare).to.eq(5);
         expect(cfg.payoutTarget).to.eq(payoutTarget);
         expect(cfg.registry).to.eq(ctx.cldA);
@@ -741,7 +779,7 @@ describe("NNSRewarder", () => {
             payoutTarget,
             referralShare,
             communityShare,
-            ecosystemReward
+            ecosystemShare
           );
       });
     });

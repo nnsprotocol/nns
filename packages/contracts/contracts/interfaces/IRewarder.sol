@@ -50,7 +50,8 @@ interface IRewarder {
         IRegistry registry,
         address target,
         uint8 referralShare,
-        uint8 communityShare
+        uint8 communityShare,
+        uint8 ecosystemShare
     ) external;
 
     function configurationOf(
@@ -61,7 +62,8 @@ interface IRewarder {
         uint256 cldId,
         address target,
         uint8 referralShare,
-        uint8 communityShare
+        uint8 communityShare,
+        uint8 ecosystemShare
     ) external;
 
     /** Collection of rewards */

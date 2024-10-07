@@ -28,8 +28,9 @@ interface IController {
 
     function registerCld(
         string memory name,
-        uint8 communityReward,
-        uint8 referralReward,
+        uint8 communityShare,
+        uint8 referralShare,
+        uint8 ecosystemShare,
         IPricingOracle pricingOracle,
         address communityPayable,
         address communityManager,

@@ -17,8 +17,9 @@ const NounsModule = buildModule("NounsModule", (m) => {
   // Deploy CLD
   const register = m.call(controller, "registerCld", [
     "nouns", // string memory name
-    80, // uint8 communityReward
-    5, // uint8 referralReward
+    70, // uint8 communityReward
+    15, // uint8 referralReward
+    10, // uint8 ecosystemReward
     pricer, // IPricingOracle pricingOracle
     deployer, // address communityPayable
     deployer, // address communityManager

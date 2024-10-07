@@ -47,8 +47,9 @@ contract NNSController is IController, Ownable {
 
     function registerCld(
         string memory name,
-        uint8 communityReward,
-        uint8 referralReward,
+        uint8 communityShare,
+        uint8 referralShare,
+        uint8 ecosystemShare,
         IPricingOracle pricingOracle,
         address communityPayable,
         address communityManager,
@@ -68,8 +69,9 @@ contract NNSController is IController, Ownable {
         _rewarder.registerCld(
             reg,
             communityPayable,
-            referralReward,
-            communityReward
+            referralShare,
+            communityShare,
+            ecosystemShare
         );
         _resolver.registerCld(reg, isDefaultCldResolver);
         _registries[cldId] = reg;

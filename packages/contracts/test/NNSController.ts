@@ -111,7 +111,17 @@ describe("NNSController", () => {
       const ctx = await setup();
       const tx = ctx.controller
         .connect(ctx.w3)
-        .registerCld("test", 10, 10, ctx.pricer, ctx.w1, ctx.w1, false, true);
+        .registerCld(
+          "test",
+          10,
+          10,
+          10,
+          ctx.pricer,
+          ctx.w1,
+          ctx.w1,
+          false,
+          true
+        );
       await expect(tx).to.revertedWithCustomError(
         ctx.controller,
         "OwnableUnauthorizedAccount"
@@ -124,6 +134,7 @@ describe("NNSController", () => {
         .connect(ctx.owner)
         .registerCld(
           "test",
+          10,
           10,
           10,
           ethers.ZeroAddress,
@@ -153,7 +164,17 @@ describe("NNSController", () => {
       it("does not revert", async () => {
         tx = await ctx.controller
           .connect(ctx.owner)
-          .registerCld(cldName, 10, 7, ctx.pricer, ctx.w3, ctx.w2, false, true);
+          .registerCld(
+            cldName,
+            10,
+            7,
+            4,
+            ctx.pricer,
+            ctx.w3,
+            ctx.w2,
+            false,
+            true
+          );
 
         registryAddress = await ctx.controller.registryOf(cldId);
       });
@@ -184,7 +205,7 @@ describe("NNSController", () => {
         await expect(tx).to.emit(ctx.rewarder, "CldRegistered").withArgs(cldId);
         await expect(tx)
           .to.emit(ctx.rewarder, "CldConfigurationChanged")
-          .withArgs(cldId, ctx.w3.address, 7, 10, (100 - 5 - 10 - 7) / 2);
+          .withArgs(cldId, ctx.w3.address, 7, 10, 4);
       });
 
       it("registers the cld with the resolver", async () => {
@@ -199,11 +220,31 @@ describe("NNSController", () => {
       const cldName = "hello";
       await ctx.controller
         .connect(ctx.owner)
-        .registerCld(cldName, 10, 7, ctx.pricer, ctx.w3, ctx.w2, false, true);
+        .registerCld(
+          cldName,
+          10,
+          7,
+          4,
+          ctx.pricer,
+          ctx.w3,
+          ctx.w2,
+          false,
+          true
+        );
 
       const tx = ctx.controller
         .connect(ctx.owner)
-        .registerCld(cldName, 10, 7, ctx.pricer, ctx.w3, ctx.w2, false, true);
+        .registerCld(
+          cldName,
+          10,
+          7,
+          4,
+          ctx.pricer,
+          ctx.w3,
+          ctx.w2,
+          false,
+          true
+        );
 
       await expect(tx).to.revertedWithCustomError(
         ctx.controller,
@@ -232,6 +273,7 @@ describe("NNSController", () => {
           cldName,
           10,
           7,
+          4,
           ctx.pricer,
           ctx.w3,
           communityManager,
@@ -312,6 +354,7 @@ describe("NNSController", () => {
           cldName,
           10,
           7,
+          4,
           ctx.pricer,
           ctx.w3,
           communityManager,
@@ -483,6 +526,7 @@ describe("NNSController", () => {
           cldName,
           10,
           7,
+          4,
           ctx.pricer,
           ctx.w3,
           communityManager,
@@ -591,6 +635,7 @@ describe("NNSController", () => {
           cldName,
           10,
           7,
+          4,
           ctx.pricer,
           ctx.w3,
           communityManager,
@@ -826,7 +871,7 @@ describe("NNSController", () => {
       ctx = await setup();
       await ctx.controller
         .connect(ctx.owner)
-        .registerCld(cldName, 10, 7, ctx.pricer, ctx.w3, ctx.w5, true, true);
+        .registerCld(cldName, 10, 7, 4, ctx.pricer, ctx.w3, ctx.w5, true, true);
 
       registry = await ethers.getContractAt(
         "CldRegistry",
@@ -873,7 +918,17 @@ describe("NNSController", () => {
     it("reverts the CLD has non expiring domains", async () => {
       await ctx.controller
         .connect(ctx.owner)
-        .registerCld("nonexp", 10, 7, ctx.pricer, ctx.w3, ctx.w5, false, false);
+        .registerCld(
+          "nonexp",
+          10,
+          7,
+          4,
+          ctx.pricer,
+          ctx.w3,
+          ctx.w5,
+          false,
+          false
+        );
 
       const tx = ctx.controller
         .connect(ctx.w1)
@@ -953,6 +1008,7 @@ describe("NNSController", () => {
         name,
         10,
         7,
+        4,
         ctx.pricer,
         ctx.w3,
         ctx.w2,
@@ -971,6 +1027,7 @@ describe("NNSController", () => {
         name,
         10,
         7,
+        4,
         ctx.pricer,
         ctx.w3,
         ctx.w2,
@@ -996,6 +1053,7 @@ describe("NNSController", () => {
         name,
         10,
         7,
+        4,
         ctx.pricer,
         ctx.w3,
         ctx.w2,
@@ -1017,6 +1075,7 @@ describe("NNSController", () => {
         "cldxx",
         10,
         7,
+        4,
         ctx.pricer,
         ctx.w3,
         ctx.w2,

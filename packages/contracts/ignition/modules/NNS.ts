@@ -64,8 +64,9 @@ const NNSModule = buildModule("NNSModule", (m) => {
     "registerCld",
     [
       nogglesCldName, // string memory name
-      35, // uint8 communityReward
-      10, // uint8 referralReward
+      0, // uint8 communityReward
+      35, // uint8 referralReward
+      60, // uint8 ecosystemReward
       pricer, // IPricingOracle pricingOracle
       deployer, // address communityPayable
       deployer, // address communityManager

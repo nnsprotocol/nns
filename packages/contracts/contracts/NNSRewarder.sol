@@ -16,9 +16,10 @@ contract NNSRewarder is IRewarder, Ownable {
 
     address internal _protocol;
 
-    mapping(uint256 cldId => uint8) internal _communityRewards;
+    mapping(uint256 cldId => uint8) internal _communityShare;
     mapping(uint256 cldId => address) internal _communityPayables;
-    mapping(uint256 cldId => uint8) internal _referralRewards;
+    mapping(uint256 cldId => uint8) internal _referralShare;
+    mapping(uint256 cldId => uint8) internal _ecosystemShare;
     mapping(uint256 cldId => IRegistry) internal _registries;
 
     IERC721BasedRewarder internal _ecosystemRewarder;
@@ -80,9 +81,9 @@ contract NNSRewarder is IRewarder, Ownable {
 
         return
             CldConfiguration(
-                _referralRewards[cldId],
-                _communityRewards[cldId],
-                _ecosytemShare(cldId),
+                _referralShare[cldId],
+                _communityShare[cldId],
+                _ecosystemShare[cldId],
                 PROTOCOL_SHARE,
                 _communityPayables[cldId],
                 registry
@@ -93,33 +94,45 @@ contract NNSRewarder is IRewarder, Ownable {
         uint256 cldId,
         address target,
         uint8 referralShare,
-        uint8 communityShare
+        uint8 communityShare,
+        uint8 ecosystemShare
     ) external {
         IRegistry registry = _requireRegistryOf(cldId);
         if (!registry.hasCommunityRole(_msgSender())) {
             revert CallerNotCommunityManager(cldId, _msgSender());
         }
-        _setCldConfiguration(cldId, target, referralShare, communityShare);
+        _setCldConfiguration(
+            cldId,
+            target,
+            referralShare,
+            communityShare,
+            ecosystemShare
+        );
     }
 
     function _setCldConfiguration(
         uint256 cldId,
         address target,
         uint8 referralShare,
-        uint8 communityShare
+        uint8 communityShare,
+        uint8 ecosystemShare
     ) internal {
-        if (referralShare + communityShare + PROTOCOL_SHARE > 100) {
+        if (
+            referralShare + communityShare + ecosystemShare + PROTOCOL_SHARE >
+            100
+        ) {
             revert InvalidShares();
         }
         _communityPayables[cldId] = target;
-        _communityRewards[cldId] = communityShare;
-        _referralRewards[cldId] = referralShare;
+        _communityShare[cldId] = communityShare;
+        _referralShare[cldId] = referralShare;
+        _ecosystemShare[cldId] = ecosystemShare;
         emit CldConfigurationChanged(
             cldId,
             target,
             referralShare,
             communityShare,
-            _ecosytemShare(cldId)
+            ecosystemShare
         );
     }
 
@@ -127,7 +140,8 @@ contract NNSRewarder is IRewarder, Ownable {
         IRegistry registry,
         address payout,
         uint8 referralShare,
-        uint8 communityShare
+        uint8 communityShare,
+        uint8 ecosystemShare
     ) external onlyController {
         (, uint256 cldId) = registry.cld();
         if (address(_registries[cldId]) != address(0)) {
@@ -136,7 +150,13 @@ contract NNSRewarder is IRewarder, Ownable {
         _registries[cldId] = registry;
         emit CldRegistered(cldId);
 
-        _setCldConfiguration(cldId, payout, referralShare, communityShare);
+        _setCldConfiguration(
+            cldId,
+            payout,
+            referralShare,
+            communityShare,
+            ecosystemShare
+        );
     }
 
     function collect(
@@ -169,12 +189,11 @@ contract NNSRewarder is IRewarder, Ownable {
         ) {
             referer = _communityPayables[cldId];
         }
-        uint256 refererAmount = (totalAmount * _referralRewards[cldId]) / 100;
+        uint256 refererAmount = (totalAmount * _referralShare[cldId]) / 100;
         _accountRewarder.incrementBalanceOf(referer, refererAmount);
 
         // Community
-        uint256 communityAmount = (totalAmount * _communityRewards[cldId]) /
-            100;
+        uint256 communityAmount = (totalAmount * _communityShare[cldId]) / 100;
         _accountRewarder.incrementBalanceOf(
             _communityPayables[cldId],
             communityAmount
@@ -184,8 +203,8 @@ contract NNSRewarder is IRewarder, Ownable {
         uint256 protocolAmount = (totalAmount * PROTOCOL_SHARE) / 100;
         _accountRewarder.incrementBalanceOf(_protocol, protocolAmount);
 
-        // Ecosystem + Users
-        uint256 ecosystemAmount = (totalAmount * _ecosytemShare(cldId)) / 100;
+        // Ecosystem
+        uint256 ecosystemAmount = (totalAmount * _ecosystemShare[cldId]) / 100;
         _ecosystemRewarder.incrementBalance(ecosystemAmount);
 
         uint256 holdersAmount = totalAmount -
@@ -198,14 +217,6 @@ contract NNSRewarder is IRewarder, Ownable {
         }
 
         emit Collected(cldId, originalReferer, msg.value, totalAmount);
-    }
-
-    function _ecosytemShare(uint256 cldId) internal view returns (uint8) {
-        return
-            (100 -
-                _communityRewards[cldId] -
-                _referralRewards[cldId] -
-                PROTOCOL_SHARE) / 2;
     }
 
     function _requireRegistryOf(
