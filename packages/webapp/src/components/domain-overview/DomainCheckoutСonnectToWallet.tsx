@@ -92,11 +92,11 @@ const DomainCheckoutConnectToWallet: React.FC<Props> = (props) => {
                   {[props.name, props.registry.name].join(".")}
                 </p>
                 <p className="text-sm font-normal text-textSecondary">
-                  NNS Domain
+                  NNS Name
                 </p>
               </div>
             </div>
-            <div className="bg-surfacePinkGradient py-xs px-sm rounded-2xl relative">
+            {/* <div className="bg-surfacePinkGradient py-xs px-sm rounded-2xl relative">
               <div className="absolute left-0 top-0 bottom-[8px] right-[10px] rounded-2xl z-0 bg-[url('/brand/coins.svg')] bg-no-repeat bg-right"></div>
               <div className="grid grid-cols-1 max-w-[75%] gap-xs relative z-10">
                 <p className="text-base text-textInverse font-medium">
@@ -111,7 +111,7 @@ const DomainCheckoutConnectToWallet: React.FC<Props> = (props) => {
                   <IconArrowRight />
                 </a>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className="text-textSecondary grid grid-cols-1 gap-md p-md border-t border-borderLight">

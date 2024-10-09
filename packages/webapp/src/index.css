@@ -11,7 +11,7 @@
 
 @layer components {
   .link-default {
-    @apply text-sm font-medium text-textSecondary hover:text-textSecondary stroke-textSecondary hover:stroke-textSecondary gap-xxs flex items-center;
+    @apply text-sm font-medium text-textPrimary hover:text-textPrimary stroke-textPrimary hover:stroke-textPrimary gap-xxs flex items-center;
   }
   .link-brand-lavender {
     @apply text-sm font-medium text-textBrandLavender hover:text-textPrimary stroke-textBrandLavender hover:stroke-textPrimary gap-xxs flex items-center;
@@ -89,5 +89,12 @@
   }
   .info-point .info-point-text {
     @apply hidden absolute max-w-60 p-4 text-xs bg-surfacePrimary text-textSecondary border border-borderPrimary rounded-lg -translate-x-3/4 -translate-y-full;
+  }
+
+  a.anchor {
+    display: block;
+    position: relative;
+    top: -100px;
+    visibility: hidden;
   }
 }

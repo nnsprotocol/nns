@@ -139,5 +139,5 @@ function formatDomainsQuantity(quantity?: number) {
   if (!quantity) {
     return "";
   }
-  return quantity > 1 ? `${quantity} Domains` : `${quantity} Domain`;
+  return quantity > 1 ? `${quantity} Names` : `${quantity} Name`;
 }

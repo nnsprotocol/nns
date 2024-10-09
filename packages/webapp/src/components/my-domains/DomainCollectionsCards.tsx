@@ -75,7 +75,7 @@ const DomainCollectionsCards: React.FC = () => {
               <span className="w-6 h-6 rounded-full border-2 border-textPrimary absolute group-hover:top-[10px] group-hover:left-[10px] z-0 -top-3/4 left-24 transition-all bg-surfaceBrandLavender"></span>
             </div>
             <p className="text-base font-medium text-textInverse">
-              More collections, coming soon!
+              More communities coming soon!
             </p>
           </div>
         </div>
@@ -83,7 +83,7 @@ const DomainCollectionsCards: React.FC = () => {
       <ModalContainer
         isModalOpen={Boolean(manageCldId)}
         setIsModalOpen={() => setManageCldId(null)}
-        title="Manage your domains"
+        title="Manage your names"
       >
         <DomainMgmtModalContent
           cldId={manageCldId!}

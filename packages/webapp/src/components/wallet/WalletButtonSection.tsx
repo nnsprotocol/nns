@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DropdownWallet from "./DropdownWallet";
 import { useAccount } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useNumberOfDomains } from "../../services/graph";
 
 type WalletButtonSectionProps = {
+  switchColors?: boolean;
   customConnectWalletButtonColors?: {
     hoverThemedBackgroundColor: string;
   };
@@ -13,14 +14,30 @@ type WalletButtonSectionProps = {
 
 const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({
   customConnectWalletButtonColors,
+  switchColors,
 }) => {
   const account = useAccount();
+  const [isContentUnderHeader, setIsContentUnderHeader] = useState(false);
   const { openConnectModal } = useConnectModal();
   const [connectWalletBackgroundColor, setConnectWalletBackgroundColor] =
     useState("#11101B");
   const numOfDomains = useNumberOfDomains({
     owner: account.address,
   });
+
+  const handleScroll = useCallback(() => {
+    setIsContentUnderHeader(window.scrollY >= 40);
+  }, []);
+
+  useEffect(() => {
+    if (!switchColors) {
+      return;
+    }
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll, switchColors]);
 
   const handleMouseEnter = () => {
     if (window.scrollY > 0) {
@@ -63,11 +80,24 @@ const WalletButtonSection: React.FC<WalletButtonSectionProps> = ({
       {account.isConnected ? (
         <>
           <div className="hidden sm:flex items-center gap-xs">
-            <Link to="/account" className="link-default text-nowrap">
-              My Domains
+            <Link
+              to="/account"
+              className={
+                isContentUnderHeader || !switchColors
+                  ? "link-brand-lavender transition-colors text-nowrap"
+                  : "link-default transition-colors text-nowrap"
+              }
+            >
+              My Names
             </Link>
             {numOfDomains.data && (
-              <span className="bg-surfaceBrandLavender rounded-2xl text-textInverse text-xs p-xxs text-center min-w-[28px]">
+              <span
+                className={`rounded-2xl text-xs p-xxs text-center min-w-[28px] text-textInverse ${
+                  isContentUnderHeader || !switchColors
+                    ? "bg-surfaceBrandLavender"
+                    : "bg-surfacePrimary"
+                }`}
+              >
                 {numOfDomains.data || ""}
               </span>
             )}

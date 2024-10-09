@@ -3,6 +3,7 @@ import BadgeEarned from "../ui/badges/BadgeEarned";
 function SectionShared() {
   return (
     <section className="grid grid-cols-1 gap-2xl">
+      <a className="anchor" id="share"></a>
       <div className="flex justify-center">
         <div className="grid grid-cols-1 gap-lg">
           <p className="text-3xl text-textInverse font-semibold text-center">

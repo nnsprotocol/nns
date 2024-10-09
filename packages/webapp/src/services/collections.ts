@@ -85,7 +85,7 @@ const COLLECTIONS: Record<string, CollectionData> = {
     cld: "⌐◨-◨",
     name: "NNS",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      "Owning a .⌐◨-◨ name will give you access to an ever increasing amount of benefits and utilities. Unlock referral rewards, be instantly recognizable, and earn $NOGS all while spreading the ⌐◨-◨.",
     themeColor: "#C496FF",
     textColor: "#000000",
     nameImgSrc: "/logo-nns.svg",

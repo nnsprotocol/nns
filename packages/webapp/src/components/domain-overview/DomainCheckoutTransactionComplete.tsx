@@ -43,9 +43,7 @@ const DomainCheckoutTransactionComplete: React.FC<Props> = (props) => {
               <p className="text-2xl text-textPrimary mb-xs font-medium">
                 {`${props.name}.${props.registry.name}`}
               </p>
-              <p className="text-sm font-medium text-textSecondary">
-                NNS Domain
-              </p>
+              <p className="text-sm font-medium text-textSecondary">NNS Name</p>
             </div>
           </div>
         </div>
@@ -54,7 +52,7 @@ const DomainCheckoutTransactionComplete: React.FC<Props> = (props) => {
             to="/account"
             className="button-brand-lavender button-lg rounded-xl justify-center"
           >
-            See your Domains
+            See your Names
           </Link>
           <Link
             to="/"

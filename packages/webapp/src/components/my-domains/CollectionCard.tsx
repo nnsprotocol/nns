@@ -41,8 +41,8 @@ const CollectionCard: React.FC<Props> = (props) => {
             } text-sm font-medium`}
           >
             {parseInt(props.collection.numberOfDomains) > 1
-              ? `${props.collection.numberOfDomains} Domains`
-              : `${props.collection.numberOfDomains} Domain`}
+              ? `${props.collection.numberOfDomains} Names`
+              : `${props.collection.numberOfDomains} Name`}
           </span>
           <span className="w-[30px] h-[30px] rounded-lg bg-surfaceSecondary flex items-center justify-center">
             <IconStar fill={isDefaultCld ? "#C496FF" : "#FFFFFF"} />

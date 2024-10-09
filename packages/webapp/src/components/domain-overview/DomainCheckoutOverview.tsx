@@ -39,7 +39,7 @@ const DomainCheckoutOverview: React.FC<Props> = (props) => {
               {`${props.name}.${props.registry.name}`}
             </p>
             <p className="text-sm font-normal text-textSecondary mb-xs">
-              NNS Domain
+              NNS Name
             </p>
             <p className="text-2xl text-textBrandLavender mt-auto font-medium">
               {price?.usd ? formatUSD(price?.usd) : "Loading..."}

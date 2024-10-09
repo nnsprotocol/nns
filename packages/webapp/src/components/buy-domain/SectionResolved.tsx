@@ -36,6 +36,7 @@ const cardsList = [
 function SectionResolved() {
   return (
     <section className="flex justify-center w-full">
+      <a className="anchor" id="resolver"></a>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2xl lg:max-w-[1200px]">
         <div className="grid grid-cols-1 gap-lg">
           <p className="text-3xl text-textInverse font-semibold">

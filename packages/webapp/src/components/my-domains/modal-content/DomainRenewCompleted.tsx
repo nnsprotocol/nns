@@ -86,7 +86,7 @@ const DomainRenewCompleted: React.FC<Props> = (props) => {
             className="button-md button-secondary justify-center"
             onClick={props.onClose}
           >
-            Back to My Domains
+            Back to My Names
           </button>
         </div>
       </div>

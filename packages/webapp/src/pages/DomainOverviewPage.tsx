@@ -121,7 +121,7 @@ function DomainOverviewPage() {
     if (registry.isSuccess && !registry.data) {
       navigate("/");
     }
-  }, [registry.isSuccess, registry.data]);
+  }, [registry.isSuccess, registry.data, navigate]);
 
   const price = useDomainPrice({
     cldId,
@@ -203,7 +203,7 @@ function DomainOverviewPage() {
     ) {
       setDomainCheckoutType("buy");
     }
-  }, [txStatus.value]);
+  }, [txStatus.value, domainCheckoutType]);
 
   const handleNextStep = useCallback(() => {
     if (domainCheckoutType === "overview" && account.isConnected) {
@@ -238,7 +238,18 @@ function DomainOverviewPage() {
         });
       }
     }
-  }, [domainCheckoutType, txStatus.value]);
+  }, [
+    domainCheckoutType,
+    account.isConnected,
+    account.address,
+    txStatus.value,
+    registry.data,
+    registerWithSignature,
+    register,
+    price,
+    domainName,
+    domainAsPrimaryName,
+  ]);
 
   return (
     <LayoutDefault defaultRegistry={registry.data || undefined}>

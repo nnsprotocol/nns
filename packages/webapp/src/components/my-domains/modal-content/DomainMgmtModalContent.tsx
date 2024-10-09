@@ -90,7 +90,7 @@ export default function DomainMgmtModalContent(props: Props) {
             <p className="text-textSecondary text-xs font-medium mb-md flex items-center gap-xxs">
               <span>What does it mean?</span>
               <span>
-                <Tooltip text="This is the collection that will be used to resolve your domain names." />
+                <Tooltip text="This is the collection that will be used to resolve your names." />
               </span>
             </p>
             {defaultCld.data !== BigInt(props.cldId) ? (
@@ -126,7 +126,7 @@ export default function DomainMgmtModalContent(props: Props) {
               }`}
               onClick={() => setActiveTab("domains")}
             >
-              Domains
+              Names
             </button>
             <button
               type="button"

@@ -23,7 +23,7 @@ const LayoutDefault: React.FC<Props> = ({ children, defaultRegistry }) => {
     if (!defaultRegistry && !searchCld && registries.data?.length) {
       setSearchCld(registries.data[0]);
     }
-  }, [defaultRegistry]);
+  }, [defaultRegistry, searchCld, registries.data]);
 
   const search = useSearchDomain({
     name: searchText,

@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 import SectionCards from "../components/buy-domain/SectionCards";
 import SectionIdentitySystem from "../components/buy-domain/SectionIdentitySystem";
 import SectionNamingSystem from "../components/buy-domain/SectionNamingSystem";
@@ -8,10 +9,10 @@ import IconArrowRight from "../components/icons/IconArrowRight";
 import WalletButtonSection from "../components/wallet/WalletButtonSection";
 
 const headerNavLinks = [
-  { id: "header-link-1", href: "#", text: "WTF are" },
-  { id: "header-link-2", href: "#", text: "Explore Ecosystem" },
-  { id: "header-link-3", href: "#", text: "Join the Squad" },
-  { id: "header-link-4", href: "#", text: "Earn Nogs" },
+  { id: "header-link-1", href: "#share", text: "WTF" },
+  { id: "header-link-2", href: "#resolver", text: "Explore Ecosystem" },
+  { id: "header-link-3", href: "#naming", text: "Get in touch" },
+  { id: "header-link-4", href: "#nogs", text: "Discover $NOGS" },
 ];
 
 const footerSocialItems = [
@@ -22,9 +23,26 @@ const footerSocialItems = [
 ];
 
 function BuyDomainPage() {
+  const [isContentUnderHeader, setIsContentUnderHeader] = useState(false);
+  const headerRef = useRef<HTMLHeadElement>(null);
+
+  const handleScroll = useCallback(() => {
+    setIsContentUnderHeader(window.scrollY >= 40);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [handleScroll]);
+
   return (
     <div className="bg-surfaceBrandLavender">
-      <header className="px-4 max-w-screen-2xl sticky top-0 mx-auto w-full py-2 z-30">
+      <header
+        ref={headerRef}
+        className="px-4 max-w-screen-2xl sticky top-0 mx-auto w-full py-2 z-30"
+      >
         <div className="p-md relative rounded-128">
           <div className="absolute inset-0 backdrop-blur-1xl bg-surfaceBrandLavender/10 z-0 rounded-128"></div>
           <div className="relative z-10 flex justify-between items-center">
@@ -35,7 +53,14 @@ function BuyDomainPage() {
               <ul className="flex space-x-lg">
                 {headerNavLinks.map((item) => (
                   <li key={item.id}>
-                    <a href={item.href} className="link-default">
+                    <a
+                      href={item.href}
+                      className={
+                        isContentUnderHeader
+                          ? "link-brand-lavender transition-colors"
+                          : "link-default transition-colors"
+                      }
+                    >
                       <IconArrowRight />
                       <span>{item.text}</span>
                     </a>
@@ -45,6 +70,7 @@ function BuyDomainPage() {
             </nav>
             <div>
               <WalletButtonSection
+                switchColors
                 customConnectWalletButtonColors={{
                   hoverThemedBackgroundColor: "#C496FF",
                 }}
@@ -55,7 +81,7 @@ function BuyDomainPage() {
       </header>
       <div className="max-w-screen-2xl px-4 mx-auto w-full">
         <main className="bg-surfacePrimary text-textInverse p-4 rounded-48">
-          <div className="grid grid-cols-1 gap-y-20 lg:gap-y-[300px] py-10 lg:py-20">
+          <div className="grid grid-cols-1 px-4 gap-y-20 lg:gap-y-[300px] py-10 lg:py-20">
             <SectionIdentitySystem />
             <SectionCards />
             <SectionShared />

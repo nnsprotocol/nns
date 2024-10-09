@@ -21,7 +21,7 @@ export function useCanRefer(account: { address?: Address }) {
     owner: account.address,
     cldId: NOGGLES_CLD_ID,
   });
-  return domains.data?.length && domains.data?.length > 0;
+  return Boolean(domains.data?.length && domains.data?.length > 0);
 }
 
 export function generateReferralLink(address: Address) {

@@ -36,6 +36,7 @@ function SectionPoweredBy() {
 
   return (
     <section className="-mx-4 bg-[url('/brand/pattern-tape.png')] bg-repeat-x bg-bottom min-h-[186px] py-9 px-4">
+      <a className="anchor" id="nogs"></a>
       <div className="flex justify-center w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2xl lg:max-w-[1200px]">
           <div className="flex items-center">
