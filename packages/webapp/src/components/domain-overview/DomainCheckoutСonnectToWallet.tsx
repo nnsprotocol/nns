@@ -4,7 +4,6 @@ import { useAccount } from "wagmi";
 import { useDomainPrice } from "../../services/controller";
 import { Registry } from "../../services/graph";
 import { formatETH, formatUSD } from "../../utils/formatter";
-import IconArrowRight from "../icons/IconArrowRight";
 import IconElectricalPlug from "../icons/IconElectricalPlug";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import Tooltip from "../ui/Tooltip";
