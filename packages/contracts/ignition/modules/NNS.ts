@@ -68,8 +68,8 @@ const NNSModule = buildModule("NNSModule", (m) => {
       35, // uint8 referralReward
       60, // uint8 ecosystemReward
       pricer, // IPricingOracle pricingOracle
-      deployer, // address communityPayable
-      deployer, // address communityManager
+      deployer, // address communityPayable TODO: change me.
+      deployer, // address communityManager TODO: change me.
       false, // bool hasExpiringNames
       true, // bool isDefaultCldResolver
     ],

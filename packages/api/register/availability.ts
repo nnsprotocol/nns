@@ -2,16 +2,18 @@ import { IRequest, StatusError } from "itty-router";
 import { normalize } from "viem/ens";
 import z from "zod";
 import { Env } from "../env";
-import { RegistrationValidator, zAddress } from "./shared";
+import { isValidDomainName, RegistrationValidator, zAddress } from "./shared";
+import { isAddress } from "viem";
 
 const inputSchema = z.object({
-  to: zAddress,
+  to: z.string().refine(isAddress),
   cld: z.string(),
-  name: z.string(),
+  name: z.string().refine(isValidDomainName),
 });
 
 type Output = {
   canRegister: boolean;
+  isFree: boolean;
 };
 
 export default async function availabilityHandler(
@@ -25,15 +27,15 @@ export default async function availabilityHandler(
   const cld = decodeURIComponent(input.cld);
   const name = normalize(input.name);
 
-  let canRegister = false;
+  let validation;
   switch (cld) {
     case "⌐◨-◨": {
-      canRegister = await validator.validateNoggles(input.to, name);
+      validation = await validator.validateNoggles(input.to, name);
       break;
     }
 
     case "nouns": {
-      canRegister = await validator.validateNouns(input.to, name);
+      validation = await validator.validateNouns(input.to, name);
       break;
     }
 
@@ -41,5 +43,5 @@ export default async function availabilityHandler(
       throw new StatusError(400, "unsupported_cld");
   }
 
-  return { canRegister };
+  return validation;
 }

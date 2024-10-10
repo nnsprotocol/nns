@@ -1,16 +1,16 @@
 import { IRequest, StatusError } from "itty-router";
-import { Address, encodePacked, Hex, keccak256, toHex } from "viem";
+import { Address, encodePacked, Hex, isAddress, keccak256, toHex } from "viem";
 import { PrivateKeyAccount, privateKeyToAccount } from "viem/accounts";
 import { namehash, normalize } from "viem/ens";
 import z from "zod";
 import { Env } from "../env";
-import { RegistrationValidator, zAddress } from "./shared";
+import { RegistrationValidator } from "./shared";
 
 const inputSchema = z.object({
-  to: zAddress,
+  to: z.string().refine(isAddress),
   labels: z.tuple([z.string(), z.string()]),
   withReverse: z.boolean(),
-  referer: zAddress,
+  referer: z.string().refine(isAddress),
   periods: z.number(),
 });
 type Input = z.infer<typeof inputSchema>;

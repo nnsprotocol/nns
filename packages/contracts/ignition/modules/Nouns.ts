@@ -21,8 +21,8 @@ const NounsModule = buildModule("NounsModule", (m) => {
     15, // uint8 referralReward
     10, // uint8 ecosystemReward
     pricer, // IPricingOracle pricingOracle
-    deployer, // address communityPayable
-    deployer, // address communityManager
+    deployer, // address communityPayable TODO: change me.
+    deployer, // address communityManager TODO: change me.
     true, // bool hasExpiringNames
     false, // bool isDefaultCldResolver
   ]);
