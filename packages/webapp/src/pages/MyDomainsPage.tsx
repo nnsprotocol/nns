@@ -116,7 +116,10 @@ function MyDomainsPage() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between mb-xs mt-xs w-full text-sm font-medium">
-                    <a href="#" className="link-default text-xs">
+                    <a
+                      href="#"
+                      className="link-default text-textSecondary hover:text-textInverse text-xs"
+                    >
                       <span>Learn More</span>
                       <IconArrowRight size={12} />
                     </a>
