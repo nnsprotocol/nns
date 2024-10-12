@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import SectionBenefits from "../components/collection-details/SectionBenefits";
 import SectionSearch from "../components/collection-details/SectionSearch";
-import SectionSearchBackgroundPattern from "../components/collection-details/SectionSearchBackgroundPattern";
 import WalletButtonSection from "../components/wallet/WalletButtonSection";
 import { useCollectionData } from "../services/collections";
 
@@ -15,7 +14,7 @@ function CollectionDetailsPage() {
     if (!collection) {
       navigate("/");
     }
-  }, [collection]);
+  }, [collection, navigate]);
 
   if (!collection) {
     return null;
@@ -47,8 +46,10 @@ function CollectionDetailsPage() {
       <div className="max-w-screen-2xl px-4 mx-auto w-full">
         <main className="bg-surfacePrimary text-textInverse rounded-48 relative p-4">
           <div className="hidden sm:block absolute inset-0 z-0">
-            <SectionSearchBackgroundPattern
-              themeColor={collection.themeColor}
+            <img
+              src={collection.backgroundUrl}
+              alt="Background"
+              className="w-full"
             />
           </div>
           <div className="relative z-10 mb-16">

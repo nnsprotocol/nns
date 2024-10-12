@@ -10,6 +10,7 @@ export type CollectionData = {
   textColor: string;
   nameImgSrc: string;
   logoSrc: string;
+  backgroundUrl: string;
   nnsFontLogoUrl: string;
   twitterUrl?: string;
   discordUrl?: string;
@@ -37,6 +38,7 @@ const COLLECTIONS: Record<string, CollectionData> = {
     textColor: "#000000",
     nameImgSrc: "/logo-nouns.svg",
     logoSrc: "/temp/noun-1.svg",
+    backgroundUrl: "/brand/nouns-background.svg",
     nnsFontLogoUrl: "/logo-nouns.svg",
     discordUrl: undefined,
     twitterUrl: undefined,
@@ -90,6 +92,7 @@ const COLLECTIONS: Record<string, CollectionData> = {
     textColor: "#000000",
     nameImgSrc: "/logo-nns.svg",
     logoSrc: "/temp/nns.svg",
+    backgroundUrl: "/brand/nns-background.svg",
     discordUrl: undefined,
     twitterUrl: undefined,
     farcasterUrl: undefined,
