@@ -1,6 +1,6 @@
 import { useDomainPrice } from "../../services/controller";
 import { Registry } from "../../services/graph";
-import { formatETH, formatPrice, formatUSD } from "../../utils/formatter";
+import { formatPrice } from "../../utils/formatter";
 import IconArrowRight from "../icons/IconArrowRight";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import Tooltip from "../ui/Tooltip";

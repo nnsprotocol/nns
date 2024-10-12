@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useAccount, useBalance } from "wagmi";
 import { useDomainPrice } from "../../services/controller";
 import { NOGGLES_CLD_ID, Registry } from "../../services/graph";
-import { formatETH, formatPrice, formatUSD } from "../../utils/formatter";
+import { formatETH, formatPrice } from "../../utils/formatter";
 import IconArrowRight from "../icons/IconArrowRight";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import Tooltip from "../ui/Tooltip";

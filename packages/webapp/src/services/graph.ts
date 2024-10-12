@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Address, Hash, Hex, keccak256, namehash, toBytes } from "viem";
+import { Address, Hash, Hex, namehash } from "viem";
 import { normalize } from "viem/ens";
 
 const GRAPH_URL: string = import.meta.env.VITE_GRAPH_URL;

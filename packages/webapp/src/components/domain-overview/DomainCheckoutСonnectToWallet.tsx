@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useAccount } from "wagmi";
 import { useDomainPrice } from "../../services/controller";
 import { Registry } from "../../services/graph";
-import { formatETH, formatPrice, formatUSD } from "../../utils/formatter";
+import { formatPrice } from "../../utils/formatter";
 import IconElectricalPlug from "../icons/IconElectricalPlug";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import Tooltip from "../ui/Tooltip";
