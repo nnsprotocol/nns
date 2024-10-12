@@ -12,8 +12,9 @@ interface RegisterRequest {
 }
 
 type RegisterResponse = RegisterRequest & {
-  expiry: Hex;
-  nonce: Hex;
+  price: bigint;
+  expiry: bigint;
+  nonce: bigint;
   signature: Hex;
 };
 
@@ -25,7 +26,12 @@ export async function fetchRegisterSignature(
     body: JSON.stringify(req),
   });
   const body = await res.json();
-  return body as RegisterResponse;
+  return {
+    ...body,
+    price: BigInt(body.price),
+    expiry: BigInt(body.expiry),
+    nonce: BigInt(body.nonce),
+  };
 }
 
 type AvailabilityRequest = {
@@ -36,6 +42,7 @@ type AvailabilityRequest = {
 
 type AvailabilityResponse = {
   canRegister: boolean;
+  isFree: boolean;
 };
 
 async function fetchAvilability(

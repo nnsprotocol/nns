@@ -2,7 +2,7 @@ import { IRequest, StatusError } from "itty-router";
 import { normalize } from "viem/ens";
 import z from "zod";
 import { Env } from "../env";
-import { isValidDomainName, RegistrationValidator, zAddress } from "./shared";
+import { isValidDomainName, RegistrationValidator } from "./shared";
 import { isAddress } from "viem";
 
 const inputSchema = z.object({

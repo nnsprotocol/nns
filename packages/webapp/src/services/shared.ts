@@ -10,7 +10,7 @@ import {
 } from "wagmi";
 
 export type TxState =
-  | { value: "idle" }
+  | { value: "idle"; userCanceled?: boolean }
   | { value: "signing"; hash: Hex }
   | { value: "minting"; hash: Hex }
   | { value: "success"; hash: Hex }
@@ -52,7 +52,7 @@ export function useWriteContractWaitingForTx(
       });
       onError?.(tx.error);
     } else if (write.error && isUserRejectedRequestError(write.error)) {
-      setState({ value: "idle" });
+      setState({ value: "idle", userCanceled: true });
     } else if (write.error) {
       setState({
         value: "error",
@@ -84,14 +84,7 @@ export function useWriteContractWaitingForTx(
   };
 }
 
-type TxWithServerState =
-  | { value: "idle" }
-  | { value: "loading" }
-  | { value: "signing"; hash: Hex }
-  | { value: "minting"; hash: Hex }
-  | { value: "success"; hash: Hex }
-  | { value: "error"; error: Error; formattedError: string; hash?: Hex };
-
+type TxWithServerState = TxState | { value: "loading" };
 interface Props<serverData> {
   fetchServerData: () => Promise<serverData>;
   startTransaction(
@@ -142,7 +135,7 @@ export function useWriteContractWithServerRequest<serverData>(
         formattedError: formatError(tx.error),
       });
     } else if (write.error && isUserRejectedRequestError(write.error)) {
-      setState({ value: "idle" });
+      setState({ value: "idle", userCanceled: true });
     } else if (write.error) {
       setState({
         value: "error",

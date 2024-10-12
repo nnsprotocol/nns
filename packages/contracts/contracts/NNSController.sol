@@ -95,7 +95,9 @@ contract NNSController is IController, Ownable {
         if (_cldRequiresSignature[cldId]) {
             revert InvalidRegistrationMethod();
         }
-        _register(to, cldId, name, withReverse, referer, periods);
+        _requireRegistryOf(cldId);
+        uint256 price = _processRegistrationCost(cldId, periods, name);
+        _register(to, cldId, name, withReverse, referer, periods, price);
     }
 
     function registerWithSignature(
@@ -104,6 +106,7 @@ contract NNSController is IController, Ownable {
         bool withReverse,
         address referer,
         uint8 periods,
+        uint256 price,
         uint256 nonce,
         uint256 expiry,
         bytes memory signature
@@ -121,6 +124,7 @@ contract NNSController is IController, Ownable {
                 withReverse,
                 referer,
                 periods,
+                price,
                 expiry,
                 nonce
             )
@@ -140,7 +144,7 @@ contract NNSController is IController, Ownable {
             revert ECDSA.ECDSAInvalidSignature();
         }
 
-        _register(to, cldId, name, withReverse, referer, periods);
+        _register(to, cldId, name, withReverse, referer, periods, price);
         _usedRegisterNonces[nonce] = true;
     }
 
@@ -150,10 +154,10 @@ contract NNSController is IController, Ownable {
         string memory name,
         bool withReverse,
         address referer,
-        uint8 periods
+        uint8 periods,
+        uint256 price
     ) internal {
         IRegistry registry = _requireRegistryOf(cldId);
-        uint256 price = _processRegistrationCost(cldId, periods, name);
 
         uint256[] memory recordKeys = new uint256[](1);
         string[] memory recordValues = new string[](1);

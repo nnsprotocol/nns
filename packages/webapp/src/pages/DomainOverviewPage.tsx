@@ -86,6 +86,7 @@ function useRegistrationStatus(d: {
     status,
     isLoading: av.isLoading || domain.isLoading,
     error: av.error || domain.error,
+    isFree: av.data?.isFree ?? false,
   };
 }
 
@@ -161,15 +162,16 @@ function DomainOverviewPage() {
         abi: CONTROLLER_ABI,
         address: CONTROLLER_ADDRESS,
         functionName: "registerWithSignature",
-        value: (price!.eth * 11n) / 10n,
+        value: (serverData.price * 11n) / 10n,
         args: [
           serverData.to,
           [normalize(domainName), registry.data!.name],
           domainAsPrimaryName,
           referrer,
           registry.data?.hasExpiringNames ? 1 : 0,
-          BigInt(serverData.nonce),
-          BigInt(serverData.expiry),
+          serverData.price,
+          serverData.nonce,
+          serverData.expiry,
           serverData.signature,
         ],
       });
@@ -202,8 +204,10 @@ function DomainOverviewPage() {
       domainCheckoutType === "transactionSubmitted"
     ) {
       setDomainCheckoutType("buy");
+    } else if (["signing", "minting", "loading"].includes(txStatus.value)) {
+      setDomainCheckoutType("transactionSubmitted");
     }
-  }, [txStatus.value, domainCheckoutType]);
+  }, [txStatus, domainCheckoutType]);
 
   const handleNextStep = useCallback(() => {
     if (domainCheckoutType === "overview" && account.isConnected) {
@@ -219,7 +223,6 @@ function DomainOverviewPage() {
       domainCheckoutType === "buy" &&
       ["idle", "error"].includes(txStatus.value)
     ) {
-      setDomainCheckoutType("transactionSubmitted");
       if (registry.data?.registrationWithSignature) {
         registerWithSignature.write();
       } else {
@@ -350,6 +353,7 @@ function DomainOverviewPage() {
                 onPrimaryNameChange={setDomainAsPrimaryName}
                 onNext={handleNextStep}
                 registry={registry.data}
+                isFree={regStatus.isFree}
               />
             )}
           {registry.data && domainCheckoutType === "connectToWallet" && (
@@ -359,6 +363,7 @@ function DomainOverviewPage() {
               primaryName={domainAsPrimaryName}
               onPrimaryNameChange={setDomainAsPrimaryName}
               onNext={handleNextStep}
+              isFree={regStatus.isFree}
             />
           )}
           {registry.data && domainCheckoutType === "buy" && (
@@ -368,6 +373,7 @@ function DomainOverviewPage() {
               primaryName={domainAsPrimaryName}
               onPrimaryNameChange={setDomainAsPrimaryName}
               onNext={handleNextStep}
+              isFree={regStatus.isFree}
               error={
                 txStatus.value === "error" ? txStatus.formattedError : undefined
               }

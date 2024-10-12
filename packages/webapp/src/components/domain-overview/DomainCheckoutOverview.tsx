@@ -1,6 +1,6 @@
 import { useDomainPrice } from "../../services/controller";
 import { Registry } from "../../services/graph";
-import { formatETH, formatUSD } from "../../utils/formatter";
+import { formatETH, formatPrice, formatUSD } from "../../utils/formatter";
 import IconArrowRight from "../icons/IconArrowRight";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import Tooltip from "../ui/Tooltip";
@@ -10,6 +10,7 @@ type Props = {
   name: string;
   registry: Registry;
   available: boolean;
+  isFree: boolean;
   primaryName: boolean;
   onPrimaryNameChange: (value: boolean) => void;
   onNext: () => void;
@@ -42,7 +43,11 @@ const DomainCheckoutOverview: React.FC<Props> = (props) => {
               NNS Name
             </p>
             <p className="text-2xl text-textBrandLavender mt-auto font-medium">
-              {price?.usd ? formatUSD(price?.usd) : "Loading..."}
+              {formatPrice({
+                price: price?.usd,
+                isFree: props.isFree,
+                unit: "usd",
+              })}
             </p>
           </div>
         </div>
@@ -59,10 +64,18 @@ const DomainCheckoutOverview: React.FC<Props> = (props) => {
             <p className="font-medium">Yours for</p>
             <div>
               <p className="font-medium text-textPrimary text-end mb-xs">
-                {price?.usd ? formatUSD(price?.usd) : "Loading..."}
+                {formatPrice({
+                  price: price?.usd,
+                  isFree: props.isFree,
+                  unit: "usd",
+                })}
               </p>
               <p className="font-normal text-end">
-                {price?.eth ? formatETH(price?.eth) : "Loading..."}
+                {formatPrice({
+                  price: price?.eth,
+                  isFree: props.isFree,
+                  unit: "eth",
+                })}
               </p>
             </div>
           </div>

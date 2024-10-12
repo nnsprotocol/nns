@@ -37,6 +37,11 @@ export default [
   },
   {
     inputs: [],
+    name: "InvalidRegistrationMethod",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "InvalidRegistrationPeriod",
     type: "error",
   },
@@ -224,12 +229,17 @@ export default [
       },
       {
         internalType: "uint8",
-        name: "communityReward",
+        name: "communityShare",
         type: "uint8",
       },
       {
         internalType: "uint8",
-        name: "referralReward",
+        name: "referralShare",
+        type: "uint8",
+      },
+      {
+        internalType: "uint8",
+        name: "ecosystemShare",
         type: "uint8",
       },
       {
@@ -289,6 +299,11 @@ export default [
         internalType: "uint8",
         name: "periods",
         type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "price",
+        type: "uint256",
       },
       {
         internalType: "uint256",
@@ -361,7 +376,7 @@ export default [
         type: "bool",
       },
     ],
-    name: "setCldRequiresSignature",
+    name: "setCldSignatureRequired",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -410,4 +425,4 @@ export default [
     stateMutability: "nonpayable",
     type: "function",
   },
-] as const;
+];

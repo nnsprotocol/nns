@@ -76,6 +76,7 @@ async function signRegistrationRequest(
     withReverse: boolean;
     referer: string;
     periods: number;
+    price: number;
     expiry: number;
     nonce: BigNumberish;
   }
@@ -90,6 +91,7 @@ async function signRegistrationRequest(
       "uint8",
       "uint256",
       "uint256",
+      "uint256",
     ],
     [
       req.to,
@@ -98,6 +100,7 @@ async function signRegistrationRequest(
       req.withReverse,
       req.referer,
       req.periods,
+      req.price,
       req.expiry,
       req.nonce,
     ]
@@ -661,6 +664,7 @@ describe("NNSController", () => {
           true,
           ethers.ZeroAddress,
           0,
+          666,
           345,
           9999999999,
           "0x"
@@ -679,6 +683,7 @@ describe("NNSController", () => {
         withReverse: true,
         referer: ethers.ZeroAddress,
         periods: 0,
+        price: 123,
         nonce: 666,
         expiry: (await time.latest()) + 10000,
       };
@@ -689,6 +694,7 @@ describe("NNSController", () => {
         data.referer,
         data.periods,
         data.nonce,
+        data.price,
         data.expiry,
         await signRegistrationRequest(ctx.signer, {
           ...data,
@@ -711,6 +717,7 @@ describe("NNSController", () => {
         withReverse: true,
         referer: ethers.ZeroAddress,
         periods: 0,
+        price: 123,
         nonce: 666,
         expiry: (await time.latest()) + 10000,
       };
@@ -720,6 +727,7 @@ describe("NNSController", () => {
         data.withReverse,
         data.referer,
         data.periods,
+        data.price,
         data.nonce,
         data.expiry,
         await signRegistrationRequest(ctx.w1, {
@@ -742,6 +750,7 @@ describe("NNSController", () => {
         withReverse: true,
         referer: ethers.ZeroAddress,
         periods: 0,
+        price: 123,
         nonce: 666,
         expiry: (await time.latest()) - 100,
       };
@@ -751,6 +760,7 @@ describe("NNSController", () => {
         data.withReverse,
         data.referer,
         data.periods,
+        data.price,
         data.nonce,
         data.expiry,
         await signRegistrationRequest(ctx.signer, {
@@ -767,6 +777,7 @@ describe("NNSController", () => {
 
     describe("success", () => {
       let params: Parameters<typeof ctx.controller.registerWithSignature>;
+      let tx: ContractTransactionResponse;
 
       beforeEach(async () => {
         const data = {
@@ -776,6 +787,7 @@ describe("NNSController", () => {
           withReverse: true,
           referer: ctx.w4.address,
           periods: 0,
+          price: 111,
           nonce: 666,
           expiry: (await time.latest()) + 100,
         };
@@ -785,15 +797,18 @@ describe("NNSController", () => {
           data.withReverse,
           data.referer,
           data.periods,
+          data.price,
           data.nonce,
           data.expiry,
           await signRegistrationRequest(ctx.signer, {
             ...data,
             cldId: namehash(data.cldName),
           }),
-          { value: 14 },
+          { value: 333 }, // price is 111 so we expect 222 back
         ];
-        await ctx.controller.connect(ctx.w1).registerWithSignature(...params);
+        tx = await ctx.controller
+          .connect(ctx.w1)
+          .registerWithSignature(...params);
       });
 
       describe("domain is minted", () => {
@@ -818,6 +833,11 @@ describe("NNSController", () => {
 
           const reverseName = await registry.reverseNameOf(ctx.w2);
           expect(reverseName).to.eq(`${name}.${cldName}`);
+        });
+
+        it("the correct price has been applied", async () => {
+          expect(tx).to.changeEtherBalance(ctx.w1, -111);
+          expect(tx).to.changeEtherBalance(ctx.controller, 111);
         });
       });
 
@@ -847,6 +867,7 @@ describe("NNSController", () => {
             true,
             ethers.ZeroAddress,
             0,
+            123,
             666,
             9999999999,
             "0x"

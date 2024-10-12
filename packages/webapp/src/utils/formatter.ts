@@ -22,3 +22,29 @@ export function formatNOGS(v: bigint) {
   const fractionDigits = value < 1 && value !== 0 ? 5 : 0;
   return value.toFixed(fractionDigits) + " $NOGS";
 }
+
+export function formatPrice(d: {
+  price?: bigint;
+  isFree?: boolean;
+  unit: "usd" | "eth" | "nogs";
+}) {
+  let formatter: (v: bigint) => string;
+  switch (d.unit) {
+    case "usd":
+      formatter = formatUSD;
+      break;
+
+    case "eth":
+      formatter = formatETH;
+      break;
+
+    case "nogs":
+      formatter = formatNOGS;
+      break;
+  }
+
+  if (d.isFree) {
+    return formatter(0n);
+  }
+  return d.price ? formatter(d.price) : "Loading...";
+}

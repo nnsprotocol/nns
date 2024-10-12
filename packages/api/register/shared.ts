@@ -24,7 +24,7 @@ export const isValidDomainName = (v: string) => {
   }
 };
 
-enum Network {
+export enum Network {
   ETH_MAINNET = "eth-mainnet",
   BASE_MAINNET = "base-mainnet",
   BASE_SEPOLIA = "base-sepolia",
@@ -68,7 +68,6 @@ export class RegistrationValidator {
 
     const tokenId = BigInt(keccak256(toBytes(normalize(name))));
     const owner = await this.fetchERC721Owner(this.nnsERC721, tokenId);
-
     if (owner) {
       const isOwner = isAddressEqual(owner, to);
       return {

@@ -52,6 +52,7 @@ interface IController {
         bool withReverse,
         address referer,
         uint8 periods,
+        uint256 price,
         uint256 nonce,
         uint256 expiry,
         bytes memory signature

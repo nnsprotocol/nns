@@ -1,10 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { Address, Hash, Hex, namehash } from "viem";
+import { Address, Hash, Hex, keccak256, namehash, toBytes } from "viem";
 import { normalize } from "viem/ens";
 
 const GRAPH_URL: string = import.meta.env.VITE_GRAPH_URL;
 
 export const NOGGLES_CLD_ID = namehash("⌐◨-◨");
+export function isNogglesCldId(id?: Hash | bigint) {
+  if (!id) {
+    return false;
+  }
+  if (typeof id === "string") {
+    id = BigInt(id);
+  }
+  return id === BigInt(NOGGLES_CLD_ID);
+}
 
 export type Registry = {
   id: Hash;
@@ -234,8 +243,8 @@ async function fetchDomains(data: { owner: Address; cldId: Hex | bigint }) {
   return await sendGraphRequest<Domain[]>(
     `
       {
-        domains(where: { 
-          owner: "${accountId}" 
+        domains(where: {
+          owner: "${accountId}"
           registry: "${cldId}"
         }) {
           ${DOMAIN_SELECT}

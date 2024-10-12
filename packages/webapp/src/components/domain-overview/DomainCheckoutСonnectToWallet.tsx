@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useAccount } from "wagmi";
 import { useDomainPrice } from "../../services/controller";
 import { Registry } from "../../services/graph";
-import { formatETH, formatUSD } from "../../utils/formatter";
+import { formatETH, formatPrice, formatUSD } from "../../utils/formatter";
 import IconElectricalPlug from "../icons/IconElectricalPlug";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import Tooltip from "../ui/Tooltip";
@@ -12,6 +12,7 @@ import DomainCheckoutContainer from "./DomainCheckoutContainer";
 type Props = {
   name: string;
   registry: Registry;
+  isFree: boolean;
   primaryName: boolean;
   onPrimaryNameChange: (value: boolean) => void;
   onNext: () => void;
@@ -25,11 +26,12 @@ const DomainCheckoutConnectToWallet: React.FC<Props> = (props) => {
   });
   const { openConnectModal } = useConnectModal();
 
+  const onNext = props.onNext;
   useEffect(() => {
     if (account.isConnected) {
-      props.onNext();
+      onNext();
     }
-  }, [props.onNext, account.isConnected]);
+  }, [onNext, account.isConnected]);
 
   return (
     <DomainCheckoutContainer>
@@ -61,13 +63,21 @@ const DomainCheckoutConnectToWallet: React.FC<Props> = (props) => {
             <p className="text-sm font-medium mb-sm">You Pay</p>
             <div className="flex gap-md justify-between items-center mb-sm">
               <span className="text-2xl text-textPrimary font-medium">
-                {price?.eth ? formatETH(price?.eth) : "Loading..."}
+                {formatPrice({
+                  price: price?.eth,
+                  isFree: props.isFree,
+                  unit: "eth",
+                })}
               </span>
               <img src="/temp/ether-coin.svg" width={25} height={25} />
             </div>
             <div className="flex gap-md justify-between items-center">
               <span className="text-sm text-textSecondary font-medium">
-                {price?.usd ? formatUSD(price?.usd) : "Loading..."}
+                {formatPrice({
+                  price: price?.usd,
+                  isFree: props.isFree,
+                  unit: "usd",
+                })}
               </span>
               {/* <span className="text-sm text-textSecondary font-medium">
                 Balance: --
