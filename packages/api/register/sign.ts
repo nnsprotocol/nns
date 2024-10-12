@@ -46,7 +46,9 @@ export default async function registerHandler(
   const signer = privateKeyToAccount(env.SIGNER_PK);
   const validator = RegistrationValidator.fromEnv(env);
 
-  const input = await inputSchema.parseAsync(await req.json());
+  const input = await inputSchema.parseAsync(
+    await req.json().catch(() => null)
+  );
 
   const cld = input.labels[1];
   const name = normalize(input.labels[0]);
@@ -64,7 +66,7 @@ export default async function registerHandler(
 
     case "nouns": {
       const result = await validator.validateNouns(input.to, name);
-      if (!result) {
+      if (!result.canRegister) {
         throw new StatusError(409, "cannot_register");
       }
       isFree = result.isFree;

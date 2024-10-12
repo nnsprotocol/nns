@@ -4,7 +4,6 @@ import {
   erc20Abi,
   erc721Abi,
   http,
-  isAddress,
   isAddressEqual,
   keccak256,
   toBytes,
@@ -12,7 +11,6 @@ import {
 } from "viem";
 import { base, baseSepolia, mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
-import z from "zod";
 import { Env } from "../env";
 
 export const isValidDomainName = (v: string) => {
