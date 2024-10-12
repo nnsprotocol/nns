@@ -17,10 +17,10 @@ export default defineConfig({
         ],
       },
     }),
-    sentryVitePlugin({
-      org: "nns-l5",
-      project: "javascript-react",
-    }),
+    // sentryVitePlugin({
+    //   org: "nns-l5",
+    //   project: "javascript-react",
+    // }),
   ],
 
   build: {

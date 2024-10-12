@@ -1,39 +1,108 @@
+import { useMemo, useState } from "react";
 import IconArrowRight from "../icons/IconArrowRight";
 
-const cardsList = [
+const partners = [
   {
-    id: "nouns",
-    imgSrc: "/temp/resolved-section/nouns.svg",
-    text: "Nouns DAO",
+    name: "Nouns DAO",
+    icon: "partners/nouns-dao.png",
+    link: "https://nouns.wtf/",
   },
   {
-    id: "lil-nouns",
-    imgSrc: "/temp/resolved-section/lil-nouns.svg",
-    text: "Lil Noun DAO",
+    name: "Lil Nouns DAO",
+    icon: "partners/lil-nouns-dao.png",
+    link: "https://lilnouns.wtf/",
   },
   {
-    id: "gnars",
-    imgSrc: "/temp/resolved-section/gnars.svg",
-    text: "Gnars",
+    name: "Gnars",
+    icon: "partners/gnars.png",
+    link: "https://www.gnars.wtf/",
   },
   {
-    id: "guild",
-    imgSrc: "/temp/resolved-section/guild.svg",
-    text: "Guild.xyz",
+    name: "Guild.xyz",
+    icon: "partners/guild-xyz.png",
+    link: "https://guild.xyz/explorer",
   },
   {
-    id: "gnars-2",
-    imgSrc: "/temp/resolved-section/gnars.svg",
-    text: "Gnars",
+    name: "DAO Base",
+    icon: "partners/dao-base.png",
+    link: "https://daobase.ai/",
   },
   {
-    id: "guild-2",
-    imgSrc: "/temp/resolved-section/guild.svg",
-    text: "Guild.xyz",
+    name: "Voter.wtf",
+    icon: "partners/voter-wtf.png",
+    link: "https://voter.wtf",
+  },
+  {
+    name: "Agora",
+    icon: "partners/agora.png",
+    link: "https://nounsagora.com/",
+  },
+  {
+    name: "Federation",
+    icon: "partners/federation.png",
+    link: "https://www.federation.wtf/",
+  },
+  {
+    name: "Alps DAO",
+    icon: "partners/alps-dao.png",
+    link: "https://alps.wtf/",
+  },
+  {
+    name: "NounsBR",
+    icon: "partners/nounsbr.png",
+    link: "https://nounsbr.wtf/",
+  },
+  {
+    name: "Public Nouns",
+    icon: "partners/public-nouns.png",
+    link: "https://publicnouns.wtf/",
+  },
+  {
+    name: "Puppet Samurai",
+    icon: "partners/puppet-samurai.png",
+    link: "https://puppetsamurai.com/",
+  },
+  {
+    name: "Auctions",
+    icon: "partners/auctions.png",
+    link: "https://auctions.wtf/",
+  },
+  {
+    name: "Tings",
+    icon: "partners/tings.png",
+    link: "https://tings.wtf/",
+  },
+  {
+    name: "Food Nouns",
+    icon: "partners/food-nouns.png",
+    link: "https://www.foodnouns.wtf/",
+  },
+  {
+    name: "Wizards DAO",
+    icon: "partners/wizards-dao.png",
+    link: "https://wizardsdao.com/",
+  },
+  {
+    name: "Dino Nouns",
+    icon: "partners/dino-nouns.png",
+    link: "https://dinonouns.xyz/",
+  },
+  {
+    name: "Yolo Nouns",
+    icon: "partners/yolo-nouns.png",
+    link: "https://yolonouns.wtf/",
   },
 ];
 
 function SectionResolved() {
+  const [showAllPartners, setShowAllPartners] = useState(false);
+  const filteredPartners = useMemo(() => {
+    if (showAllPartners) {
+      return partners;
+    }
+    return partners.slice(0, 6);
+  }, [showAllPartners]);
+
   return (
     <section className="flex justify-center w-full">
       <a className="anchor" id="resolver"></a>
@@ -47,9 +116,9 @@ function SectionResolved() {
             resolver is part of the system and gains benefits and rewards.
           </p>
           <div className="mt-2xl grid grid-cols-1 md:grid-cols-2 gap-lg">
-            {cardsList.map((item) => (
+            {filteredPartners.map((partner) => (
               <div
-                key={item.id}
+                key={partner.name}
                 className="p-md border border-borderPrimary rounded-3xl relative overflow-hidden bg-cardPrimaryGradient"
               >
                 <div className="absolute inset-0 backdrop-blur-[30px] z-0"></div>
@@ -57,22 +126,35 @@ function SectionResolved() {
                   <div className="flex items-center gap-xs">
                     <div>
                       <img
-                        src={item.imgSrc}
+                        src={partner.icon}
                         alt=""
                         className="w-12 h-12 rounded-xl"
                       />
                     </div>
                     <p className="text-lg text-textInverse font-medium">
-                      {item.text}
+                      {partner.name}
                     </p>
                   </div>
-                  <button type="button" className="button-secondary button-md">
+                  <a
+                    href={partner.link}
+                    target="_blank"
+                    className="button-secondary button-md"
+                  >
                     <IconArrowRight />
-                  </button>
+                  </a>
                 </div>
               </div>
             ))}
           </div>
+          <button
+            type="button"
+            className="button-secondary button-md"
+            onClick={() => setShowAllPartners(!showAllPartners)}
+          >
+            <span className="w-full text-center">
+              {showAllPartners ? "Show less" : "Show all"}
+            </span>
+          </button>
           <button type="button" className="button-secondary button-md">
             <span className="w-full text-center">Add NNS Resolver</span>
           </button>
