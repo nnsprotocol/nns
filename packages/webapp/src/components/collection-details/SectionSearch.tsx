@@ -50,7 +50,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ collection }) => {
         <div className="relative z-10 grid grid-cols-1 gap-lg">
           <div className="flex justify-center">
             <img
-              src="/logo-nouns.svg"
+              src={collection.nnsFontLogoUrl}
               alt="Logo nouns"
               className="h-5 w-auto"
             />

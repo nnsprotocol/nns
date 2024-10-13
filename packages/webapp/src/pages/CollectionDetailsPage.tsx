@@ -35,6 +35,7 @@ function CollectionDetailsPage() {
             </Link>
             <div>
               <WalletButtonSection
+                switchColors
                 customConnectWalletButtonColors={{
                   hoverThemedBackgroundColor: collection.themeColor,
                 }}
