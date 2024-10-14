@@ -3,7 +3,7 @@
   "packageManager": "yarn@4.2.2",
   "dependencies": {
     "itty-router": "^5.0.18",
-    "viem": "^2.21.2",
+    "viem": "^2.21.24",
     "zod": "^3.23.8"
   },
   "scripts": {

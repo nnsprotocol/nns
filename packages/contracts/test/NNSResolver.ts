@@ -7,6 +7,7 @@ async function setup() {
 
   const resolverF = await ethers.getContractFactory("NNSResolver");
   const resolver = await resolverF.deploy();
+  await resolver.initialize();
 
   const cldFact = await ethers.getContractFactory("CldRegistry");
   const cldA = await cldFact.deploy("a", "a", owner, owner);

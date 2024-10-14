@@ -3,15 +3,18 @@ pragma solidity >=0.8.4;
 
 import "./interfaces/IResolver.sol";
 import "./interfaces/IRegistry.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract NNSResolver is IResolver, Ownable {
+contract NNSResolver is IResolver, OwnableUpgradeable {
     mapping(uint256 => IRegistry) _clds;
     uint256 _fallbackCldId;
-
     mapping(address => uint256) _defaultCldIds;
 
-    constructor() Ownable(_msgSender()) {}
+    uint256[50] __gap;
+
+    function initialize() public initializer {
+        __Ownable_init(_msgSender());
+    }
 
     function registerCld(
         IRegistry registry,

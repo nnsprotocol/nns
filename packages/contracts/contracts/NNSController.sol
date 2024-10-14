@@ -1,19 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.4;
 
-import "./CldRegistry.sol";
 import "./interfaces/IPricingOracle.sol";
 import "./interfaces/IRewarder.sol";
 import "./interfaces/IResolver.sol";
 import "./interfaces/IController.sol";
 import "./interfaces/ICldFactory.sol";
 import "./libraries/Namehash.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
-contract NNSController is IController, Ownable {
+contract NNSController is IController, OwnableUpgradeable {
     // namehash("crypto.ETH.address")
     uint256 public constant RECORD_CRYPTO_ETH_ADDRESS =
         0x391a42857851a55da4050881bd0d2e6c9978bfa7483b787e07a760028ed71a2b;
@@ -29,12 +28,15 @@ contract NNSController is IController, Ownable {
     mapping(uint256 cldId => bool) _cldRequiresSignature;
     mapping(uint256 nonce => bool) _usedRegisterNonces;
 
-    constructor(
+    uint256[50] __gap;
+
+    function initialize(
         IRewarder rewarder,
         IResolver resolver,
         ICldFactory cldFactory,
         address signer_
-    ) Ownable(_msgSender()) {
+    ) public initializer {
+        __Ownable_init(_msgSender());
         _rewarder = rewarder;
         _resolver = resolver;
         _cldFactory = cldFactory;

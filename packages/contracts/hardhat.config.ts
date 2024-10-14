@@ -4,6 +4,7 @@ import "solidity-coverage";
 import "hardhat-abi-exporter";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
+import "@openzeppelin/hardhat-upgrades";
 import dotenv from "dotenv";
 import "./tasks";
 

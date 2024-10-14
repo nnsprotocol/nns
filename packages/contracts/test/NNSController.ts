@@ -20,7 +20,8 @@ async function setup() {
   const swapRouter = await swapRouterF.deploy(erc20);
 
   const rewarderF = await ethers.getContractFactory("NNSRewarder");
-  const rewarder = await rewarderF.deploy(swapRouter, erc20, erc20, w5);
+  const rewarder = await rewarderF.deploy();
+  await rewarder.initialize(swapRouter, erc20, erc20, w5);
 
   const erc721F = await ethers.getContractFactory("ERC721Mock");
   const erc721 = await erc721F.deploy();
@@ -37,12 +38,14 @@ async function setup() {
 
   const resolverF = await ethers.getContractFactory("NNSResolver");
   const resolver = await resolverF.deploy();
+  await resolver.initialize();
 
   const cldFF = await ethers.getContractFactory("CldFactory");
   const cldF = await cldFF.deploy();
 
   const controllerF = await ethers.getContractFactory("NNSController");
-  const controller = await controllerF.deploy(rewarder, resolver, cldF, signer);
+  const controller = await controllerF.deploy();
+  await controller.initialize(rewarder, resolver, cldF, signer);
   await rewarder.setController(controller);
   await resolver.transferOwnership(controller);
 

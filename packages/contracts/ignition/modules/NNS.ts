@@ -1,5 +1,56 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+import {
+  ArgumentType,
+  ContractOptions,
+  IgnitionModuleBuilder,
+  NamedArtifactContractAtFuture,
+} from "@nomicfoundation/ignition-core";
 import { namehash, parseEther } from "ethers";
+
+function deployWithProxy<ContractNameT extends string>(
+  m: IgnitionModuleBuilder,
+  contractName: ContractNameT,
+  initArgs?: ArgumentType[],
+  options?: ContractOptions
+): {
+  contract: NamedArtifactContractAtFuture<ContractNameT>;
+  proxyAdmin: NamedArtifactContractAtFuture<"ProxyAdmin">;
+} {
+  const deployer = m.getAccount(0);
+
+  const idPrefix = options?.id || contractName;
+
+  const impl = m.contract(contractName, [], options);
+
+  const initData = m.encodeFunctionCall(impl, "initialize", initArgs);
+  const proxy = m.contract(
+    "TransparentUpgradeableProxy",
+    [impl, deployer, initData],
+    {
+      id: `${idPrefix}Proxy`,
+    }
+  );
+
+  const proxyAdminAddress = m.readEventArgument(
+    proxy,
+    "AdminChanged",
+    "newAdmin",
+    {
+      id: `${idPrefix}ProxyAdminAddress`,
+    }
+  );
+
+  const proxyAdmin = m.contractAt("ProxyAdmin", proxyAdminAddress, {
+    id: `${idPrefix}ProxyAdmin`,
+  });
+  const proxiedContract = m.contractAt(contractName, proxy, {
+    id: `${idPrefix}ViaProxy`,
+  });
+  return {
+    contract: proxiedContract,
+    proxyAdmin,
+  };
+}
 
 const NNSModule = buildModule("NNSModule", (m) => {
   const deployer = m.getAccount(0);
@@ -11,12 +62,14 @@ const NNSModule = buildModule("NNSModule", (m) => {
   const aggregator = m.getParameter<string>("aggregator");
   const signer = m.getParameter<string>("signer");
 
-  const rewarder = m.contract("NNSRewarder", [
-    swapRouter,
-    erc20,
-    weth,
-    deployer, // TODO: change me.
-  ]);
+  const { contract: rewarder, proxyAdmin: rewarderProxyAdmin } =
+    deployWithProxy(m, "NNSRewarder", [
+      swapRouter,
+      erc20,
+      weth,
+      deployer, // TODO: change me.
+    ]);
+
   // Rewarder: Ecosystem
   const ecosystemToken = m.contract("NNSResolverToken", []);
   const ecosystemRewarder = m.contract(
@@ -38,16 +91,13 @@ const NNSModule = buildModule("NNSModule", (m) => {
   m.call(rewarder, "setAccountRewarder", [accountRewarder]);
 
   // Resolver
-  const resolver = m.contract("NNSResolver", []);
+  const { contract: resolver, proxyAdmin: resolverProxyAdmin } =
+    deployWithProxy(m, "NNSResolver");
 
   // Controller
   const cldF = m.contract("CldFactory", []);
-  const controller = m.contract("NNSController", [
-    rewarder,
-    resolver,
-    cldF,
-    signer,
-  ]);
+  const { contract: controller, proxyAdmin: controllerProxyAdmin } =
+    deployWithProxy(m, "NNSController", [rewarder, resolver, cldF, signer]);
   const setControllerOnRewarder = m.call(rewarder, "setController", [
     controller,
   ]);
@@ -105,12 +155,16 @@ const NNSModule = buildModule("NNSModule", (m) => {
 
   return {
     rewarder,
+    rewarderProxyAdmin,
     resolver,
+    resolverProxyAdmin,
     controller,
+    controllerProxyAdmin,
     pricer,
     holdersRewarder,
     accountRewarder,
     ecosystemRewarder,
+    cldFactory: cldF,
   };
 });
 

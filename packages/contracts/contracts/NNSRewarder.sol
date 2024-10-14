@@ -7,11 +7,11 @@ import "./interfaces/IERC721Reward.sol";
 import "./interfaces/IAccountRewarder.sol";
 import "./interfaces/IERC721BasedRewarder.sol";
 import "./interfaces/IV3SwapRouter.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract NNSRewarder is IRewarder, Ownable {
+contract NNSRewarder is IRewarder, OwnableUpgradeable {
     uint8 public constant PROTOCOL_SHARE = 5;
 
     address internal _protocol;
@@ -32,12 +32,15 @@ contract NNSRewarder is IRewarder, Ownable {
 
     address internal _controller;
 
-    constructor(
+    uint256[50] __gap;
+
+    function initialize(
         IV3SwapRouter swapRouter,
         IERC20 rewardToken,
         IERC20 weth9,
         address protocol
-    ) Ownable(_msgSender()) {
+    ) public initializer {
+        __Ownable_init(_msgSender());
         _swapRouter = swapRouter;
         _rewardToken = rewardToken;
         _weth9 = weth9;

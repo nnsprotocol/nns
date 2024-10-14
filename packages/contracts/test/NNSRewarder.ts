@@ -20,7 +20,8 @@ async function setup() {
   const swapRouter = await swapRouterF.deploy(erc20);
 
   const rewarderF = await ethers.getContractFactory("NNSRewarder");
-  const rewarder = await rewarderF.deploy(swapRouter, erc20, erc20, protocol);
+  const rewarder = await rewarderF.deploy();
+  await rewarder.initialize(swapRouter, erc20, erc20, protocol);
 
   const cldFact = await ethers.getContractFactory("CldRegistry");
   const cldA = await cldFact.deploy("a", "a", owner, owner);

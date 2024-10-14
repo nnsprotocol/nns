@@ -5,17 +5,17 @@ import path from "path";
 
 export async function getNNSController(hre: HardhatRuntimeEnvironment) {
   const name = "NNSController";
-  return hre.ethers.getContractAt(name, await _getAddress(hre, name));
+  return hre.ethers.getContractAt(name, await _getAddress(hre, `${name}Proxy`));
 }
 
 export async function getNNSResolver(hre: HardhatRuntimeEnvironment) {
   const name = "NNSResolver";
-  return hre.ethers.getContractAt(name, await _getAddress(hre, name));
+  return hre.ethers.getContractAt(name, await _getAddress(hre, `${name}Proxy`));
 }
 
 export async function getNNSRewarder(hre: HardhatRuntimeEnvironment) {
   const name = "NNSRewarder";
-  return hre.ethers.getContractAt(name, await _getAddress(hre, name));
+  return hre.ethers.getContractAt(name, await _getAddress(hre, `${name}Proxy`));
 }
 
 export async function getRegistry(
