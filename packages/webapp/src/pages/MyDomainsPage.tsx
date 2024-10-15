@@ -100,7 +100,7 @@ function MyDomainsPage() {
                 </select>
                 {resolverCld ? "community" : null}
                 <span className="flex">
-                  <Tooltip text="lorem ipsum" />
+                  <Tooltip text="With NNS you can have a default name displayed everywhere or you can choose a different name for every community you’re a part of." />
                 </span>
               </div>
             </div>
@@ -133,7 +133,9 @@ function MyDomainsPage() {
                         }
                       }}
                     >
-                      {!canRefer && <Tooltip text="Lorem ipsum" />}
+                      {!canRefer && (
+                        <Tooltip text="You need a .⌐◨-◨ name to start collecting money through Referrals. Get it now!" />
+                      )}
                       {canRefer && (
                         <>
                           <IconCopy className="fill-textSecondary group-hover:fill-textInverse" />
@@ -145,18 +147,30 @@ function MyDomainsPage() {
                 </div>
               </div>
               <div className="grid grid-cols-1">
-                <button
-                  type="button"
-                  className="button-md button-secondary justify-center"
-                  onClick={handleOnClaim}
-                  disabled={Boolean(
-                    !rewardBalance.data ||
-                      rewardBalance.data === 0n ||
-                      claimReward.isLoading
-                  )}
-                >
-                  Claim All
-                </button>
+                {canRefer ? (
+                  <button
+                    type="button"
+                    className="button-md button-secondary justify-center"
+                    onClick={handleOnClaim}
+                    disabled={Boolean(
+                      !rewardBalance.data ||
+                        rewardBalance.data === 0n ||
+                        claimReward.isLoading
+                    )}
+                  >
+                    Claim All
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="button-md button-secondary justify-center"
+                    onClick={() => {
+                      navigate("/collections/nns");
+                    }}
+                  >
+                    Get a .⌐◨-◨
+                  </button>
+                )}
               </div>
             </div>
           </div>

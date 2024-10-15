@@ -135,7 +135,8 @@ const DomainCheckoutConnectToWallet: React.FC<Props> = (props) => {
           </div> */}
           <div className="flex gap-xs justify-between">
             <p className="flex gap-xxs items-center text-sm font-medium">
-              <span>Set as primary name</span> <Tooltip text="lorem ipsum" />
+              <span>Set as primary name</span>{" "}
+              <Tooltip text="This links your address to this name, allowing it to be displayed across the NNS ecosystem. You can have one primary address per collection." />
             </p>
             <ToggleDefault
               isOn={props.primaryName}
