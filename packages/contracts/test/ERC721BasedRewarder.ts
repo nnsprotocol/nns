@@ -86,6 +86,7 @@ describe("ERC721BasedRewarder", () => {
         await ctx.rewarder.connect(ctx.owner).incrementBalance(1003);
 
         // anyone can call it.
+        await time.increase(ctx.minSnapshotInterval + 10);
         tx = await ctx.rewarder.connect(ctx.w1).takeSnapshot();
       });
 
@@ -157,8 +158,19 @@ describe("ERC721BasedRewarder", () => {
       });
     });
 
-    it("reverts when the snapshot interval has not passed", async () => {
+    it("reverts when the snapshot interval from the contract creation", async () => {
       const ctx = await setup();
+      await ctx.token.connect(ctx.owner).mint(ctx.w1.address, 1);
+      const op = ctx.rewarder.connect(ctx.owner).takeSnapshot();
+      await expect(op).to.be.revertedWithCustomError(
+        ctx.rewarder,
+        "SnapshotTooEarly"
+      );
+    });
+
+    it("reverts when the snapshot interval has not passed after a snapshot", async () => {
+      const ctx = await setup();
+      await time.increase(ctx.minSnapshotInterval + 10);
       await ctx.token.connect(ctx.owner).mint(ctx.w1.address, 1);
       await ctx.rewarder.connect(ctx.owner).takeSnapshot();
       const op = ctx.rewarder.connect(ctx.owner).takeSnapshot();
@@ -192,6 +204,7 @@ describe("ERC721BasedRewarder", () => {
       const ctx = await setup();
       await ctx.token.connect(ctx.owner).mint(ctx.w1.address, 1);
       await ctx.rewarder.connect(ctx.owner).incrementBalance(100);
+      await time.increase(ctx.minSnapshotInterval + 10);
       await ctx.rewarder.connect(ctx.owner).takeSnapshot();
       await ctx.rewarder.connect(ctx.owner).issueReward(ctx.w1.address, 1);
       const op = ctx.rewarder.connect(ctx.owner).issueReward(ctx.w1.address, 1);
@@ -207,6 +220,7 @@ describe("ERC721BasedRewarder", () => {
       const AFTER_TOKEN = 2;
       await ctx.token.connect(ctx.owner).mint(ctx.w1.address, BEFORE_TOKEN);
       await ctx.rewarder.connect(ctx.owner).incrementBalance(100);
+      await time.increase(ctx.minSnapshotInterval + 10);
       const snapshotTx = await ctx.rewarder.connect(ctx.owner).takeSnapshot();
       // now we can mint a new token and try to claim it
       const mintTx = await ctx.token
@@ -236,6 +250,7 @@ describe("ERC721BasedRewarder", () => {
         ctx = await setup();
         await ctx.token.connect(ctx.owner).mint(ctx.w1.address, 1);
         await ctx.rewarder.connect(ctx.owner).incrementBalance(100);
+        await time.increase(ctx.minSnapshotInterval + 10);
         await ctx.rewarder.connect(ctx.owner).takeSnapshot();
 
         beforeSnapshot = await ctx.rewarder.lastSnapshot();
@@ -261,22 +276,23 @@ describe("ERC721BasedRewarder", () => {
   });
 
   describe("balanceOf", () => {
-    it("returns zero if the token was minted after the snapshot", async () => {
-      const ctx = await setup();
+    let ctx: Context;
+
+    beforeEach(async () => {
+      ctx = await setup();
       await ctx.token.connect(ctx.owner).mint(ctx.w1.address, 1);
       await ctx.rewarder.connect(ctx.owner).incrementBalance(100);
+      await time.increase(ctx.minSnapshotInterval + 10);
       await ctx.rewarder.connect(ctx.owner).takeSnapshot();
+    });
 
+    it("returns zero if the token was minted after the snapshot", async () => {
       await ctx.token.connect(ctx.owner).mint(ctx.w1.address, 2);
       const balance = await ctx.rewarder.balanceOf(2);
       expect(balance).to.eq(0);
     });
 
     it("returns zero if the token was already claimed", async () => {
-      const ctx = await setup();
-      await ctx.token.connect(ctx.owner).mint(ctx.w1.address, 1);
-      await ctx.rewarder.connect(ctx.owner).incrementBalance(100);
-      await ctx.rewarder.connect(ctx.owner).takeSnapshot();
       await ctx.rewarder.connect(ctx.owner).issueReward(ctx.w1.address, 1);
 
       const balance = await ctx.rewarder.balanceOf(1);
@@ -284,11 +300,6 @@ describe("ERC721BasedRewarder", () => {
     });
 
     it("returns zero if the token does not exist", async () => {
-      const ctx = await setup();
-      await ctx.token.connect(ctx.owner).mint(ctx.w1.address, 1);
-      await ctx.rewarder.connect(ctx.owner).incrementBalance(100);
-      await ctx.rewarder.connect(ctx.owner).takeSnapshot();
-
       const balance = await ctx.rewarder.balanceOf(10000);
       expect(balance).to.eq(0);
     });

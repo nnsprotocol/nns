@@ -10,7 +10,6 @@ contract CldFactory is ICldFactory {
         address minter,
         address communityManager
     ) external returns (IRegistry) {
-        // TODO: token name and symbol
-        return new CldRegistry(name, name, minter, communityManager);
+        return new CldRegistry(name, minter, communityManager);
     }
 }

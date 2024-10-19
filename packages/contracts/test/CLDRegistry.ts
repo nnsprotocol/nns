@@ -9,7 +9,7 @@ async function setup() {
 
   const name = "noggles";
   const cldFact = await ethers.getContractFactory("CldRegistry");
-  const cld = await cldFact.deploy(name, `${name}-SYMBOL`, minter, community);
+  const cld = await cldFact.deploy(name, minter, community);
   const cldId = namehash(name);
 
   return {
@@ -109,18 +109,18 @@ describe("CLDRegistry", () => {
   });
 
   describe("name", () => {
-    it("returns the domain name", async () => {
+    it("returns the domain name prefixed with 'NNS .'", async () => {
       const ctx = await setup();
       const name = await ctx.cld.name();
-      expect(name).to.eq(ctx.name);
+      expect(name).to.eq(`NNS .${ctx.name}`);
     });
   });
 
   describe("symbol", () => {
-    it("returns the symbol", async () => {
+    it("returns the name prefixed with '.'", async () => {
       const ctx = await setup();
       const symbol = await ctx.cld.symbol();
-      expect(symbol).to.eq(ctx.name + "-SYMBOL");
+      expect(symbol).to.eq(`.${ctx.name}`);
     });
   });
 

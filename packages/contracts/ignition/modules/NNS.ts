@@ -61,6 +61,12 @@ const NNSModule = buildModule("NNSModule", (m) => {
   const weth = m.getParameter<string>("weth");
   const aggregator = m.getParameter<string>("aggregator");
   const signer = m.getParameter<string>("signer");
+  const holderSnapshotIntervalSeconds = m.getParameter<number>(
+    "holderSnapshotIntervalSeconds"
+  );
+  const ecosystemSnapshotIntervalSeconds = m.getParameter<number>(
+    "ecosystemSnapshotIntervalSeconds"
+  );
 
   const { contract: rewarder, proxyAdmin: rewarderProxyAdmin } =
     deployWithProxy(m, "NNSRewarder", [
@@ -74,10 +80,7 @@ const NNSModule = buildModule("NNSModule", (m) => {
   const ecosystemToken = m.contract("NNSResolverToken", []);
   const ecosystemRewarder = m.contract(
     "ERC721BasedRewarder",
-    [
-      ecosystemToken,
-      24 * 3600, // TODO: change me.
-    ],
+    [ecosystemToken, ecosystemSnapshotIntervalSeconds],
     {
       id: "EcosystemRewarder",
       after: [ecosystemToken],
@@ -141,10 +144,7 @@ const NNSModule = buildModule("NNSModule", (m) => {
   // Rewarder: Holders
   const holdersRewarder = m.contract(
     "ERC721BasedRewarder",
-    [
-      nogglesRegistry,
-      24 * 3600, // TODO: change me.
-    ],
+    [nogglesRegistry, holderSnapshotIntervalSeconds],
     {
       id: "HoldersRewarder",
       after: [nogglesRegistry],

@@ -10,10 +10,10 @@ async function setup() {
   await resolver.initialize();
 
   const cldFact = await ethers.getContractFactory("CldRegistry");
-  const cldA = await cldFact.deploy("a", "a", owner, owner);
-  const cldB = await cldFact.deploy("b", "b", owner, owner);
-  const cldC = await cldFact.deploy("c", "c", owner, owner);
-  const cldD = await cldFact.deploy("d", "d", owner, owner);
+  const cldA = await cldFact.deploy("a", owner, owner);
+  const cldB = await cldFact.deploy("b", owner, owner);
+  const cldC = await cldFact.deploy("c", owner, owner);
+  const cldD = await cldFact.deploy("d", owner, owner);
 
   return {
     resolver,

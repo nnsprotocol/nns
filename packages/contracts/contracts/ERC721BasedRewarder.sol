@@ -21,6 +21,8 @@ contract ERC721BasedRewarder is Ownable, IERC721BasedRewarder {
     ) Ownable(_msgSender()) {
         _nft = nft;
         _minSnapshotInterval = minSnapshotInterval;
+        _snapshot.blockNumber = block.number;
+        _snapshot.blockTimestamp = block.timestamp;
     }
 
     function erc721() external view returns (address) {

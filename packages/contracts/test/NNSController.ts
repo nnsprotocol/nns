@@ -191,8 +191,8 @@ describe("NNSController", () => {
           registryAddress
         );
 
-        await expect(registry.name()).to.eventually.eq("test");
-        await expect(registry.symbol()).to.eventually.eq("test");
+        await expect(registry.name()).to.eventually.eq("NNS .test");
+        await expect(registry.symbol()).to.eventually.eq(".test");
       });
 
       it("emits a CldRegistered event", async () => {

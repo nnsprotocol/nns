@@ -31,10 +31,9 @@ contract CldRegistry is IRegistry, ERC721, AccessControl, IERC721Rewardable {
 
     constructor(
         string memory cldName,
-        string memory symbol,
         address minter,
         address communityManager
-    ) ERC721(cldName, symbol) {
+    ) ERC721(string.concat("NNS .", cldName), string.concat(".", cldName)) {
         _cldId = _namehash(0, cldName);
         _cldName = cldName;
 

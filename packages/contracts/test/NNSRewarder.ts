@@ -8,6 +8,7 @@ import {
 import { ethers } from "hardhat";
 import { AccountRewarder, ERC721BasedRewarder } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 
 async function setup() {
   const [owner, w1, w2, w3, w4, w5, controller, protocol] =
@@ -24,10 +25,10 @@ async function setup() {
   await rewarder.initialize(swapRouter, erc20, erc20, protocol);
 
   const cldFact = await ethers.getContractFactory("CldRegistry");
-  const cldA = await cldFact.deploy("a", "a", owner, owner);
-  const cldB = await cldFact.deploy("b", "b", owner, owner);
-  const cldC = await cldFact.deploy("c", "c", owner, owner);
-  const cldD = await cldFact.deploy("d", "d", owner, owner);
+  const cldA = await cldFact.deploy("a", owner, owner);
+  const cldB = await cldFact.deploy("b", owner, owner);
+  const cldC = await cldFact.deploy("c", owner, owner);
+  const cldD = await cldFact.deploy("d", owner, owner);
 
   const snapshotInterval = 10234;
   const erc721F = await ethers.getContractFactory("ERC721Mock");
@@ -523,6 +524,8 @@ describe("NNSRewarder", () => {
       await ctx.holdersToken.mint(ctx.w2, 5);
       holderRewarder = await ctx.newERC721Rewarder(ctx.holdersToken);
       await holderRewarder.incrementBalance(1000);
+      await time.increase(ctx.snapshotInterval + 10);
+
       await holderRewarder.takeSnapshot();
       await ctx.rewarder.setHolderRewarder(holderRewarder);
       // Ecosystem Setup: 4 tokens, 1000 reward
@@ -532,6 +535,8 @@ describe("NNSRewarder", () => {
       await ctx.ecosystemToken.mint(ctx.w3, 64);
       ecosystemRewarder = await ctx.newERC721Rewarder(ctx.ecosystemToken);
       await ecosystemRewarder.incrementBalance(1000);
+      await time.increase(ctx.snapshotInterval + 10);
+
       await ecosystemRewarder.takeSnapshot();
       await ctx.rewarder.setEcosystemRewarder(ecosystemRewarder);
       // Account Setup: 853 reward for w1
@@ -582,6 +587,7 @@ describe("NNSRewarder", () => {
       await ctx.holdersToken.mint(ctx.w2, 5);
       holderRewarder = await ctx.newERC721Rewarder(ctx.holdersToken);
       await holderRewarder.incrementBalance(1000);
+      await time.increase(ctx.snapshotInterval + 10);
       await holderRewarder.takeSnapshot();
       await ctx.rewarder.setHolderRewarder(holderRewarder);
       await holderRewarder.transferOwnership(ctx.rewarder);
@@ -592,6 +598,7 @@ describe("NNSRewarder", () => {
       await ctx.ecosystemToken.mint(ctx.w3, 64);
       ecosystemRewarder = await ctx.newERC721Rewarder(ctx.ecosystemToken);
       await ecosystemRewarder.incrementBalance(1000);
+      await time.increase(ctx.snapshotInterval + 10);
       await ecosystemRewarder.takeSnapshot();
       await ctx.rewarder.setEcosystemRewarder(ecosystemRewarder);
       await ecosystemRewarder.transferOwnership(ctx.rewarder);
