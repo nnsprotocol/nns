@@ -64,6 +64,12 @@ const COLLECTIONS: Record<string, CollectionData> = {
           share: 5,
           themeColor: "#C496FF",
         },
+        {
+          iconSrc: "/temp/referral.svg",
+          name: "Referrals",
+          share: 15,
+          themeColor: "#828187",
+        },
       ],
     },
     nameDescription: (name: string) => {
@@ -104,12 +110,18 @@ const COLLECTIONS: Record<string, CollectionData> = {
           iconSrc: "/temp/nns.svg",
           name: "NNS",
           share: 5,
-          themeColor: "#E9C80B",
+          themeColor: "#C496FF",
         },
         {
           iconSrc: "/temp/ecosystem.svg",
           name: "Ecosystem",
           share: 60,
+          themeColor: "#828187",
+        },
+        {
+          iconSrc: "/temp/referral.svg",
+          name: "Referrals",
+          share: 35,
           themeColor: "#828187",
         },
       ],
