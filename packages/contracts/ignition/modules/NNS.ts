@@ -67,14 +67,10 @@ const NNSModule = buildModule("NNSModule", (m) => {
   const ecosystemSnapshotIntervalSeconds = m.getParameter<number>(
     "ecosystemSnapshotIntervalSeconds"
   );
+  const nnsWallet = m.getParameter<string>("nnsWallet");
 
   const { contract: rewarder, proxyAdmin: rewarderProxyAdmin } =
-    deployWithProxy(m, "NNSRewarder", [
-      swapRouter,
-      erc20,
-      weth,
-      deployer, // TODO: change me.
-    ]);
+    deployWithProxy(m, "NNSRewarder", [swapRouter, erc20, weth, nnsWallet]);
 
   // Rewarder: Ecosystem
   const ecosystemToken = m.contract("NNSResolverToken", []);
@@ -121,8 +117,8 @@ const NNSModule = buildModule("NNSModule", (m) => {
       35, // uint8 referralReward
       60, // uint8 ecosystemReward
       pricer, // IPricingOracle pricingOracle
-      deployer, // address communityPayable TODO: change me.
-      deployer, // address communityManager TODO: change me.
+      nnsWallet, // address communityPayable
+      nnsWallet, // address communityManager
       false, // bool hasExpiringNames
       true, // bool isDefaultCldResolver
     ],
