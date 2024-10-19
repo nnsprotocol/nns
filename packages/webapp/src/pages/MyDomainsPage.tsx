@@ -14,6 +14,7 @@ import { REWARDER_ADDRESS, useRewardBalance } from "../services/rewarder";
 import { useWriteContractWaitingForTx } from "../services/shared";
 import { formatAddress, formatNOGS } from "../utils/formatter";
 import { generateReferralLink, useCanRefer } from "../utils/Referral";
+import toast from "react-hot-toast";
 
 function MyDomainsPage() {
   const account = useAccount();
@@ -130,6 +131,7 @@ function MyDomainsPage() {
                           navigator.clipboard.writeText(
                             generateReferralLink(account.address)
                           );
+                          toast("Link copied");
                         }
                       }}
                     >
