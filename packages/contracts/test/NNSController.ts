@@ -9,6 +9,7 @@ import {
 } from "ethers";
 import { ethers } from "hardhat";
 import { CldRegistry } from "../typechain-types";
+import { signRegistrationRequest } from "./helpers";
 
 async function setup() {
   const [owner, w1, w2, w3, w4, w5, signer] = await ethers.getSigners();
@@ -48,6 +49,7 @@ async function setup() {
   await controller.initialize(rewarder, resolver, cldF, signer);
   await rewarder.setController(controller);
   await resolver.transferOwnership(controller);
+  await cldF.transferOwnership(controller);
 
   const pricerF = await ethers.getContractFactory("ConstantPricingOracle");
   const pricer = await pricerF.deploy(10);
@@ -69,47 +71,6 @@ async function setup() {
 }
 
 type Context = Awaited<ReturnType<typeof setup>>;
-
-async function signRegistrationRequest(
-  signer: SignerWithAddress,
-  req: {
-    to: string;
-    cldId: BigNumberish;
-    name: string;
-    withReverse: boolean;
-    referer: string;
-    periods: number;
-    price: number;
-    expiry: number;
-    nonce: BigNumberish;
-  }
-) {
-  const hash = ethers.solidityPackedKeccak256(
-    [
-      "address",
-      "uint256",
-      "string",
-      "bool",
-      "address",
-      "uint8",
-      "uint256",
-      "uint256",
-      "uint256",
-    ],
-    [
-      req.to,
-      req.cldId,
-      req.name,
-      req.withReverse,
-      req.referer,
-      req.periods,
-      req.price,
-      req.expiry,
-      req.nonce,
-    ]
-  );
-  return await signer.signMessage(ethers.getBytes(hash));
-}
 
 describe("NNSController", () => {
   describe("registerCld", () => {

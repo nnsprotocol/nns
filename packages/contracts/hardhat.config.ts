@@ -27,17 +27,32 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       baseSepolia: process.env.BASESCAN_API_KEY!,
+      baseMainnet: process.env.BASESCAN_API_KEY!,
     },
   },
   networks: {
+    "base-mainnet": {
+      url: `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts: [process.env.MAINNET_DEPLOYER_PRIVATE_KEY!],
+    },
     "base-sepolia": {
       url: "https://sepolia.base.org",
       accounts: [process.env.SEPOLIA_DEPLOYER_PRIVATE_KEY!],
     },
-    virtual_base: {
-      url: "https://virtual.base.rpc.tenderly.co/a4ea2f02-476e-4c7f-99d6-e65abf6f1ca7",
+    hardhat: {
+      forking: {
+        url: `https://base-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+        blockNumber: 21282821,
+      },
       chainId: 8453,
-      accounts: [process.env.SEPOLIA_DEPLOYER_PRIVATE_KEY!],
+      chains: {
+        8453: {
+          hardforkHistory: {
+            berlin: 10000000,
+            london: 20000000,
+          },
+        },
+      },
     },
   },
 };

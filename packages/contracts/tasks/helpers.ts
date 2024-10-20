@@ -18,6 +18,35 @@ export async function getNNSRewarder(hre: HardhatRuntimeEnvironment) {
   return hre.ethers.getContractAt(name, await _getAddress(hre, `${name}Proxy`));
 }
 
+export async function getNNSResolverToken(hre: HardhatRuntimeEnvironment) {
+  const name = "NNSResolverToken";
+  return hre.ethers.getContractAt(name, await _getAddress(hre, name));
+}
+
+export async function getEcosystemRewarder(hre: HardhatRuntimeEnvironment) {
+  const rewarder = await getNNSRewarder(hre);
+  return hre.ethers.getContractAt(
+    "ERC721BasedRewarder",
+    await rewarder.ecosystemRewarder()
+  );
+}
+
+export async function getHolderRewarder(hre: HardhatRuntimeEnvironment) {
+  const rewarder = await getNNSRewarder(hre);
+  return hre.ethers.getContractAt(
+    "ERC721BasedRewarder",
+    await rewarder.holderRewarder()
+  );
+}
+
+export async function getAccountRewarder(hre: HardhatRuntimeEnvironment) {
+  const rewarder = await getNNSRewarder(hre);
+  return hre.ethers.getContractAt(
+    "AccountRewarder",
+    await rewarder.accountRewarder()
+  );
+}
+
 export async function getRegistry(
   hre: HardhatRuntimeEnvironment,
   name: string

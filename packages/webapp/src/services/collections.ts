@@ -53,6 +53,12 @@ const COLLECTIONS: Record<string, CollectionData> = {
           themeColor: "#E9C80B",
         },
         {
+          iconSrc: "/temp/referral.svg",
+          name: "Referrals",
+          share: 15,
+          themeColor: "#828187",
+        },
+        {
           iconSrc: "/temp/ecosystem.svg",
           name: "Ecosystem",
           share: 10,
@@ -63,12 +69,6 @@ const COLLECTIONS: Record<string, CollectionData> = {
           name: "NNS",
           share: 5,
           themeColor: "#C496FF",
-        },
-        {
-          iconSrc: "/temp/referral.svg",
-          name: "Referrals",
-          share: 15,
-          themeColor: "#828187",
         },
       ],
     },
@@ -107,12 +107,6 @@ const COLLECTIONS: Record<string, CollectionData> = {
       header: "Learn more about .⌐◨-◨ names",
       revenues: [
         {
-          iconSrc: "/temp/nns.svg",
-          name: "NNS",
-          share: 5,
-          themeColor: "#C496FF",
-        },
-        {
           iconSrc: "/temp/ecosystem.svg",
           name: "Ecosystem",
           share: 60,
@@ -123,6 +117,12 @@ const COLLECTIONS: Record<string, CollectionData> = {
           name: "Referrals",
           share: 35,
           themeColor: "#828187",
+        },
+        {
+          iconSrc: "/temp/nns.svg",
+          name: "NNS",
+          share: 5,
+          themeColor: "#C496FF",
         },
       ],
     },

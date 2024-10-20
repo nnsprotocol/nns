@@ -2,6 +2,7 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import { parseEther } from "ethers";
 
 const MockModule = buildModule("MockModule", (m) => {
+  const aggregator = m.contract("USDETHAggregatorMock", [2]);
   const erc20 = m.contract("ERC20Mock", []);
   const swapRouter = m.contract("SwapRouterMock", [erc20]);
 
@@ -10,6 +11,7 @@ const MockModule = buildModule("MockModule", (m) => {
   return {
     erc20,
     swapRouter,
+    aggregator,
   };
 });
 

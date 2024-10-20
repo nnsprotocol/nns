@@ -53,8 +53,6 @@ function deployWithProxy<ContractNameT extends string>(
 }
 
 const NNSModule = buildModule("NNSModule", (m) => {
-  const deployer = m.getAccount(0);
-
   // Rewarder
   const erc20 = m.getParameter<string>("erc20");
   const swapRouter = m.getParameter<string>("swapRouter");
@@ -84,6 +82,7 @@ const NNSModule = buildModule("NNSModule", (m) => {
   );
   m.call(ecosystemRewarder, "transferOwnership", [rewarder]);
   m.call(rewarder, "setEcosystemRewarder", [ecosystemRewarder]);
+  m.call(ecosystemToken, "transferOwnership", [nnsWallet]);
   // Rewarder: Accounts
   const accountRewarder = m.contract("AccountRewarder", []);
   m.call(accountRewarder, "transferOwnership", [rewarder]);
@@ -101,6 +100,7 @@ const NNSModule = buildModule("NNSModule", (m) => {
     controller,
   ]);
   m.call(resolver, "transferOwnership", [controller]);
+  m.call(cldF, "transferOwnership", [controller]);
 
   // USD Pricing Oracle for .⌐◨-◨
   const prices = [parseEther("50"), parseEther("20"), parseEther("10")];

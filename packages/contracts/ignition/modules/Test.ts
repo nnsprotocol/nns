@@ -16,8 +16,9 @@ const TestModule = buildModule("TestModule", (m) => {
   // Deploy CLD
   m.call(controller, "registerCld", [
     "lizard", // string memory name
-    90, // uint8 communityReward
+    85, // uint8 communityReward
     5, // uint8 referralReward
+    5, // uint8 holders
     pricer, // IPricingOracle pricingOracle
     deployer, // address communityPayable
     deployer, // address communityManager
