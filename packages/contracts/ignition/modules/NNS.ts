@@ -103,7 +103,12 @@ const NNSModule = buildModule("NNSModule", (m) => {
   m.call(cldF, "transferOwnership", [controller]);
 
   // USD Pricing Oracle for .⌐◨-◨
-  const prices = [parseEther("50"), parseEther("20"), parseEther("10")];
+  const prices = [
+    parseEther("10000"),
+    parseEther("1000"),
+    parseEther("250"),
+    parseEther("100"),
+  ];
   const pricer = m.contract("USDPricingOracle", [prices, aggregator]);
 
   // Deploy .⌐◨-◨ CLD

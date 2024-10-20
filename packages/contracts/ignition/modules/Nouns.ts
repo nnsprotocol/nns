@@ -9,7 +9,12 @@ const NounsModule = buildModule("NounsModule", (m) => {
   const aggregator = m.getParameter<string>("aggregator");
 
   // USD Pricing Oracle
-  const prices = [parseEther("100"), parseEther("40"), parseEther("20")];
+  const prices = [
+    parseEther("2500"),
+    parseEther("500"),
+    parseEther("125"),
+    parseEther("50"),
+  ];
   const pricer = m.contract("USDPricingOracle", [prices, aggregator], {
     id: "NounsUSDPricingOracle",
   });
