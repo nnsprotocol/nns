@@ -6,6 +6,8 @@ type Account @entity {
   stats: [OwnerStats!]! @derivedFrom(field: "owner")
   numberOfDomains: BigInt!
   defaultResolverRegistry: Registry
+
+  resolvingTokens: [ResolvingToken]! @derivedFrom(field: "owner")
 }
 
 type DomainOperator @entity {
@@ -66,4 +68,11 @@ type Subdomain @entity {
   parent: Domain!
   records: [DomainRecord!]! @derivedFrom(field: "subdomain")
   resolvedAddress: Bytes
+}
+
+type ResolvingToken @entity {
+  id: ID!
+  tokenId: BigInt!
+  name: String!
+  owner: Account!
 }

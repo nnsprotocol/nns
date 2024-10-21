@@ -8,21 +8,28 @@ const NOGGLES_SVG = `
 </svg>
 `;
 
-class Domain {
-  public readonly fullName: string;
+export class Domain {
+  static RESOLVING_TOKEN_CLD = "@@resolving";
+
   public readonly cld: string;
   public readonly name: string;
 
-  constructor(fullName: string) {
-    this.fullName = fullName;
-    const components = fullName.split(".");
-    this.cld = components.pop()!;
-    this.name = components.join(".");
+  constructor(cfg: string | { cld: string; name: string }) {
+    if (typeof cfg === "string") {
+      const components = cfg.split(".");
+      this.cld = components.pop()!;
+      this.name = components.join(".");
+    } else {
+      this.cld = cfg.cld;
+      this.name = cfg.name;
+    }
   }
 
   private getImageURL(): string {
     if (this.cld === "nouns") {
       return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1726602781/nns/nouns_dmksx2.png";
+    } else if (this.cld === Domain.RESOLVING_TOKEN_CLD) {
+      return "https://res.cloudinary.com/dadjrw0kc/image/upload/v1729536138/nns/resolvingtoken_yjdcfc.png";
     }
 
     const length = Array.from(this.name).length;
@@ -40,14 +47,41 @@ class Domain {
     }
   }
 
+  getPage() {
+    return `
+      <html>
+        <head>
+          <style>
+            ${this.getCSS()}
+          </style>
+        </head>
+        <body>
+          ${this.getHTML()}
+        </body>
+      </html>
+    `;
+  }
+
   getHTML() {
-    let cld = this.cld;
-    if (this.cld === "⌐◨-◨") {
-      cld = `<span class="domain">${NOGGLES_SVG}</span>`; // use the svg image
+    let formattedName = "";
+    let heading = "";
+    switch (this.cld) {
+      case "⌐◨-◨":
+        formattedName += `${this.name}.<span class="domain">${NOGGLES_SVG}</span>`; // use the svg image
+        break;
+
+      case Domain.RESOLVING_TOKEN_CLD:
+        heading = `<p class="heading">Resolver</p>`;
+        formattedName = this.name;
+        break;
+
+      default:
+        formattedName = `${this.name}.${this.cld}`;
     }
     return `
       <div class="root">
-        <p class="name">${this.name}.${cld}</p>
+        ${heading}
+        <p class="name">${formattedName}</p>
       </div>
     `;
   }
@@ -81,11 +115,22 @@ class Domain {
         box-sizing: border-box;
       }
 
+      .heading {
+        font-family: "Geist";
+        font-size: 48px;
+        text-align: center;
+        color: #535264;
+        font-weight: 400;
+        position: absolute;
+        bottom: 225px;
+        left: 95px;
+      }
+
       .name {
         font-family: "Geist";
         font-size: 72px;
         text-align: center;
-        color: white;
+        color: ${this.cld === Domain.RESOLVING_TOKEN_CLD ? "#30303E" : "white"};
         font-weight: 500;
         position: absolute;
         bottom: 153px;

@@ -9,6 +9,7 @@
     "@rollup/plugin-typescript": "^11.1.6",
     "rollup": "^4.21.3",
     "rollup-plugin-dotenv": "^0.5.1",
+    "serve": "^14.2.4",
     "tslib": "^2.7.0",
     "typescript": "^5.2.2"
   },

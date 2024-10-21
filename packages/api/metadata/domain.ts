@@ -1,7 +1,7 @@
 import { IRequest, StatusError } from "itty-router";
 import { isAddress } from "viem";
 import { Env } from "../env";
-import { fetchName } from "./graph";
+import { fetchTokenInfo } from "./graph";
 
 const CDN_URL = "https://d321vfgto7sq2r.cloudfront.net";
 
@@ -29,14 +29,20 @@ export default async function domainMetadataHandler(
   if (!params) {
     throw new StatusError(404, "domain_not_found");
   }
-  const name = await fetchName(params);
-  if (!name) {
+  const info = await fetchTokenInfo(params);
+  if (!info) {
     throw new StatusError(404, "domain_not_found");
   }
+
+  let description = `${info.name} is an NNS name`;
+  if (info.type === "resolvingToken") {
+    description = `Token issued to ${info.name} for resolving NNS names`;
+  }
+
   const imgUrl = `${CDN_URL}/${params.chainId}/${params.contract}/${params.tokenId}/image`;
   return {
-    name: name,
-    description: `${name} is an NNS name`,
+    name: info.name,
+    description,
     attributes: [],
     // url: undefined,
     version: 0,

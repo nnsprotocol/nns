@@ -4,7 +4,7 @@ import {
   CloudFrontResponseHandler,
   CloudFrontResultResponse,
 } from "aws-lambda";
-import { generateImage } from "./generate-image";
+import { Domain, generateImage } from "./generate-image";
 
 const s3 = new S3Client({
   region: "us-east-1",
@@ -28,15 +28,20 @@ export const handler: CloudFrontResponseHandler = async (event) => {
     });
   }
 
-  const name = await fetchName(imgReq);
-  if (!name) {
+  const info = await fetchTokenInfo(imgReq);
+  if (!info) {
     return errorResponse(response, {
       status: 404,
       message: "domain not found",
     });
   }
 
-  const img = await generateImage(name, {
+  let fullName = info.name;
+  if (info.type === "resolvingToken") {
+    fullName = `${info.name}.${Domain.RESOLVING_TOKEN_CLD}`;
+  }
+
+  const img = await generateImage(fullName, {
     apiId: process.env.HTMLCSSTOIMAGE_API_ID!,
     apiKey: process.env.HTMLCSSTOIMAGE_API_KEY!,
   });
@@ -83,7 +88,9 @@ function validateRequest(req: Pick<CloudFrontRequest, "uri">): ImageRequest {
 const GRAPH_URL =
   "https://api.goldsky.com/api/public/project_clxhxljv7a17t01x72s9reuqf/subgraphs/nns/0.0.2/gn";
 
-async function fetchName(req: ImageRequest): Promise<string | null> {
+async function fetchTokenInfo(
+  req: ImageRequest
+): Promise<{ name: string; type: "domain" | "resolvingToken" } | null> {
   const res = await fetch(GRAPH_URL, {
     method: "POST",
     headers: {
@@ -98,15 +105,38 @@ async function fetchName(req: ImageRequest): Promise<string | null> {
           }
         ) {
           name
+        }
+        resolvingTokens(
+          where: {
+            tokenId: "${req.tokenId.toString(10)}"
+          }
+        ) {
+          name
         } 
       }`,
     }),
   });
+  type Response = {
+    domains: { name: string }[];
+    resolvingTokens: { name: string }[];
+  };
   const body = (await res.json()) as {
-    data: { domains: { name: string }[] } | null;
+    data: Response | null;
   };
 
-  return body.data?.domains[0]?.name ?? null;
+  if (body.data?.domains[0]) {
+    return {
+      name: body.data?.domains[0].name,
+      type: "domain",
+    };
+  }
+  if (body.data?.resolvingTokens[0]) {
+    return {
+      name: body.data?.resolvingTokens[0].name,
+      type: "resolvingToken",
+    };
+  }
+  return null;
 }
 
 function getEnvVar(request: Pick<CloudFrontRequest, "origin">, name: string) {
@@ -136,7 +166,7 @@ function successResponse(
   response.bodyEncoding = "base64";
   response.headers = {
     ...response.headers,
-    "content-type": [{ key: "Content-Type", value: "text/plain" }],
+    "content-type": [{ key: "Content-Type", value: "image/png" }],
   };
   return response;
 }
