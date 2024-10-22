@@ -3,6 +3,7 @@ import registerHandler from "../register/sign";
 import availabilityHandler from "../register/availability";
 import { ZodError } from "zod";
 import domainMetadataHandler from "../metadata/domain";
+import resolveHandler from "../resolver/resolve";
 
 const { preflight, corsify } = cors();
 
@@ -27,6 +28,7 @@ const router = AutoRouter({
 
 router.post("/register", registerHandler);
 router.get("/availability", availabilityHandler);
+router.post("/resolve", resolveHandler);
 router.get("/:chainId/:contract/:tokenId", domainMetadataHandler);
 
 export default { ...router };

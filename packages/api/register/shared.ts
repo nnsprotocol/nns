@@ -1,17 +1,15 @@
 import {
   Address,
-  createPublicClient,
   erc20Abi,
   erc721Abi,
-  http,
   isAddressEqual,
   keccak256,
   toBytes,
   zeroAddress,
 } from "viem";
-import { base, baseSepolia, mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
 import { Env } from "../env";
+import { createChainClient, Network } from "../shared/chain";
 
 export const isValidDomainName = (v: string) => {
   try {
@@ -21,12 +19,6 @@ export const isValidDomainName = (v: string) => {
     return false;
   }
 };
-
-export enum Network {
-  ETH_MAINNET = "eth-mainnet",
-  BASE_MAINNET = "base-mainnet",
-  BASE_SEPOLIA = "base-sepolia",
-}
 
 type ContractInfo = {
   address: Address;
@@ -127,7 +119,7 @@ export class RegistrationValidator {
     contract: ContractInfo,
     tokenId: bigint
   ): Promise<Address | null> {
-    const pc = this.newPublicClient(contract.network);
+    const pc = createChainClient(contract.network);
     return await pc
       .readContract({
         abi: erc721Abi,
@@ -147,7 +139,7 @@ export class RegistrationValidator {
     contract: ContractInfo,
     owner: Address
   ): Promise<bigint> {
-    const pc = this.newPublicClient(contract.network);
+    const pc = createChainClient(contract.network);
     return await pc.readContract({
       abi: erc721Abi,
       functionName: "balanceOf",
@@ -160,34 +152,12 @@ export class RegistrationValidator {
     contract: ContractInfo,
     owner: Address
   ): Promise<bigint> {
-    const pc = this.newPublicClient(contract.network);
+    const pc = createChainClient(contract.network);
     return await pc.readContract({
       abi: erc20Abi,
       functionName: "balanceOf",
       args: [owner],
       address: contract.address,
-    });
-  }
-
-  private newPublicClient(network: Network) {
-    let chain;
-    switch (network) {
-      case Network.ETH_MAINNET:
-        chain = mainnet;
-        break;
-      case Network.BASE_SEPOLIA:
-        chain = baseSepolia;
-        break;
-      case Network.BASE_MAINNET:
-        chain = base;
-        break;
-      default:
-        throw new Error("unsupported network " + network);
-    }
-
-    return createPublicClient({
-      chain,
-      transport: http(),
     });
   }
 }

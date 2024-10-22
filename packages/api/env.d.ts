@@ -10,4 +10,5 @@ interface Env {
   readonly NOUNS_ERC20_ADDRESS: Address;
   readonly NOUNS_ERC20_NETWORK: Network;
   readonly NNS_CONTROLLER: Address;
+  readonly NNS_RESOLVER: Address;
 }
