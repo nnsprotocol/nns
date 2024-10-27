@@ -56,7 +56,6 @@ describe("Registration - Availability", () => {
         isFree: false,
       },
     },
-
     {
       test: "owner of the associated nouns can register the same domain for a free",
       name: "1012",
@@ -88,17 +87,7 @@ describe("Registration - Availability", () => {
       },
     },
     {
-      test: "names shorter than 3 cannot be registered",
-      name: "ab",
-      cld: "nouns",
-      owner: NOUNS_NFT_OWNER,
-      exp: {
-        canRegister: false,
-        isFree: false,
-      },
-    },
-    {
-      test: "names can be registered for a free when the account has Nouns",
+      test: "names can be registered for free when the account has Nouns",
       name: "notregisteredyet",
       cld: "nouns",
       owner: NOUNS_NFT_OWNER,
@@ -124,6 +113,26 @@ describe("Registration - Availability", () => {
       owner: randomAddress(),
       exp: {
         canRegister: false,
+        isFree: false,
+      },
+    },
+    {
+      test: "names cannot be registered when they exist in NNS v1 and belong to another account",
+      name: "dotnouns",
+      cld: "nouns",
+      owner: randomAddress(),
+      exp: {
+        canRegister: false,
+        isFree: false,
+      },
+    },
+    {
+      test: "names can be registered when they exist in NNS v1 and belong to the same account",
+      name: "dotnouns",
+      cld: "nouns",
+      owner: "0x1AA55A5f765c66f0f41b86d2c21B0DBC3078BdAC",
+      exp: {
+        canRegister: true,
         isFree: false,
       },
     },

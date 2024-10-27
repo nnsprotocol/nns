@@ -56,8 +56,7 @@ export class RegistrationValidator {
       };
     }
 
-    const tokenId = BigInt(keccak256(toBytes(normalize(name))));
-    const owner = await this.fetchERC721Owner(this.nnsERC721, tokenId);
+    const owner = await this.fetchNNSV1Owner(name);
     if (owner) {
       const isOwner = isAddressEqual(owner, to);
       return {
@@ -82,12 +81,14 @@ export class RegistrationValidator {
 
     const nameAsNumber = parseInt(name, 10);
     if (isNaN(nameAsNumber)) {
-      if (name.length < 3) {
+      const nnsOwner = await this.fetchNNSV1Owner(name);
+      if (nnsOwner) {
         return {
-          canRegister: false,
+          canRegister: isAddressEqual(nnsOwner, to),
           isFree: false,
         };
       }
+
       const [erc721Balance, erc20Balance] = await Promise.all([
         this.fetchERC721Balance(this.nounsERC721, to),
         this.fetchERC20Balance(this.nounsERC20, to),
@@ -133,6 +134,11 @@ export class RegistrationValidator {
         }
         throw err;
       });
+  }
+
+  private async fetchNNSV1Owner(name: string) {
+    const tokenId = BigInt(keccak256(toBytes(normalize(name))));
+    return await this.fetchERC721Owner(this.nnsERC721, tokenId);
   }
 
   private async fetchERC721Balance(

@@ -74,7 +74,7 @@ describe("Registration - Register", () => {
       cld: "nouns",
       request: {
         to: randomAddress(),
-        labels: ["apbigcod", "nouns"],
+        labels: ["notyetregister11232", "nouns"],
         withReverse: true,
         referer: randomAddress(),
         periods: 0,
@@ -88,7 +88,7 @@ describe("Registration - Register", () => {
       cld: "nouns",
       request: {
         to: NOUNS_COIN_OWNER,
-        labels: ["apbigcod", "nouns"],
+        labels: ["notyetregister11232", "nouns"],
         withReverse: true,
         referer: randomAddress(),
         periods: 0,
