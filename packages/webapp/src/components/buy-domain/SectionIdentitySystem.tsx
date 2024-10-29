@@ -16,7 +16,9 @@ function SectionIdentitySystem() {
     <section className="lg:flex lg:justify-center lg:items-center gap-12 lg:min-h-[560px]">
       <div className="lg:max-w-2xl">
         <div className="text-5xl text-center lg:text-left lg:text-6.5xl font-semibold">
-          Secure Your Name in the Nouniverse
+          Secure Your Name
+          <br />
+          in the Nouniverse
           {/* <span>
             <span>A shared identity system for everyone </span>
             <br className="hidden lg:inline" /> for
