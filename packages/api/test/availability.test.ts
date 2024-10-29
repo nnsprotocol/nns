@@ -128,9 +128,9 @@ describe("Registration - Availability", () => {
     },
     {
       test: "names can be registered when they exist in NNS v1 and belong to the same account",
-      name: "dotnouns",
+      name: "nogs",
       cld: "nouns",
-      owner: "0x1AA55A5f765c66f0f41b86d2c21B0DBC3078BdAC",
+      owner: "0x73E09de9497f2dfFf90B1e97aC0bE9cccA1677Ec",
       exp: {
         canRegister: true,
         isFree: false,

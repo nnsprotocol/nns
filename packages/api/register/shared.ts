@@ -81,20 +81,15 @@ export class RegistrationValidator {
 
     const nameAsNumber = parseInt(name, 10);
     if (isNaN(nameAsNumber)) {
-      const nnsOwner = await this.fetchNNSV1Owner(name);
-      if (nnsOwner) {
-        return {
-          canRegister: isAddressEqual(nnsOwner, to),
-          isFree: false,
-        };
-      }
-
-      const [erc721Balance, erc20Balance] = await Promise.all([
+      const [erc721Balance, erc20Balance, nnsOwner] = await Promise.all([
         this.fetchERC721Balance(this.nounsERC721, to),
         this.fetchERC20Balance(this.nounsERC20, to),
+        this.fetchNNSV1Owner(name),
       ]);
+      const hasTokens = erc721Balance > 0n || erc20Balance > 0n;
+      const isV1OwnerIfExists = !nnsOwner || isAddressEqual(nnsOwner, to);
       return {
-        canRegister: erc721Balance > 0n || erc20Balance > 0n,
+        canRegister: hasTokens && isV1OwnerIfExists,
         isFree: false,
       };
     }
