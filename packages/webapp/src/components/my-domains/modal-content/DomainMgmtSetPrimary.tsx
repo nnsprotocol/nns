@@ -1,5 +1,5 @@
 import { Address, Hash, isAddressEqual, namehash } from "viem";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import REGISTRY_ABI from "../../../abi/IRegistry";
 import { Domain, Registry, useDomains } from "../../../services/graph";
 import { useWriteContractWaitingForTx } from "../../../services/shared";
@@ -15,6 +15,7 @@ type Props = {
 
 export default function DomainMgmtSetPrimary(props: Props) {
   const account = useAccount();
+  const chainId = useChainId();
   const domains = useDomains({
     cldId: props.registry.id,
     owner: account.address,
@@ -60,7 +61,7 @@ export default function DomainMgmtSetPrimary(props: Props) {
               <td className="py-md pe-md">
                 <div className="flex items-center gap-xs">
                   <img
-                    src={getDomainImageURL(domain)}
+                    src={getDomainImageURL(chainId, domain)}
                     width={72}
                     height={72}
                     className="rounded-lg border border-borderPrimary"

@@ -6,7 +6,7 @@ const GRAPH_URL =
 export async function fetchTokenInfo(req: {
   contract: Address;
   tokenId: bigint;
-}): Promise<{ name: string; type: "domain" | "resolvingToken" } | null> {
+}): Promise<{ name: string; type: "domain" | "resolverToken" } | null> {
   const res = await fetch(GRAPH_URL, {
     method: "POST",
     headers: {
@@ -22,7 +22,7 @@ export async function fetchTokenInfo(req: {
         ) {
           name
         }
-        resolvingTokens(
+        resolverTokens(
           where: {
             tokenId: "${req.tokenId.toString(10)}"
           }
@@ -34,7 +34,7 @@ export async function fetchTokenInfo(req: {
   });
   type Response = {
     domains: { name: string }[];
-    resolvingTokens: { name: string }[];
+    resolverToken: { name: string }[];
   };
   const body = (await res.json()) as {
     data: Response | null;
@@ -46,10 +46,10 @@ export async function fetchTokenInfo(req: {
       type: "domain",
     };
   }
-  if (body.data?.resolvingTokens[0]) {
+  if (body.data?.resolverToken[0]) {
     return {
-      name: body.data?.resolvingTokens[0].name,
-      type: "resolvingToken",
+      name: body.data?.resolverToken[0].name,
+      type: "resolverToken",
     };
   }
   return null;

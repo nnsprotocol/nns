@@ -6,7 +6,6 @@ import "./index.css";
 import Root from "./Root.tsx";
 import BuyDomainPage from "./pages/BuyDomainPage.tsx";
 import CollectionDetailsPage from "./pages/CollectionDetailsPage.tsx";
-import Demo from "./pages/Demo.tsx";
 import DomainOverviewPage from "./pages/DomainOverviewPage.tsx";
 import MyDomainsPage from "./pages/MyDomainsPage.tsx";
 
@@ -14,7 +13,7 @@ import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { WagmiProvider } from "wagmi";
-import { baseSepolia } from "wagmi/chains";
+import { base, baseSepolia } from "wagmi/chains";
 
 import {
   createBrowserRouter,
@@ -62,10 +61,6 @@ const router = createBrowserRouter([
         element: <CollectionDetailsPage />,
       },
       {
-        path: "/demo",
-        element: <Demo />,
-      },
-      {
         path: "*",
         element: <Navigate to="/" />,
       },
@@ -74,10 +69,12 @@ const router = createBrowserRouter([
 ]);
 
 const queryClient = new QueryClient();
+
+const TEST_NETWORK = import.meta.env.VITE_TEST_NETWORK === "true";
 const config = getDefaultConfig({
   appName: "NNS",
-  projectId: "2b9721d85a7335f1bffd51b84a4ad573",
-  chains: [baseSepolia],
+  projectId: "27cca3569b9a69bf638c62460c3a3279",
+  chains: [TEST_NETWORK ? baseSepolia : base],
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

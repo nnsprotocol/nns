@@ -8,7 +8,8 @@
     "create-local": "graph create --node http://localhost:8020/ nnsprotocol/nns",
     "remove-local": "graph remove --node http://localhost:8020/ nnsprotocol/nns",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 --version-label v0.0.1 nnsprotocol/nns",
-    "deploy-sepolia": "yarn codegen && yarn build && goldsky subgraph delete -f nns/0.0.2 && goldsky subgraph deploy nns/0.0.2 --path .",
+    "deploy-sepolia": "yarn codegen && yarn build --network base-sepolia && goldsky subgraph deploy nns-sepolia/1.0.0 --path . --tag live",
+    "deploy-mainnet": "yarn codegen && yarn build --network base && goldsky subgraph deploy nns/1.0.0 --path . --tag live",
     "test": "graph test"
   },
   "dependencies": {

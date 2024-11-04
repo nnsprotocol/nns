@@ -29,11 +29,11 @@ const DomainCheckoutBuy: React.FC<Props> = (props) => {
   });
 
   const hasEnoughBalance = useMemo(() => {
-    if (!balance.data || !price?.eth) {
+    if (!balance.data || !price?.eth || props.isFree) {
       return true;
     }
     return balance.data.value >= (price.eth * 11n) / 10n; // 10% extra
-  }, [balance.data, price]);
+  }, [balance.data, price, props.isFree]);
 
   return (
     <DomainCheckoutContainer>

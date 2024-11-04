@@ -26,3 +26,8 @@ task("balance-eth")
     const balance = await hre.ethers.provider.getBalance(taskArgs.address);
     console.log(formatEther(balance));
   });
+
+task("deployer").setAction(async (_taskArgs, hre) => {
+  const [deployer] = await hre.ethers.getSigners();
+  console.log(deployer.address);
+});

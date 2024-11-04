@@ -3,6 +3,7 @@ import { CollectionPreview } from "../../services/graph";
 import { getDomainImageURL } from "../../utils/metadata";
 import IconStar from "../icons/IconStar";
 import { getCollectionLogoURL } from "../../services/collections";
+import { useChainId } from "wagmi";
 
 type Props = {
   collection: CollectionPreview;
@@ -11,6 +12,7 @@ type Props = {
 };
 
 const CollectionCard: React.FC<Props> = (props) => {
+  const chainId = useChainId();
   const isDefaultCld = useMemo(() => {
     return props.defaultCldId === BigInt(props.collection.registry.id);
   }, [props.defaultCldId, props.collection.registry]);
@@ -54,7 +56,7 @@ const CollectionCard: React.FC<Props> = (props) => {
           {props.collection.registry.previewDomains?.map((domain) => (
             <img
               key={domain.id}
-              src={getDomainImageURL(domain)}
+              src={getDomainImageURL(chainId, domain)}
               width={100}
               height={100}
               alt=""

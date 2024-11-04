@@ -4,6 +4,7 @@ import "solidity-coverage";
 import "hardhat-abi-exporter";
 import "hardhat-contract-sizer";
 import "hardhat-tracer";
+import "@nomicfoundation/hardhat-verify";
 import "@openzeppelin/hardhat-upgrades";
 import dotenv from "dotenv";
 import "./tasks";
@@ -26,8 +27,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      baseSepolia: process.env.BASESCAN_API_KEY!,
-      baseMainnet: process.env.BASESCAN_API_KEY!,
+      base: process.env.BASESCAN_API_KEY!,
     },
   },
   networks: {

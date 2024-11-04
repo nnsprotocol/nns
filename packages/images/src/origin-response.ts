@@ -37,7 +37,7 @@ export const handler: CloudFrontResponseHandler = async (event) => {
   }
 
   let fullName = info.name;
-  if (info.type === "resolvingToken") {
+  if (info.type === "resolverToken") {
     fullName = `${info.name}.${Domain.RESOLVING_TOKEN_CLD}`;
   }
 
@@ -85,13 +85,18 @@ function validateRequest(req: Pick<CloudFrontRequest, "uri">): ImageRequest {
   return { chainId, tokenId, contract };
 }
 
-const GRAPH_URL =
-  "https://api.goldsky.com/api/public/project_clxhxljv7a17t01x72s9reuqf/subgraphs/nns/0.0.2/gn";
+const SEPOLIA_GRAPH_URL =
+  "https://api.goldsky.com/api/public/project_clxhxljv7a17t01x72s9reuqf/subgraphs/nns-sepolia/live/gn";
+
+const MAINNET_GRAPH_URL =
+  "https://api.goldsky.com/api/public/project_clxhxljv7a17t01x72s9reuqf/subgraphs/nns/live/gn";
 
 async function fetchTokenInfo(
   req: ImageRequest
-): Promise<{ name: string; type: "domain" | "resolvingToken" } | null> {
-  const res = await fetch(GRAPH_URL, {
+): Promise<{ name: string; type: "domain" | "resolverToken" } | null> {
+  const url = req.chainId === 8453 ? MAINNET_GRAPH_URL : SEPOLIA_GRAPH_URL;
+
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -106,7 +111,7 @@ async function fetchTokenInfo(
         ) {
           name
         }
-        resolvingTokens(
+        resolverTokens(
           where: {
             tokenId: "${req.tokenId.toString(10)}"
           }
@@ -118,7 +123,7 @@ async function fetchTokenInfo(
   });
   type Response = {
     domains: { name: string }[];
-    resolvingTokens: { name: string }[];
+    resolverTokens: { name: string }[];
   };
   const body = (await res.json()) as {
     data: Response | null;
@@ -130,10 +135,10 @@ async function fetchTokenInfo(
       type: "domain",
     };
   }
-  if (body.data?.resolvingTokens[0]) {
+  if (body.data?.resolverTokens[0]) {
     return {
-      name: body.data?.resolvingTokens[0].name,
-      type: "resolvingToken",
+      name: body.data?.resolverTokens[0].name,
+      type: "resolverToken",
     };
   }
   return null;

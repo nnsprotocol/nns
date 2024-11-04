@@ -48,7 +48,20 @@ describe.skip("E2E", () => {
     const resolverToken = await getNNSResolverToken(hre);
     let ecosystemTokenName = "eco" + Date.now();
     ecosystemTokenId = namehash(ecosystemTokenName);
-    await resolverToken.mint(ecosystemWallet, ecosystemTokenName);
+
+    await hre.network.provider.request({
+      method: "hardhat_impersonateAccount",
+      params: [NNS_WALLET],
+    });
+    await hre.network.provider.send("hardhat_setBalance", [
+      NNS_WALLET,
+      "0x100000000000000000000",
+    ]);
+    const nnsWalletSigner = await ethers.getSigner(NNS_WALLET);
+
+    await resolverToken
+      .connect(nnsWalletSigner)
+      .mint(ecosystemWallet, ecosystemTokenName);
   });
 
   it("buy a domain with signature", async () => {

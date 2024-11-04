@@ -7,6 +7,7 @@ const NounsModule = buildModule("NounsModule", (m) => {
   const { controller } = m.useModule(NNSModule);
 
   const aggregator = m.getParameter<string>("aggregator");
+  const nounsManager = m.getParameter<string>("nounsManager");
 
   // USD Pricing Oracle
   const prices = [
@@ -26,8 +27,8 @@ const NounsModule = buildModule("NounsModule", (m) => {
     15, // uint8 referralReward
     10, // uint8 ecosystemReward
     pricer, // IPricingOracle pricingOracle
-    deployer, // address communityPayable TODO: change me.
-    deployer, // address communityManager TODO: change me.
+    nounsManager, // address communityPayable
+    nounsManager, // address communityManager
     true, // bool hasExpiringNames
     false, // bool isDefaultCldResolver
   ]);

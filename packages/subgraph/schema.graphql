@@ -7,7 +7,7 @@ type Account @entity {
   numberOfDomains: BigInt!
   defaultResolverRegistry: Registry
 
-  resolvingTokens: [ResolvingToken]! @derivedFrom(field: "owner")
+  resolvingTokens: [ResolverToken]! @derivedFrom(field: "owner")
 }
 
 type DomainOperator @entity {
@@ -70,7 +70,7 @@ type Subdomain @entity {
   resolvedAddress: Bytes
 }
 
-type ResolvingToken @entity {
+type ResolverToken @entity {
   id: ID!
   tokenId: BigInt!
   name: String!

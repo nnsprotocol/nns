@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import {
   CONTROLLER_ADDRESS,
   useDomainPrice,
@@ -140,6 +140,7 @@ type DomainRowProps = {
 
 function DomainRow(props: DomainRowProps) {
   const [years, setYears] = useState(1);
+  const chainId = useChainId();
   const unitPrice = useDomainPrice({
     cldId: props.registry.id,
     name: props.domain.name,
@@ -159,7 +160,7 @@ function DomainRow(props: DomainRowProps) {
       <td className="py-md pe-xs">
         <div className="flex items-center gap-xs">
           <img
-            src={getDomainImageURL(props.domain)}
+            src={getDomainImageURL(chainId, props.domain)}
             width={72}
             height={72}
             className="rounded-lg border border-borderPrimary"

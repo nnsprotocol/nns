@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: NNSController
-    network: base-sepolia
+    network: base
     source:
-      address: "0x389c9ca2025c2694bfb0c2fd3d5766c749042926"
       abi: NNSController
-      startBlock: 16837242
+      address: "0xf4cc2b5f631998ebc7fa362aee30141c5a10f519"
+      startBlock: 21933598
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -26,11 +26,11 @@ dataSources:
           handler: handleCldSignatureRequiredChanged
   - kind: ethereum
     name: NNSResolver
-    network: base-sepolia
+    network: base
     source:
-      address: "0x764a29FAc0521A7B32a9bB74972e09E7FC476dfe"
       abi: NNSResolver
-      startBlock: 16837220
+      address: "0x78997d8ca4316421620a09f015512d779dc34217"
+      startBlock: 21933576
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -45,21 +45,21 @@ dataSources:
         - event: DefaultCldChanged(address,uint256)
           handler: handleDefaultCldChanged
   - kind: ethereum
-    name: NNSResolvingToken
-    network: base-sepolia
+    name: NNSResolverToken
+    network: base
     source:
-      address: "0x591FB6336aB117De24bE4322258D4956D4Bc248A"
-      abi: NNSResolvingToken
-      startBlock: 16837220
+      abi: NNSResolverToken
+      address: "0x46770d62E56943791Cbf4A3C48F8f6Bd0C9728FD"
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/resolving-token.ts
+      file: ./src/resolver-token.ts
       entities:
         - Registry
       abis:
-        - name: NNSResolvingToken
+        - name: NNSResolverToken
           file: ./abis/NNSResolverToken.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
@@ -67,7 +67,7 @@ dataSources:
 templates:
   - name: Registry
     kind: ethereum/contract
-    network: base-sepolia
+    network: base
     source:
       abi: CLDRegistry
     mapping:

@@ -10,7 +10,8 @@
     "nnsWallet": "0x091fC3d6855712B4EAa74BCe26E5e733a9f0e60A"
   },
   "NounsModule": {
-    "aggregator": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70"
+    "aggregator": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
+    "nounsManager": "0xe13CF07cCC770F406aFe0ECCe3be9Fb0Eb8Ab04c"
   },
   "TestModule": {
     "aggregator": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70"

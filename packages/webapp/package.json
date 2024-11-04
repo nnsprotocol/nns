@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build-mainnet": "tsc -b && vite build --mode mainnet",
+    "build-sepolia": "tsc -b && vite build --mode sepolia",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy-mainnet": "netlify deploy --build --prod --context mainnet --site c8dd0f4d-fa83-47f6-bd94-6dae31251a44",
+    "preview-mainnet": "netlify deploy --build --alias preview --context mainnet --site c8dd0f4d-fa83-47f6-bd94-6dae31251a44",
+    "deploy-sepolia": "netlify deploy --build --prod --context sepolia --site 3f763e7f-ec44-4a0e-9c5b-f8f34f84f28b"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.1.7",
@@ -33,6 +37,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
+    "netlify-cli": "^17.37.2",
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.7",
     "typescript": "^5.2.2",

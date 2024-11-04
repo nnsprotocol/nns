@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly VITE_RESOLVER_ADDRESS: Address;
   readonly VITE_REWARDER_ADDRESS: Address;
   readonly VITE_ACCOUNT_REWARDER_ADDRESS: Address;
+  readonly VITE_TEST_NETWORK: "true" | undefined;
 }
 
 interface ImportMeta {

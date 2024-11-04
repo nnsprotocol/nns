@@ -2,7 +2,7 @@ import { Hash } from "viem";
 import { Domain } from "../../../services/graph";
 import { covertDateToHumanReadable } from "../../../utils/date";
 import IconArrowRight from "../../icons/IconArrowRight";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { getDomainImageURL } from "../../../utils/metadata";
 
 type Props = {
@@ -14,6 +14,7 @@ type Props = {
 };
 
 const DomainRenewSubmitted: React.FC<Props> = (props) => {
+  const chainId = useChainId();
   const { chain } = useAccount();
   return (
     <div className="sm:min-w-[440px]">
@@ -55,7 +56,7 @@ const DomainRenewSubmitted: React.FC<Props> = (props) => {
         <div className="pt-md border-t border-borderPrimary">
           <div className="flex items-start gap-md">
             <img
-              src={getDomainImageURL(props.domain)}
+              src={getDomainImageURL(chainId, props.domain)}
               width={116}
               height={116}
               className="rounded-lg border border-borderPrimary"

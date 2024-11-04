@@ -1,8 +1,15 @@
 [build]
-command = "yarn webapp:build"
-publish = "packages/webapp/dist"
+# publish = "packages/webapp/dist"
+publish = "dist"
 ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF packages/webapp"
 
+[context.mainnet]
+# command = "yarn workspace webapp build-mainnet"
+command = "yarn build-mainnet"
+
+[context.sepolia]
+# command = "yarn workspace webapp build-sepolia"
+command = "yarn build-sepolia"
 
 [[redirects]]
 from = "/*"

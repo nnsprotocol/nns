@@ -35,7 +35,7 @@ export default async function domainMetadataHandler(
   }
 
   let description = `${info.name} is an NNS name`;
-  if (info.type === "resolvingToken") {
+  if (info.type === "resolverToken") {
     description = `Token issued to ${info.name} for resolving NNS names`;
   }
 

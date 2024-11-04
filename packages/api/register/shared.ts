@@ -49,7 +49,7 @@ export class RegistrationValidator {
   }
 
   async validateNoggles(to: Address, name: string): Promise<ValidationResult> {
-    if (isAddressEqual(to, zeroAddress) || name.length < 3) {
+    if (isAddressEqual(to, zeroAddress)) {
       return {
         canRegister: false,
         isFree: false,

@@ -12,5 +12,16 @@ task("proxy-verify").setAction(async (_taskArgs, hre) => {
     });
     console.log(`✅ ${name}`);
   }
+
+  console.log("Validating upgrades...");
+  const upgrades = [["NNSRewarder", "NNSRewarderV1"]];
+  for (const [oldC, newC] of upgrades) {
+    const oldFactory = await hre.ethers.getContractFactory(oldC);
+    const newFactory = await hre.ethers.getContractFactory(newC);
+    await hre.upgrades.validateUpgrade(oldFactory, newFactory, {
+      kind: "transparent",
+    });
+    console.log(`✅ ${oldC} -> ${newC}`);
+  }
   console.log("Done");
 });
