@@ -16,10 +16,22 @@ const headerNavLinks = [
 ];
 
 const footerSocialItems = [
-  { id: "footer-x", src: "/social/x.svg" },
-  { id: "footer-farcaster", src: "/social/farcaster.svg" },
-  { id: "footer-github", src: "/social/github.svg" },
-  { id: "footer-discord", src: "/social/discord.svg" },
+  { id: "footer-x", src: "/social/x.svg", href: "https://x.com/nnsprotocol" },
+  {
+    id: "footer-farcaster",
+    src: "/social/farcaster.svg",
+    href: "https://warpcast.com/nns",
+  },
+  {
+    id: "footer-github",
+    src: "/social/github.svg",
+    href: "https://docs.nns.xyz/for-devs/nns-protocol",
+  },
+  {
+    id: "footer-discord",
+    src: "/social/discord.svg",
+    href: "https://discord.com/invite/pnDEEK2caX",
+  },
 ];
 
 function BuyDomainPage() {
@@ -114,7 +126,8 @@ function BuyDomainPage() {
                 {footerSocialItems.map((item) => (
                   <li
                     key={item.id}
-                    className="w-16 h-16 flex items-center justify-center bg-surfaceInverse rounded-xl"
+                    className="w-16 h-16 flex items-center justify-center bg-surfaceInverse rounded-xl cursor-pointer"
+                    onClick={() => window.open(item.href, "_blank")}
                   >
                     <img src={item.src} alt={item.src} className="w-8 h-8" />
                   </li>

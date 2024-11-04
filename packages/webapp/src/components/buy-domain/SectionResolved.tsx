@@ -155,7 +155,16 @@ function SectionResolved() {
               {showAllPartners ? "Show less" : "Show all"}
             </span>
           </button>
-          <button type="button" className="button-secondary button-md">
+          <button
+            type="button"
+            className="button-secondary button-md"
+            onClick={() =>
+              window.open(
+                "https://docs.nns.xyz/for-devs/resolving-nns-names",
+                "_blank"
+              )
+            }
+          >
             <span className="w-full text-center">Add NNS Resolver</span>
           </button>
         </div>

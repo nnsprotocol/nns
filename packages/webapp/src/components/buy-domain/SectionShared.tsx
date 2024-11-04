@@ -14,7 +14,16 @@ function SectionShared() {
             that resolve NNS names.
           </p>
           <div className="flex justify-center">
-            <button type="button" className="button-secondary button-md">
+            <button
+              type="button"
+              className="button-secondary button-md"
+              onClick={() =>
+                window.open(
+                  "https://docs.nns.xyz/rewards/how-do-you-earn-rewards",
+                  "_blank"
+                )
+              }
+            >
               How it works
             </button>
           </div>

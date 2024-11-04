@@ -15,7 +15,11 @@ function SectionNamingSystem() {
         </div>
       </div>
       <div className="flex justify-center mt-md">
-        <button type="button" className="button-secondary button-md">
+        <button
+          type="button"
+          className="button-secondary button-md"
+          onClick={() => window.open("https://x.com/nnsprotocol", "_blank")}
+        >
           <span className="w-full text-center">Get in touch</span>
         </button>
       </div>

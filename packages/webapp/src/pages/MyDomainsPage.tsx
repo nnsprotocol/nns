@@ -118,7 +118,8 @@ function MyDomainsPage() {
                   </div>
                   <div className="flex items-center justify-between mb-xs mt-xs w-full text-sm font-medium">
                     <a
-                      href="#"
+                      href="https://docs.nns.xyz/rewards/referrals"
+                      target="_blank"
                       className="link-default text-textSecondary hover:text-textInverse text-xs"
                     >
                       <span>Learn More</span>

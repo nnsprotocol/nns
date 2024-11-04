@@ -49,7 +49,11 @@ function SectionPoweredBy() {
                 this nounish currency to get the most out of the Nouniverse.
               </p>
               <div>
-                <button type="button" className="button-secondary button-md">
+                <button
+                  type="button"
+                  className="button-secondary button-md"
+                  onClick={() => window.open("https://noggles.com", "_blank")}
+                >
                   <span className="w-full text-center">What is $NOGS</span>
                 </button>
               </div>

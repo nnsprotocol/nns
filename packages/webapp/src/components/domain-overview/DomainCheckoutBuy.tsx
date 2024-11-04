@@ -112,7 +112,11 @@ const DomainCheckoutBuy: React.FC<Props> = (props) => {
                     This name will allow you to earn up to 35% in referral
                     rewards
                   </p>
-                  <a href="#" className="link-default">
+                  <a
+                    href="https://docs.nns.xyz/rewards/referrals"
+                    target="_blank"
+                    className="link-default"
+                  >
                     <IconArrowRight />
                     <span>Discover More</span>
                     <IconArrowRight />
