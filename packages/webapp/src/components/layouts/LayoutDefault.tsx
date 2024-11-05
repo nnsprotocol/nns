@@ -1,10 +1,11 @@
-import { PropsWithChildren, useEffect, useState } from "react";
+import { PropsWithChildren, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Registry, useRegistries, useSearchDomain } from "../../services/graph";
 import SearchResultsList from "../search/SearchResultsList";
 import BrandBackgroundPattern from "../ui/backgrounds/BrandBackgroundPattern";
 import WalletButtonSection from "../wallet/WalletButtonSection";
 import DropdownSearch from "./DropdownSearch";
+import { normalize } from "viem/ens";
 
 type Props = PropsWithChildren<{
   defaultRegistry?: Registry;
@@ -17,6 +18,10 @@ const LayoutDefault: React.FC<Props> = ({ children, defaultRegistry }) => {
     defaultRegistry
   );
   useEffect(() => {
+    if (searchCld) {
+      return;
+    }
+
     if (defaultRegistry) {
       setSearchCld(defaultRegistry);
     }
@@ -29,6 +34,12 @@ const LayoutDefault: React.FC<Props> = ({ children, defaultRegistry }) => {
     name: searchText,
     cldId: searchCld?.id,
   });
+
+  const handleChangeSearchText = useCallback((txt: string) => {
+    try {
+      setSearchText(normalize(txt));
+    } catch {}
+  }, []);
 
   return (
     <>
@@ -46,7 +57,7 @@ const LayoutDefault: React.FC<Props> = ({ children, defaultRegistry }) => {
               <div className="relative z-10 flex items-center justify-between w-full border border-borderPrimary rounded-128 ps-md pe-xs bg-surfacePrimary">
                 <input
                   type="text"
-                  onChange={(e) => setSearchText(e.target.value)}
+                  onChange={(e) => handleChangeSearchText(e.target.value)}
                   value={searchText}
                   placeholder="Search name"
                   className="p-xs h-12 w-full outline-none text-base bg-transparent"
@@ -67,7 +78,7 @@ const LayoutDefault: React.FC<Props> = ({ children, defaultRegistry }) => {
                     cldName={searchCld?.name}
                     domains={search.data || []}
                     searchText={searchText}
-                    onClickAway={() => setSearchText("")}
+                    onClickAway={() => handleChangeSearchText("")}
                   />
                 )}
               </div>
