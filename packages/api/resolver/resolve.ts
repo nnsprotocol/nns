@@ -3,7 +3,7 @@ import { isAddress, isHex } from "viem";
 import z from "zod";
 import RESOLVER_ABI from "../abi/IResolver";
 import { Env } from "../env";
-import { createChainClient, Network } from "../shared/chain";
+import { createChainClient } from "../shared/chain";
 
 const inputSchema = z.object({
   address: z.string().refine(isAddress),
@@ -25,7 +25,7 @@ export default async function resolveHandler(
   const fallback = input.fallback ?? true;
   const clds = input.clds?.map(BigInt) || [];
 
-  const chain = createChainClient(Network.BASE_SEPOLIA);
+  const chain = createChainClient(env.NNS_NETWORK);
   const name = await chain
     .readContract({
       abi: RESOLVER_ABI,

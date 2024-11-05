@@ -5,6 +5,7 @@ import {
   isAddressEqual,
   keccak256,
   toBytes,
+  zeroAddress,
 } from "viem";
 import { normalize } from "viem/ens";
 import { Env } from "../env";
@@ -125,6 +126,10 @@ export class RegistrationValidator {
     contract: ContractInfo,
     owner: Address
   ): Promise<bigint> {
+    if (isAddressEqual(owner, zeroAddress)) {
+      return 0n;
+    }
+
     const pc = createChainClient(contract.network);
     return await pc.readContract({
       abi: erc721Abi,
@@ -138,6 +143,10 @@ export class RegistrationValidator {
     contract: ContractInfo,
     owner: Address
   ): Promise<bigint> {
+    if (isAddressEqual(owner, zeroAddress)) {
+      return 0n;
+    }
+
     const pc = createChainClient(contract.network);
     return await pc.readContract({
       abi: erc20Abi,

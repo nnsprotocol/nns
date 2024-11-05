@@ -1,22 +1,13 @@
 import { IRequest, StatusError } from "itty-router";
-import {
-  Address,
-  createPublicClient,
-  encodePacked,
-  Hex,
-  http,
-  isAddress,
-  keccak256,
-  toHex,
-} from "viem";
+import { Address, encodePacked, Hex, isAddress, keccak256, toHex } from "viem";
 import { PrivateKeyAccount, privateKeyToAccount } from "viem/accounts";
 import { namehash, normalize } from "viem/ens";
 import z from "zod";
-import { Env } from "../env";
-import { RegistrationValidator } from "./shared";
-import { baseSepolia } from "viem/chains";
 import CONTROLLER_ABI from "../abi/IController";
 import PRICING_ORACLE_ABI from "../abi/IPricingOracle";
+import { Env } from "../env";
+import { createChainClient, Network } from "../shared/chain";
+import { RegistrationValidator } from "./shared";
 
 const inputSchema = z.object({
   to: z.string().refine(isAddress),
@@ -84,6 +75,7 @@ export default async function registerHandler(
       controller: env.NNS_CONTROLLER,
       name,
       periods: input.periods,
+      network: env.NNS_NETWORK,
     });
   }
 
@@ -160,11 +152,9 @@ async function fetchRegistrationPrice(input: {
   cld: string;
   controller: Address;
   periods: number;
+  network: Network;
 }): Promise<bigint> {
-  const client = createPublicClient({
-    chain: baseSepolia,
-    transport: http(),
-  });
+  const client = createChainClient(input.network);
   const oracle = await client.readContract({
     address: input.controller,
     abi: CONTROLLER_ABI,
