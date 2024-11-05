@@ -7,6 +7,7 @@ import IconArrowRight from "../icons/IconArrowRight";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
 import Tooltip from "../ui/Tooltip";
 import DomainCheckoutContainer from "./DomainCheckoutContainer";
+import { getTemplateNFTImageURL } from "../../services/images";
 
 type Props = {
   name: string;
@@ -84,11 +85,11 @@ const DomainCheckoutBuy: React.FC<Props> = (props) => {
             <div className="flex gap-md pb-md">
               <div>
                 <img
-                  src="/temp/domain-card.png"
+                  src={getTemplateNFTImageURL(props.name, props.registry)}
                   width={52}
                   height={52}
                   alt=""
-                  className="rounded-lg object-contain bg-surfaceSecondary/10"
+                  className="object-contain"
                 />
               </div>
               <div className="flex flex-col gap-xs justify-center">

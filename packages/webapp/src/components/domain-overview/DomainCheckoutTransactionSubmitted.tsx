@@ -3,6 +3,7 @@ import { useAccount } from "wagmi";
 import { Registry } from "../../services/graph";
 import IconArrowRight from "../icons/IconArrowRight";
 import DomainCheckoutContainer from "./DomainCheckoutContainer";
+import { getTemplateNFTImageURL } from "../../services/images";
 
 type Props = {
   name: string;
@@ -45,11 +46,11 @@ const DomainCheckoutTransactionSubmitted: React.FC<Props> = (props) => {
           <div className="flex flex-col items-center gap-md">
             <div>
               <img
-                src="/temp/domain-card.png"
+                src={getTemplateNFTImageURL(props.name, props.registry)}
                 width={100}
                 height={100}
                 alt=""
-                className="rounded-2xl object-contain bg-surfaceSecondary/10"
+                className="object-contain"
               />
             </div>
             <div className="flex flex-col text-center">

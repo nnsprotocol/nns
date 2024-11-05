@@ -1,5 +1,6 @@
 import { useDomainPrice } from "../../services/controller";
 import { Registry } from "../../services/graph";
+import { getTemplateNFTImageURL } from "../../services/images";
 import { formatPrice } from "../../utils/formatter";
 import IconArrowRight from "../icons/IconArrowRight";
 import ToggleDefault from "../ui/inputs/ToggleDefault";
@@ -28,11 +29,11 @@ const DomainCheckoutOverview: React.FC<Props> = (props) => {
         <div className="flex gap-md pb-md">
           <div>
             <img
-              src="/temp/domain-card.png"
+              src={getTemplateNFTImageURL(props.name, props.registry)}
               width={120}
               height={120}
               alt=""
-              className="rounded-2xl object-contain bg-surfaceSecondary/10"
+              className="object-contain"
             />
           </div>
           <div className="flex flex-col">
