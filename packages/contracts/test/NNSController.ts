@@ -44,7 +44,7 @@ async function setup() {
   const cldFF = await ethers.getContractFactory("CldFactory");
   const cldF = await cldFF.deploy();
 
-  const controllerF = await ethers.getContractFactory("NNSController");
+  const controllerF = await ethers.getContractFactory("NNSControllerV1");
   const controller = await controllerF.deploy();
   await controller.initialize(rewarder, resolver, cldF, signer);
   await rewarder.setController(controller);
@@ -739,6 +739,42 @@ describe("NNSController", () => {
       );
     });
 
+    it("reverts when value is less than the price", async () => {
+      const data = {
+        to: ctx.w2.address,
+        cldName,
+        name,
+        withReverse: true,
+        referer: ethers.ZeroAddress,
+        periods: 0,
+        price: 123,
+        nonce: 666,
+        expiry: (await time.latest()) + 100,
+      };
+      const tx = ctx.controller.connect(ctx.w1).registerWithSignature(
+        data.to,
+        [data.name, data.cldName],
+        data.withReverse,
+        data.referer,
+        data.periods,
+        data.price,
+        data.nonce,
+        data.expiry,
+        await signRegistrationRequest(ctx.signer, {
+          ...data,
+          cldId: namehash(data.cldName),
+        }),
+        {
+          value: data.price - 2,
+        }
+      );
+
+      await expect(tx).to.revertedWithCustomError(
+        ctx.controller,
+        "InsufficientTransferAmount"
+      );
+    });
+
     describe("success", () => {
       let params: Parameters<typeof ctx.controller.registerWithSignature>;
       let tx: ContractTransactionResponse;
@@ -803,6 +839,10 @@ describe("NNSController", () => {
           expect(tx).to.changeEtherBalance(ctx.w1, -111);
           expect(tx).to.changeEtherBalance(ctx.controller, 111);
         });
+      });
+
+      it("refunds the difference", async () => {
+        await expect(tx).to.changeEtherBalance(ctx.w1, -111);
       });
 
       it("reverts when using the signature twice", async () => {
