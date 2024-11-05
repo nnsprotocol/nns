@@ -12,6 +12,18 @@ command = "yarn build-mainnet"
 command = "yarn build-sepolia"
 
 [[redirects]]
+from = "http://app.nns.xyz/*"
+to = "https://nns.xyz/:splat"
+status = 301
+force = true
+
+[[redirects]]
+from = "https://app.nns.xyz/*"
+to = "https://nns.xyz/:splat"
+status = 301
+force = true
+
+[[redirects]]
 from = "/*"
 to = "/index.html"
 status = 200
