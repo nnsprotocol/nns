@@ -5,7 +5,6 @@ import {
   isAddressEqual,
   keccak256,
   toBytes,
-  zeroAddress,
 } from "viem";
 import { normalize } from "viem/ens";
 import { Env } from "../env";
@@ -49,13 +48,6 @@ export class RegistrationValidator {
   }
 
   async validateNoggles(to: Address, name: string): Promise<ValidationResult> {
-    if (isAddressEqual(to, zeroAddress)) {
-      return {
-        canRegister: false,
-        isFree: false,
-      };
-    }
-
     const owner = await this.fetchNNSV1Owner(name);
     if (owner) {
       const isOwner = isAddressEqual(owner, to);
@@ -72,13 +64,6 @@ export class RegistrationValidator {
   }
 
   async validateNouns(to: Address, name: string): Promise<ValidationResult> {
-    if (isAddressEqual(to, zeroAddress)) {
-      return {
-        canRegister: false,
-        isFree: false,
-      };
-    }
-
     const nameAsNumber = parseInt(name, 10);
     if (isNaN(nameAsNumber)) {
       const [erc721Balance, erc20Balance, nnsOwner] = await Promise.all([
