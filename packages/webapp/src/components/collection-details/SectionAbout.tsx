@@ -1,5 +1,9 @@
 import { CollectionData } from "../../services/collections";
-import { useRegistry } from "../../services/graph";
+import {
+  calculateTotalSupply,
+  calculateUniqueOwners,
+  useRegistry,
+} from "../../services/graph";
 
 interface SectionAboutProps {
   collection: CollectionData;
@@ -41,7 +45,7 @@ const SectionAbout: React.FC<SectionAboutProps> = ({ collection }) => {
                 Registered Names
               </p>
               <p className="text-2xl text-textInverse font-medium">
-                {registry.data?.totalSupply}
+                {registry.data ? calculateTotalSupply(registry.data) : ""}
               </p>
               {/* <div className="flex gap-xxs items-center">
                       <IconChevronUp />
@@ -55,7 +59,7 @@ const SectionAbout: React.FC<SectionAboutProps> = ({ collection }) => {
                 Unique Owners
               </p>
               <p className="text-2xl text-textInverse font-medium">
-                {registry.data?.uniqueOwners}
+                {registry.data ? calculateUniqueOwners(registry.data) : ""}
               </p>
               {/* <div className="flex gap-xxs items-center">
                       <IconChevronUp />

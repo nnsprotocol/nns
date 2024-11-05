@@ -16,7 +16,13 @@ import {
 } from "../services/api";
 import { useCollectionData } from "../services/collections";
 import { CONTROLLER_ADDRESS, useDomainPrice } from "../services/controller";
-import { Registry, useDomain, useRegistry } from "../services/graph";
+import {
+  calculateTotalSupply,
+  calculateUniqueOwners,
+  Registry,
+  useDomain,
+  useRegistry,
+} from "../services/graph";
 import {
   useWriteContractWaitingForTx,
   useWriteContractWithServerRequest,
@@ -313,7 +319,7 @@ function DomainOverviewPage() {
                       Registered Names
                     </p>
                     <p className="text-2xl text-textInverse font-medium">
-                      {registry.data?.totalSupply}
+                      {registry.data ? calculateTotalSupply(registry.data) : ""}
                     </p>
                     {/* <div className="flex gap-xxs items-center">
                       <IconChevronUp />
@@ -327,7 +333,9 @@ function DomainOverviewPage() {
                       Unique Owners
                     </p>
                     <p className="text-2xl text-textInverse font-medium">
-                      {registry.data?.uniqueOwners}
+                      {registry.data
+                        ? calculateUniqueOwners(registry.data)
+                        : ""}
                     </p>
                     {/* <div className="flex gap-xxs items-center">
                       <IconChevronUp />

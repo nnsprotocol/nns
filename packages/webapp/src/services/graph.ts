@@ -15,6 +15,22 @@ export function isNogglesCldId(id?: Hash | bigint) {
   return id === BigInt(NOGGLES_CLD_ID);
 }
 
+export function calculateUniqueOwners(reg: Registry) {
+  const n = parseInt(reg.uniqueOwners);
+  if (isNogglesCldId(reg.id)) {
+    return n + 778;
+  }
+  return n;
+}
+
+export function calculateTotalSupply(reg: Registry) {
+  const n = parseInt(reg.totalSupply);
+  if (isNogglesCldId(reg.id)) {
+    return n + 1875;
+  }
+  return n;
+}
+
 export type Registry = {
   id: Hash;
   name: string;
