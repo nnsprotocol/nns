@@ -59,7 +59,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ collection }) => {
             <input
               id="collection-details-search-input"
               className="p-6 rounded-2xl border bg-transparent outline-none w-full text-lg font-light"
-              placeholder="Find your identity (eg. toady.nouns)"
+              placeholder={`Find your identity (eg. toady.${collection.cld})`}
               style={{
                 borderColor: isInputSearchFocused
                   ? collection.themeColor
