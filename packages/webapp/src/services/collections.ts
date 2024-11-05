@@ -109,13 +109,13 @@ const COLLECTIONS: Record<string, CollectionData> = {
         {
           iconSrc: "/temp/ecosystem.svg",
           name: "Ecosystem",
-          share: 60,
+          share: 75,
           themeColor: "#828187",
         },
         {
           iconSrc: "/temp/referral.svg",
           name: "Referrals",
-          share: 35,
+          share: 20,
           themeColor: "#828187",
         },
         {
