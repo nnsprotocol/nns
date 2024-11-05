@@ -1,11 +1,12 @@
-import { sentryVitePlugin } from "@sentry/vite-plugin";
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import Unfonts from "unplugin-fonts/vite";
+import { defineConfig } from "vite";
+import { ViteFaviconsPlugin } from "vite-plugin-favicon";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    ViteFaviconsPlugin("./public/favicon.png"),
     react(),
     Unfonts({
       custom: {
