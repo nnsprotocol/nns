@@ -1,13 +1,19 @@
 import { Address } from "viem";
 
-const GRAPH_URL =
-  "https://api.goldsky.com/api/public/project_clxhxljv7a17t01x72s9reuqf/subgraphs/nns/0.0.2/gn";
+const SEPOLIA_GRAPH_URL =
+  "https://api.goldsky.com/api/public/project_clxhxljv7a17t01x72s9reuqf/subgraphs/nns-sepolia/live/gn";
+
+const MAINNET_GRAPH_URL =
+  "https://api.goldsky.com/api/public/project_clxhxljv7a17t01x72s9reuqf/subgraphs/nns/live/gn";
 
 export async function fetchTokenInfo(req: {
+  chainId: number;
   contract: Address;
   tokenId: bigint;
 }): Promise<{ name: string; type: "domain" | "resolverToken" } | null> {
-  const res = await fetch(GRAPH_URL, {
+  const url = req.chainId === 8453 ? MAINNET_GRAPH_URL : SEPOLIA_GRAPH_URL;
+
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
