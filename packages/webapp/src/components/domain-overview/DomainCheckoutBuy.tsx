@@ -109,7 +109,7 @@ const DomainCheckoutBuy: React.FC<Props> = (props) => {
                     Did you know?
                   </p>
                   <p className="text-base text-[#FC76C3] font-medium">
-                    This name will allow you to earn up to 35% in referral
+                    This name will allow you to earn up to 20% in referral
                     rewards
                   </p>
                   <a
