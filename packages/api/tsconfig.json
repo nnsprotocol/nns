@@ -1,17 +1,12 @@
 {
-	"compilerOptions": {
-		"noEmit": true,
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"lib": ["esnext"],
-		"strict": true,
-		"types": ["@cloudflare/workers-types"],
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"target": "es2022",
-		"allowJs": true,
-		"moduleDetection": "force",
-		"isolatedModules": true
-	},
-	"exclude": ["node_modules", "dist", "test"]
+  "compilerOptions": {
+    "lib": ["es2023"],
+    "module": "ESNext",
+    "target": "es2022",
+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Node"
+  }
 }

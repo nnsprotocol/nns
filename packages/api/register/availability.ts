@@ -1,9 +1,9 @@
-import { IRequest, StatusError } from "itty-router";
+import { Request } from "lambda-api";
+import { isAddress } from "viem";
 import { normalize } from "viem/ens";
 import z from "zod";
-import { Env } from "../env";
 import { isValidDomainName, RegistrationValidator } from "./shared";
-import { isAddress } from "viem";
+import { StatusError } from "../shared/errors";
 
 const inputSchema = z.object({
   to: z.string().refine(isAddress),
@@ -17,10 +17,9 @@ type Output = {
 };
 
 export default async function availabilityHandler(
-  req: IRequest,
-  env: Env
+  req: Request
 ): Promise<Output> {
-  const validator = RegistrationValidator.fromEnv(env);
+  const validator = RegistrationValidator.fromConfig();
 
   const input = await inputSchema.parseAsync(req.query);
 

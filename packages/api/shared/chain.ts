@@ -1,5 +1,6 @@
 import { createPublicClient, http } from "viem";
 import { base, baseSepolia, mainnet } from "viem/chains";
+import config from "./config";
 
 export enum Network {
   ETH_MAINNET = "eth-mainnet",
@@ -17,12 +18,17 @@ function getChainFromNetwork(network: Network) {
 
     case Network.ETH_MAINNET:
       return mainnet;
+
+    default:
+      throw new Error(`invalid network: ${network}`);
   }
 }
 
 export function createChainClient(network: Network) {
   return createPublicClient({
     chain: getChainFromNetwork(network),
-    transport: http(),
+    transport: http(
+      `https://${network}.g.alchemy.com/v2/${config.ALCHEMY_API_KEY}`
+    ),
   });
 }

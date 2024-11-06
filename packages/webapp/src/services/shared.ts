@@ -1,13 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BaseError, Hex, UserRejectedRequestError } from "viem";
+import { base, baseSepolia } from "viem/chains";
 import {
   Config,
+  ResolvedRegister,
+  useAccount,
   useSignMessage,
+  useSwitchChain,
   useWaitForTransactionReceipt,
   useWriteContract,
   UseWriteContractReturnType,
 } from "wagmi";
+import { WriteContractMutate } from "wagmi/query";
 
 export type TxState =
   | { value: "idle"; userCanceled?: boolean }
@@ -31,7 +36,7 @@ interface WriteContractWaitingForTxOptions {
 export function useWriteContractWaitingForTx(
   props?: WriteContractWaitingForTxOptions
 ): WriteContractWaitingForTxResponse {
-  const write = useWriteContract();
+  const write = useWriteContractEnsuringChain();
   const tx = useWaitForTransactionReceipt({ hash: write.data });
 
   const [state, setState] = useState<TxState>({ value: "idle" });
@@ -103,7 +108,7 @@ export interface WriteContractWithServerRequestResponse {
 export function useWriteContractWithServerRequest<serverData>(
   props: Props<serverData>
 ): WriteContractWithServerRequestResponse {
-  const write = useWriteContract();
+  const write = useWriteContractEnsuringChain();
   const tx = useWaitForTransactionReceipt({ hash: write.data });
   const serverData = useMutation({
     mutationFn: props.fetchServerData,
@@ -282,4 +287,35 @@ function formatError(e: Error) {
     return e.shortMessage || e.message;
   }
   return e.message;
+}
+
+const TARGET_CHAIN =
+  import.meta.env.VITE_TEST_NETWORK === "true" ? baseSepolia : base;
+
+export function useWriteContractEnsuringChain<
+  config extends Config = ResolvedRegister["config"],
+  context = unknown
+>() {
+  const { chainId } = useAccount();
+  const { switchChainAsync } = useSwitchChain();
+  const write = useWriteContract<config, context>();
+
+  const wrappedWriteContract: WriteContractMutate<config, context> =
+    useCallback(
+      (args) => {
+        if (chainId !== TARGET_CHAIN.id) {
+          switchChainAsync({ chainId: TARGET_CHAIN.id }).then(() => {
+            write.writeContract(args);
+          });
+        } else {
+          write.writeContract(args);
+        }
+      },
+      [write, chainId]
+    );
+
+  return {
+    ...write,
+    writeContract: wrappedWriteContract,
+  };
 }

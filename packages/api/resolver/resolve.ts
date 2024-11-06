@@ -1,9 +1,9 @@
-import { IRequest } from "itty-router";
+import { Request } from "lambda-api";
 import { isAddress, isHex } from "viem";
 import z from "zod";
 import RESOLVER_ABI from "../abi/IResolver";
-import { Env } from "../env";
 import { createChainClient } from "../shared/chain";
+import config from "../shared/config";
 
 const inputSchema = z.object({
   address: z.string().refine(isAddress),
@@ -15,23 +15,18 @@ type Output = {
   name: string | null;
 };
 
-export default async function resolveHandler(
-  req: IRequest,
-  env: Env
-): Promise<Output> {
-  const input = await inputSchema.parseAsync(
-    await req.json().catch(() => null)
-  );
+export default async function resolveHandler(req: Request): Promise<Output> {
+  const input = await inputSchema.parseAsync(req.body);
   const fallback = input.fallback ?? true;
   const clds = input.clds?.map(BigInt) || [];
 
-  const chain = createChainClient(env.NNS_NETWORK);
+  const chain = createChainClient(config.NNS_NETWORK);
   const name = await chain
     .readContract({
       abi: RESOLVER_ABI,
       functionName: "reverseNameOf",
       args: [input.address, clds, fallback],
-      address: env.NNS_RESOLVER,
+      address: config.NNS_RESOLVER,
     })
     .catch((e) => {
       console.log(e);

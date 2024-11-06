@@ -2,21 +2,14 @@
   "name": "api",
   "packageManager": "yarn@4.2.2",
   "dependencies": {
-    "itty-router": "^5.0.18",
+    "esbuild": "^0.24.0",
+    "lambda-api": "^1.1.0",
     "viem": "^2.21.24",
     "zod": "^3.23.8"
   },
-  "scripts": {
-    "deploy-sepolia": "wrangler deploy --env sepolia",
-    "deploy-mainnet": "wrangler deploy --env mainnet",
-    "dev": "wrangler dev",
-    "test": "vitest"
-  },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.5.16",
-    "@cloudflare/workers-types": "^4.20240903.0",
+    "@types/aws-lambda": "^8.10.145",
     "typescript": "^5.2.2",
-    "vitest": "2.0.5",
     "wrangler": "^3.79.0"
   }
 }

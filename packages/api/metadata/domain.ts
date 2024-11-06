@@ -1,7 +1,7 @@
-import { IRequest, StatusError } from "itty-router";
+import { Request } from "lambda-api";
 import { isAddress } from "viem";
-import { Env } from "../env";
 import { fetchTokenInfo } from "./graph";
+import { StatusError } from "../shared/errors";
 
 const CDN_URL = "https://d321vfgto7sq2r.cloudfront.net";
 
@@ -22,10 +22,9 @@ type Metadata = {
 };
 
 export default async function domainMetadataHandler(
-  req: IRequest,
-  env: Env
+  req: Request
 ): Promise<Metadata> {
-  const params = validateRequest(req.params);
+  const params = validateRequest(req.query);
   if (!params) {
     throw new StatusError(404, "domain_not_found");
   }
@@ -51,7 +50,10 @@ export default async function domainMetadataHandler(
   };
 }
 
-function validateRequest(params: Record<string, string>) {
+function validateRequest(params: Record<string, string | undefined>) {
+  if (!params.chainId || !params.tokenId || !params.contract) {
+    return null;
+  }
   const chainId = parseInt(params.chainId);
   if (isNaN(chainId)) {
     return null;

@@ -1,13 +1,14 @@
-import { IRequest, StatusError } from "itty-router";
+import { Request } from "lambda-api";
 import { Address, encodePacked, Hex, isAddress, keccak256, toHex } from "viem";
 import { PrivateKeyAccount, privateKeyToAccount } from "viem/accounts";
 import { namehash, normalize } from "viem/ens";
 import z from "zod";
 import CONTROLLER_ABI from "../abi/IController";
 import PRICING_ORACLE_ABI from "../abi/IPricingOracle";
-import { Env } from "../env";
 import { createChainClient, Network } from "../shared/chain";
+import config from "../shared/config";
 import { RegistrationValidator } from "./shared";
+import { StatusError } from "../shared/errors";
 
 const inputSchema = z.object({
   to: z.string().refine(isAddress),
@@ -30,16 +31,11 @@ type Output = {
   signature: Hex;
 };
 
-export default async function registerHandler(
-  req: IRequest,
-  env: Env
-): Promise<Output> {
-  const signer = privateKeyToAccount(env.SIGNER_PK);
-  const validator = RegistrationValidator.fromEnv(env);
+export default async function registerHandler(req: Request): Promise<Output> {
+  const signer = privateKeyToAccount(config.SIGNER_PK);
+  const validator = RegistrationValidator.fromConfig();
 
-  const input = await inputSchema.parseAsync(
-    await req.json().catch(() => null)
-  );
+  const input = await inputSchema.parseAsync(req.body);
 
   const cld = input.labels[1];
   const name = normalize(input.labels[0]);
@@ -72,10 +68,10 @@ export default async function registerHandler(
   if (!isFree) {
     price = await fetchRegistrationPrice({
       cld,
-      controller: env.NNS_CONTROLLER,
+      controller: config.NNS_CONTROLLER,
       name,
       periods: input.periods,
-      network: env.NNS_NETWORK,
+      network: config.NNS_NETWORK,
     });
   }
 
