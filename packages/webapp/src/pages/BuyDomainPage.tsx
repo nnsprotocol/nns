@@ -114,7 +114,7 @@ function BuyDomainPage() {
               />
             </div>
             <div className="grid grid-cols-1 gap-md  max-w-3xl">
-              <p className="text-6.5xl text-textInverse font-semibold text-center">
+              <p className="text-3xl md:text-5xl text-textInverse font-semibold text-center">
                 Find us here
               </p>
               {/* <p className="text-lg text-surfacePrimary font-light text-center">

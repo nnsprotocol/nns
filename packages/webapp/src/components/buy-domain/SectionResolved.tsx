@@ -108,10 +108,10 @@ function SectionResolved() {
       <a className="anchor" id="resolver"></a>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2xl lg:max-w-[1200px]">
         <div className="grid grid-cols-1 gap-lg">
-          <p className="text-3xl text-textInverse font-semibold">
+          <p className="text-center md:text-left text-2xl md:text-3xl text-textInverse font-semibold">
             Resolved in the Nouniverse and beyond
           </p>
-          <p className="text-textSecondary text-lg font-medium leading-6 max-w-[550px]">
+          <p className="text-center md:text-left text-textSecondary text-md md:text-lg font-medium leading-6 max-w-[550px]">
             NNS names are natively resolved in the Nouns ecosystem. Every
             resolver is part of the system and gains benefits and rewards.
           </p>

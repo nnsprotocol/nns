@@ -40,11 +40,11 @@ function SectionPoweredBy() {
       <div className="flex justify-center w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2xl lg:max-w-[1200px]">
           <div className="flex items-center">
-            <div className="grid grid-cols-1 gap-lg">
-              <p className="text-3xl text-textInverse font-semibold">
+            <div className="flex flex-col items-center lg:items-start gap-lg">
+              <p className="text-center md:text-left text-2xl md:text-3xl text-textInverse font-semibold">
                 Powered by $NOGS
               </p>
-              <p className="text-textSecondary text-lg font-medium leading-6 max-w-[587px]">
+              <p className="text-center md:text-left text-textSecondary text-md md:text-lg font-medium leading-6 max-w-[587px]">
                 Fully integrated with $NOGS, NNS allows you to earn and spend
                 this nounish currency to get the most out of the Nouniverse.
               </p>

@@ -6,10 +6,10 @@ function SectionShared() {
       <a className="anchor" id="share"></a>
       <div className="flex justify-center">
         <div className="grid grid-cols-1 gap-lg">
-          <p className="text-3xl text-textInverse font-semibold text-center">
+          <p className="text-2xl md:text-3xl text-textInverse font-semibold text-center">
             Built to Share
           </p>
-          <p className="text-textSecondary text-lg font-medium leading-6 max-w-[550px]">
+          <p className="text-center text-textSecondary text-md md:text-lg font-medium leading-6 max-w-[550px]">
             Revenues are shared across all participants, from users to platforms
             that resolve NNS names.
           </p>
