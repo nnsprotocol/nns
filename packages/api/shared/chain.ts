@@ -25,10 +25,11 @@ function getChainFromNetwork(network: Network) {
 }
 
 export function createChainClient(network: Network) {
+  const rpcURL = config.ALCHEMY_API_KEY
+    ? `https://${network}.g.alchemy.com/v2/${config.ALCHEMY_API_KEY}`
+    : undefined;
   return createPublicClient({
     chain: getChainFromNetwork(network),
-    transport: http(
-      `https://${network}.g.alchemy.com/v2/${config.ALCHEMY_API_KEY}`
-    ),
+    transport: http(rpcURL),
   });
 }

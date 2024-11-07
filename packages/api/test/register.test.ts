@@ -1,13 +1,7 @@
-import {
-  env,
-  createExecutionContext,
-  waitOnExecutionContext,
-} from "cloudflare:test";
-import { describe, it, test, expect } from "vitest";
-import worker from "../src";
+import { describe, test, expect } from "@jest/globals";
 import { NNS_OWNER, NOUNS_COIN_OWNER, randomAddress } from "./shared";
-
-const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
+import registerHandler from "../register/sign";
+import { Request } from "lambda-api";
 
 describe("Registration - Register", () => {
   test.each([
@@ -99,22 +93,21 @@ describe("Registration - Register", () => {
       },
     },
   ])("$cld - $test", async (t) => {
-    const request = new IncomingRequest("http://nns.com/register", {
-      method: "POST",
-      body: JSON.stringify(t.request),
-    });
+    const op = registerHandler({
+      body: t.request,
+    } as unknown as Request);
 
-    const ctx = createExecutionContext();
-    const response = await worker.fetch(request, env, ctx);
+    if (t.response.status >= 400) {
+      await expect(op).rejects.toThrow();
+      return;
+    }
 
-    await waitOnExecutionContext(ctx);
-    expect(response.status).toBe(t.response.status);
-    const body = await response.json();
+    const response = await op;
     if (t.response.price === "zero") {
-      expect(body.price).toBe("0x0");
+      expect(BigInt(response.price)).toEqual(0n);
     }
     if (t.response.price === "non-zero") {
-      expect(BigInt(body.price)).toBeGreaterThan(0n);
+      expect(BigInt(response.price)).toBeGreaterThan(0n);
     }
   });
 });

@@ -12,5 +12,5 @@ export default {
   NNS_CONTROLLER: process.env.NNS_CONTROLLER as Address,
   NNS_RESOLVER: process.env.NNS_RESOLVER as Address,
   NNS_NETWORK: process.env.NNS_NETWORK as Network,
-  ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY as string,
+  ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
 };

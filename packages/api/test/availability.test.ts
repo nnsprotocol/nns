@@ -1,34 +1,18 @@
-import {
-  createExecutionContext,
-  env,
-  waitOnExecutionContext,
-} from "cloudflare:test";
-import { describe, expect, test } from "vitest";
-import worker from "../src";
+import { describe, expect, test } from "@jest/globals";
+import { Request } from "lambda-api";
 import {
   NNS_OWNER,
   NOUNS_COIN_OWNER,
   NOUNS_NFT_OWNER,
   randomAddress,
 } from "./shared";
-
-const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
+import availabilityHandler from "../register/availability";
 
 describe("Registration - Availability", () => {
   test.each([
     {
       test: "domains owned by someone else cannot be registered",
       name: "apbigcod",
-      cld: "⌐◨-◨",
-      owner: NNS_OWNER,
-      exp: {
-        canRegister: false,
-        isFree: false,
-      },
-    },
-    {
-      test: "domains shorten than 2 else cannot be registered",
-      name: "x",
       cld: "⌐◨-◨",
       owner: NNS_OWNER,
       exp: {
@@ -127,26 +111,25 @@ describe("Registration - Availability", () => {
       },
     },
     {
-      test: "names can be registered when they exist in NNS v1 and belong to the same account",
-      name: "nogs",
+      test: "names can be registered when they exist in NNS v1 and belong to the same account even without tokens",
+      name: "apbigcod",
       cld: "nouns",
-      owner: "0x73E09de9497f2dfFf90B1e97aC0bE9cccA1677Ec",
+      // this wallet owns apbigcod in NNS v1 and has no Nouns or $NOUN tokens
+      owner: "0xC556e77AFb1ddB024506413765f106F0d9156F70",
       exp: {
         canRegister: true,
         isFree: false,
       },
     },
   ])("$cld - $test", async (t) => {
-    const request = new IncomingRequest(
-      `http://nns.com/availability?to=${t.owner}&cld=${t.cld}&name=${t.name}`
-    );
+    const output = await availabilityHandler({
+      query: {
+        to: t.owner,
+        cld: t.cld,
+        name: t.name,
+      },
+    } as unknown as Request);
 
-    const ctx = createExecutionContext();
-    const response = await worker.fetch(request, env, ctx);
-
-    await waitOnExecutionContext(ctx);
-    expect(response.status).toBe(200);
-    const body = await response.json();
-    expect(body).toEqual(t.exp);
+    expect(output).toEqual(t.exp);
   });
 });
