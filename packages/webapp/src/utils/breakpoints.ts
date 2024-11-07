@@ -37,15 +37,11 @@ export function useActiveBreakpoints(breakpoints: BreakpointName[]) {
       }
       setActiveBreakpoints(checks);
     }
-
-    // Create listeners for each breakpoint
     for (const b of BREAKPOINTS) {
       const matcher = window.matchMedia(`(min-width: ${b.minWidth}px)`);
       mediaMatchers.push(matcher);
       matcher.addEventListener("change", handleBreakpointChange);
     }
-
-    // Cleanup listeners on component unmount
     return () => {
       mediaMatchers.forEach((mql) =>
         mql.removeEventListener("change", handleBreakpointChange)
