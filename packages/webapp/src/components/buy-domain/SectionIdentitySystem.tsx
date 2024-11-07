@@ -17,7 +17,7 @@ function SectionIdentitySystem() {
   return (
     <section className="lg:flex lg:justify-center lg:items-center gap-12 lg:min-h-[560px]">
       <div className="lg:max-w-2xl">
-        <div className="text-5xl text-center lg:text-left font-semibold">
+        <div className="text-2xl md:text-5xl text-center lg:text-6.5xl lg:text-left font-semibold">
           Secure Your Name
           <br />
           in the Nouniverse
