@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { CollectionData } from "../../services/collections";
 import { useRegistry, useSearchDomain } from "../../services/graph";
 import SearchResultsList from "../search/SearchResultsList";
+import { useIsDesktop } from "../../utils/breakpoints";
 
 interface SectionSearchProps {
   collection: CollectionData;
@@ -17,6 +18,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ collection }) => {
     name: searchText,
     cldId: collection.cldId,
   });
+  const isDesktop = useIsDesktop();
 
   return (
     <div className="pt-10 w-full max-w-[484px]">
@@ -59,7 +61,11 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ collection }) => {
             <input
               id="collection-details-search-input"
               className="p-6 rounded-2xl border bg-transparent outline-none w-full text-lg font-light"
-              placeholder={`Find your identity (eg. toady.${collection.cld})`}
+              placeholder={
+                isDesktop
+                  ? `Find your identity (eg. toady.${collection.cld})`
+                  : `Find your .${collection.cld}`
+              }
               style={{
                 borderColor: isInputSearchFocused
                   ? collection.themeColor

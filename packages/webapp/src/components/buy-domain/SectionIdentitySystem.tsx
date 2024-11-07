@@ -1,6 +1,7 @@
 import { useState } from "react";
 import SearchResultsList from "../search/SearchResultsList";
 import { useSearchDomain } from "../../services/graph";
+import { useIsDesktop } from "../../utils/breakpoints";
 
 const NOGGLES_REGISTRY_ID =
   "0x739305fdceb24221237c3dea9f36a6fcc8dc81b45730358192886e1510532739";
@@ -11,11 +12,12 @@ function SectionIdentitySystem() {
     name: searchText,
     cldId: NOGGLES_REGISTRY_ID,
   });
+  const isDesktop = useIsDesktop();
 
   return (
     <section className="lg:flex lg:justify-center lg:items-center gap-12 lg:min-h-[560px]">
       <div className="lg:max-w-2xl">
-        <div className="text-5xl text-center lg:text-left lg:text-6.5xl font-semibold">
+        <div className="text-5xl text-center lg:text-left font-semibold">
           Secure Your Name
           <br />
           in the Nouniverse
@@ -56,7 +58,11 @@ function SectionIdentitySystem() {
                   onChange={(e) => setSearchText(e.currentTarget.value)}
                   value={searchText}
                   className="p-6 rounded-2xl border border-borderSecondary bg-transparent outline-none w-full text-lg font-light focus:border-textBrandLavender"
-                  placeholder="Find your identity (eg. toady.⌐◨-◨)"
+                  placeholder={
+                    isDesktop
+                      ? "Find your identity (eg. toady.⌐◨-◨)"
+                      : `Find your .⌐◨-◨`
+                  }
                 />
                 <SearchResultsList
                   searchText={searchText}
