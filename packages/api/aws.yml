@@ -34,6 +34,8 @@ Globals:
         NNS_NETWORK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_NETWORK}}" 
         NNS_V1_ERC721_ADDRESS: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_V1_ERC721_ADDRESS}}" 
         NNS_V1_ERC721_NETWORK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_V1_ERC721_NETWORK}}" 
+        NNS_V1_STAKING_ADDRESS: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_V1_STAKING_ADDRESS}}" 
+        NNS_V1_STAKING_NETWORK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_V1_STAKING_NETWORK}}" 
         NOUNS_ERC721_ADDRESS: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NOUNS_ERC721_ADDRESS}}" 
         NOUNS_ERC721_NETWORK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NOUNS_ERC721_NETWORK}}" 
         NOUNS_ERC20_ADDRESS: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NOUNS_ERC20_ADDRESS}}" 

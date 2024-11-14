@@ -10,6 +10,7 @@ import {
 import { normalize } from "viem/ens";
 import { createChainClient, Network } from "../shared/chain";
 import config from "../shared/config";
+import NNS_STAKING_ABI from "../abi/NNSStaking";
 
 export const isValidDomainName = (v: string) => {
   try {
@@ -34,7 +35,8 @@ export class RegistrationValidator {
   constructor(
     private readonly nnsERC721: ContractInfo,
     private readonly nounsERC721: ContractInfo,
-    private readonly nounsERC20: ContractInfo
+    private readonly nounsERC20: ContractInfo,
+    private readonly nnsStaking: ContractInfo
   ) {}
 
   static fromConfig() {
@@ -50,12 +52,16 @@ export class RegistrationValidator {
       {
         address: config.NOUNS_ERC20_ADDRESS,
         network: config.NOUNS_ERC20_NETWORK,
+      },
+      {
+        address: config.NNS_V1_STAKING_ADDRESS,
+        network: config.NNS_V1_STAKING_NETWORK,
       }
     );
   }
 
   async validateNoggles(to: Address, name: string): Promise<ValidationResult> {
-    const owner = await this.fetchNNSV1Owner(name);
+    const owner = await this.fetchNNSV1Owner(name, to);
     if (owner) {
       const isOwner = isAddressEqual(owner, to);
       return {
@@ -73,7 +79,7 @@ export class RegistrationValidator {
   async validateNouns(to: Address, name: string): Promise<ValidationResult> {
     const nameAsNumber = parseInt(name, 10);
     if (isNaN(nameAsNumber)) {
-      const nnsOwner = await this.fetchNNSV1Owner(name);
+      const nnsOwner = await this.fetchNNSV1Owner(name, to);
       if (nnsOwner) {
         return {
           canRegister: isAddressEqual(nnsOwner, to),
@@ -128,9 +134,31 @@ export class RegistrationValidator {
       });
   }
 
-  private async fetchNNSV1Owner(name: string) {
+  private async fetchNNSV1Owner(
+    name: string,
+    targetWallet: Address
+  ): Promise<Address | null> {
     const tokenId = BigInt(keccak256(toBytes(normalize(name))));
-    return await this.fetchERC721Owner(this.nnsERC721, tokenId);
+    const owner = await this.fetchERC721Owner(this.nnsERC721, tokenId);
+    if (!owner) {
+      return null;
+    }
+    if (isAddressEqual(owner, this.nnsStaking.address)) {
+      // This name has been staked so we need to check who the actual owner is.
+      const c = createChainClient(this.nnsStaking.network);
+      const [stakes] = await c.readContract({
+        abi: NNS_STAKING_ABI,
+        functionName: "getStakes",
+        args: [targetWallet],
+        address: this.nnsStaking.address,
+      });
+      for (const s of stakes) {
+        if (s.endTime === 0n && s.tokenId === tokenId) {
+          return targetWallet;
+        }
+      }
+    }
+    return owner;
   }
 
   private async fetchERC721Balance(

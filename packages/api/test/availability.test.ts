@@ -2,6 +2,8 @@ import { describe, expect, test } from "@jest/globals";
 import { Request } from "lambda-api";
 import {
   NNS_OWNER,
+  NNS_STAKED_NAME,
+  NNS_STAKED_OWNER,
   NOUNS_COIN_OWNER,
   NOUNS_NFT_OWNER,
   randomAddress,
@@ -37,6 +39,27 @@ describe("Registration - Availability", () => {
       owner: NNS_OWNER,
       exp: {
         canRegister: true,
+        isFree: false,
+      },
+    },
+    {
+      test: "staked names can be registered for free by the owner",
+      name: NNS_STAKED_NAME,
+      cld: "⌐◨-◨",
+      owner: NNS_STAKED_OWNER,
+      exp: {
+        canRegister: true,
+        isFree: true,
+      },
+    },
+    {
+      test: "staked names cannot be registered by other wallets",
+      // NOTE: this is a volatile test as the name could be unstaked at any time.
+      name: NNS_STAKED_NAME,
+      cld: "⌐◨-◨",
+      owner: randomAddress(),
+      exp: {
+        canRegister: false,
         isFree: false,
       },
     },
@@ -116,6 +139,16 @@ describe("Registration - Availability", () => {
       cld: "nouns",
       // this wallet owns apbigcod in NNS v1 and has no Nouns or $NOUN tokens
       owner: "0xC556e77AFb1ddB024506413765f106F0d9156F70",
+      exp: {
+        canRegister: true,
+        isFree: false,
+      },
+    },
+    {
+      test: "names can be registered when they are staked in NNS v1 and belong to the same account even without tokens",
+      name: NNS_STAKED_NAME,
+      cld: "nouns",
+      owner: NNS_STAKED_OWNER,
       exp: {
         canRegister: true,
         isFree: false,

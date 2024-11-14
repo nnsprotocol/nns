@@ -5,6 +5,8 @@ export default {
   SIGNER_PK: process.env.SIGNER_PK as Hex,
   NNS_V1_ERC721_ADDRESS: process.env.NNS_V1_ERC721_ADDRESS as Address,
   NNS_V1_ERC721_NETWORK: process.env.NNS_V1_ERC721_NETWORK as Network,
+  NNS_V1_STAKING_ADDRESS: process.env.NNS_V1_STAKING_ADDRESS as Address,
+  NNS_V1_STAKING_NETWORK: process.env.NNS_V1_STAKING_NETWORK as Network,
   NOUNS_ERC721_ADDRESS: process.env.NOUNS_ERC721_ADDRESS as Address,
   NOUNS_ERC721_NETWORK: process.env.NOUNS_ERC721_NETWORK as Network,
   NOUNS_ERC20_ADDRESS: process.env.NOUNS_ERC20_ADDRESS as Address,

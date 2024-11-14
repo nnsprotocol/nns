@@ -1,6 +1,9 @@
 {
   "name": "api",
   "packageManager": "yarn@4.2.2",
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "esbuild": "^0.24.0",
     "lambda-api": "^1.1.0",
