@@ -18,6 +18,11 @@ const partners = [
     link: "https://www.gnars.wtf/",
   },
   {
+    name: "Nounswap",
+    icon: "partners/nounswap.png",
+    link: "https://www.nounswap.wtf",
+  },
+  {
     name: "Guild.xyz",
     icon: "partners/guild-xyz.png",
     link: "https://guild.xyz/explorer",
