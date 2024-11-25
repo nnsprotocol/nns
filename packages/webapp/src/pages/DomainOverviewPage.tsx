@@ -19,6 +19,7 @@ import { CONTROLLER_ADDRESS, useDomainPrice } from "../services/controller";
 import {
   calculateTotalSupply,
   calculateUniqueOwners,
+  isNogglesCldId,
   Registry,
   useDomain,
   useRegistry,
@@ -313,38 +314,42 @@ function DomainOverviewPage() {
                 <p className="text-base text-textSecondary text-center">
                   {collectionData?.description}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-md bg-surfaceSecondary rounded-2xl p-md mt-xs">
-                  <div className="flex flex-col items-start justify-center gap-sm">
-                    <p className="text-sm text-textSecondary font-medium">
-                      Registered Names
-                    </p>
-                    <p className="text-2xl text-textInverse font-medium">
-                      {registry.data ? calculateTotalSupply(registry.data) : ""}
-                    </p>
-                    {/* <div className="flex gap-xxs items-center">
+                {isNogglesCldId(collectionData.cldId) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-md bg-surfaceSecondary rounded-2xl p-md mt-xs">
+                    <div className="flex flex-col items-start justify-center gap-sm">
+                      <p className="text-sm text-textSecondary font-medium">
+                        Registered Names
+                      </p>
+                      <p className="text-2xl text-textInverse font-medium">
+                        {registry.data
+                          ? calculateTotalSupply(registry.data)
+                          : ""}
+                      </p>
+                      {/* <div className="flex gap-xxs items-center">
                       <IconChevronUp />
                       <span className="text-xs text-textSecondary font-medium">
                         <span className="text-[#19BB46]">2.45% </span>Past Week
                       </span>
                     </div> */}
-                  </div>
-                  <div className="flex flex-col items-start justify-center gap-sm">
-                    <p className="text-sm text-textSecondary font-medium">
-                      Unique Owners
-                    </p>
-                    <p className="text-2xl text-textInverse font-medium">
-                      {registry.data
-                        ? calculateUniqueOwners(registry.data)
-                        : ""}
-                    </p>
-                    {/* <div className="flex gap-xxs items-center">
+                    </div>
+                    <div className="flex flex-col items-start justify-center gap-sm">
+                      <p className="text-sm text-textSecondary font-medium">
+                        Unique Owners
+                      </p>
+                      <p className="text-2xl text-textInverse font-medium">
+                        {registry.data
+                          ? calculateUniqueOwners(registry.data)
+                          : ""}
+                      </p>
+                      {/* <div className="flex gap-xxs items-center">
                       <IconChevronUp />
                       <span className="text-xs text-textSecondary font-medium">
                         <span className="text-[#19BB46]">1.08% </span>Past Week
                       </span>
                     </div> */}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
