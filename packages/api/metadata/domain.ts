@@ -24,7 +24,7 @@ type Metadata = {
 export default async function domainMetadataHandler(
   req: Request
 ): Promise<Metadata> {
-  const params = validateRequest(req.query);
+  const params = validateRequest(req.params);
   if (!params) {
     throw new StatusError(404, "domain_not_found");
   }

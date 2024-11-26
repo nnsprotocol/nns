@@ -17,14 +17,16 @@ Mappings:
   Networks:
     sepolia:
       domainName: "api-sepolia.nns.xyz"
+      metadataDomainName: "metadata-sepolia.nns.xyz"
     mainnet:
       domainName: "api.nns.xyz"
+      metadataDomainName: "metadata.nns.xyz"
 
 Globals:
   Function:
     Timeout: 30
     Runtime: nodejs20.x
-    MemorySize: 128
+    MemorySize: 512
     Architectures:
       - arm64
     Environment:
@@ -52,7 +54,7 @@ Resources:
       DefinitionBody:
         openapi: 3.0.1
         info:
-          title: !Ref "AWS::StackName"
+          title: !Sub "${AWS::StackName}"
         paths: {}
       CorsConfiguration:
         AllowOrigins:
@@ -72,6 +74,33 @@ Resources:
       DomainName: !FindInMap [Networks, !Ref Network, domainName]
       Stage: !Ref ApiApiGatewayDefaultStage
 
+  MetadataApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      DefinitionBody:
+        openapi: 3.0.1
+        info:
+          title: !Sub "${AWS::StackName}-metadata"
+        paths: {}
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+
+  MetadataApiMapping: 
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Properties:
+      ApiId: !Ref MetadataApi
+      DomainName: !FindInMap [Networks, !Ref Network, metadataDomainName]
+      Stage: !Ref ApiApiGatewayDefaultStage
+
   ApiHandlerFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -82,10 +111,10 @@ Resources:
         Target: "es2022"
         Sourcemap: true
         EntryPoints: 
-          - src/lambda.ts
+          - src/api.ts
     Properties:
       FunctionName: !Sub "${AWS::StackName}-api"
-      Handler: src/lambda.handler
+      Handler: src/api.handler
       Events:
         HttpEvents:
           Type: HttpApi
@@ -93,3 +122,25 @@ Resources:
             Path: /{proxy+}
             Method: ANY
             ApiId: !Ref Api
+
+  MetadataHandlerFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: false
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints: 
+          - src/metadata.ts
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-metadata"
+      Handler: src/metadata.handler
+      Events:
+        HttpEvents:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            ApiId: !Ref MetadataApi

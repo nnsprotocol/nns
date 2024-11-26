@@ -1,28 +1,16 @@
-import createRouter, { Middleware } from "lambda-api";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
-import registerHandler from "../register/sign";
-import availabilityHandler from "../register/availability";
-import resolveHandler from "../resolver/resolve";
-import domainMetadataHandler from "../metadata/domain";
+import createRouter from "lambda-api";
 import { ZodError } from "zod";
+import availabilityHandler from "../register/availability";
+import registerHandler from "../register/sign";
+import resolveHandler from "../resolver/resolve";
 import { StatusError } from "../shared/errors";
 
 export const router = createRouter();
 
-const onlyMetadata: Middleware = (req, res, next) => {
-  const { host } = req.headers;
-  if (host?.includes("metadata")) {
-    return next();
-  }
-  return res.status(404).json({
-    error: "Route not found",
-  });
-};
-
 router.post("/register", registerHandler);
 router.get("/availability", availabilityHandler);
 router.post("/resolve", resolveHandler);
-router.get("/:chainId/:contract/:tokenId", onlyMetadata, domainMetadataHandler);
 
 router.use((err, _req, res, _next) => {
   if (err instanceof ZodError) {
