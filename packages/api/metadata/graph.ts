@@ -40,7 +40,7 @@ export async function fetchTokenInfo(req: {
   });
   type Response = {
     domains: { name: string }[];
-    resolverToken: { name: string }[];
+    resolverTokens: { name: string }[];
   };
   const body = (await res.json()) as {
     data: Response | null;
@@ -52,9 +52,9 @@ export async function fetchTokenInfo(req: {
       type: "domain",
     };
   }
-  if (body.data?.resolverToken[0]) {
+  if (body.data?.resolverTokens[0]) {
     return {
-      name: body.data?.resolverToken[0].name,
+      name: body.data?.resolverTokens[0].name,
       type: "resolverToken",
     };
   }
