@@ -1,0 +1,146 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: NNS API
+
+Parameters:
+  Network:
+    Type: String
+    Description: Chain name
+    AllowedValues:
+      - sepolia
+      - mainnet
+  Timestamp:
+    Type: Number
+    Description: Current timestamp
+
+Mappings:
+  Networks:
+    sepolia:
+      domainName: "api-sepolia.nns.xyz"
+      metadataDomainName: "metadata-sepolia.nns.xyz"
+    mainnet:
+      domainName: "api.nns.xyz"
+      metadataDomainName: "metadata.nns.xyz"
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs20.x
+    MemorySize: 512
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        NNS_CONTROLLER: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_CONTROLLER}}" 
+        NNS_RESOLVER: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_RESOLVER}}" 
+        NNS_NETWORK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_NETWORK}}" 
+        NNS_V1_ERC721_ADDRESS: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_V1_ERC721_ADDRESS}}" 
+        NNS_V1_ERC721_NETWORK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_V1_ERC721_NETWORK}}" 
+        NNS_V1_STAKING_ADDRESS: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_V1_STAKING_ADDRESS}}" 
+        NNS_V1_STAKING_NETWORK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NNS_V1_STAKING_NETWORK}}" 
+        NOUNS_ERC721_ADDRESS: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NOUNS_ERC721_ADDRESS}}" 
+        NOUNS_ERC721_NETWORK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NOUNS_ERC721_NETWORK}}" 
+        NOUNS_ERC20_ADDRESS: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NOUNS_ERC20_ADDRESS}}" 
+        NOUNS_ERC20_NETWORK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:NOUNS_ERC20_NETWORK}}" 
+        SIGNER_PK: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:SIGNER_PK}}" 
+        ALCHEMY_API_KEY: !Sub "{{resolve:secretsmanager:${AWS::StackName}-secrets:SecretString:ALCHEMY_API_KEY}}"        
+        WORKAROUND_REFRESH_SECRETS: !Ref Timestamp
+
+Resources:
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      DefinitionBody:
+        openapi: 3.0.1
+        info:
+          title: !Sub "${AWS::StackName}"
+        paths: {}
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+
+  ApiMapping:
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Properties:
+      ApiId: !Ref Api
+      DomainName: !FindInMap [Networks, !Ref Network, domainName]
+      Stage: !Ref ApiApiGatewayDefaultStage
+
+  MetadataApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      DefinitionBody:
+        openapi: 3.0.1
+        info:
+          title: !Sub "${AWS::StackName}-metadata"
+        paths: {}
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+
+  MetadataApiMapping: 
+    Type: AWS::ApiGatewayV2::ApiMapping
+    Properties:
+      ApiId: !Ref MetadataApi
+      DomainName: !FindInMap [Networks, !Ref Network, metadataDomainName]
+      Stage: !Ref ApiApiGatewayDefaultStage
+
+  ApiHandlerFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: false
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints: 
+          - src/api.ts
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-api"
+      Handler: src/api.handler
+      Events:
+        HttpEvents:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            ApiId: !Ref Api
+
+  MetadataHandlerFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: cjs
+        Minify: false
+        Target: "es2022"
+        Sourcemap: true
+        EntryPoints: 
+          - src/metadata.ts
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-metadata"
+      Handler: src/metadata.handler
+      Events:
+        HttpEvents:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            ApiId: !Ref MetadataApi

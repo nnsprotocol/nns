@@ -1,0 +1,109 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+Description: NNS v2 Metadata
+
+Resources:
+  OriginResponseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-edge-origin-response"
+      Handler: dist/origin-response.handler
+      Runtime: nodejs20.x
+      MemorySize: 256
+      Timeout: 20
+      AutoPublishAlias: live
+      Role: !GetAtt LambdaEdgeFunctionRole.Arn
+
+  LambdaEdgeFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      Policies:
+        - PolicyName: AccessResources
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: SaveFile
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource:
+                  - !Sub "${ImagesBucket.Arn}/*"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowLambdaServiceToAssumeRole
+            Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - edgelambda.amazonaws.com
+
+  ImagesBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-images"
+
+  ImagesDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        # Aliases:
+        #   - cdn.metadata.nns.xyz
+        Enabled: true
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        # ViewerCertificate:
+          # AcmCertificateArn: arn:aws:acm:ux3s-east-1:720209530896:certificate/db9cb00a-0f44-446f-82a3-0aad452a59d6
+          # SslSupportMethod: sni-only
+          # MinimumProtocolVersion: TLSv1.2_2018
+        DefaultCacheBehavior:
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+          TargetOriginId: images-bucket
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # CachingOptimized
+          ResponseHeadersPolicyId: 5cc3b908-e619-4b99-88e5-2cf7f45965bd
+          ViewerProtocolPolicy: redirect-to-https
+          LambdaFunctionAssociations:
+            - EventType: "origin-response"
+              LambdaFunctionARN: !Ref OriginResponseFunction.Version
+        Origins:
+          - Id: images-bucket
+            DomainName: !GetAtt ImagesBucket.DomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControl.Id
+            OriginCustomHeaders:
+              - HeaderName: "x-env-bucket-name"
+                HeaderValue: !Ref ImagesBucket
+
+  ImagesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ImagesBucket
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetObject
+            Effect: Allow
+            Resource: !Sub ${ImagesBucket.Arn}/*
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${ImagesDistribution}
+
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Description: Default Origin Access Control
+        Name: !Ref AWS::StackName
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4

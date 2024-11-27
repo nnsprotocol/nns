@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    font-family: "Geist", system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .link-default {
+    @apply text-sm font-medium text-textPrimary hover:text-textPrimary stroke-textPrimary hover:stroke-textPrimary gap-xxs flex items-center;
+  }
+  .link-brand-lavender {
+    @apply text-sm font-medium text-textBrandLavender hover:text-textPrimary stroke-textBrandLavender hover:stroke-textPrimary gap-xxs flex items-center;
+  }
+
+  .button-light {
+    @apply text-textPrimary hover:text-textPrimary disabled:text-textSecondary bg-surfaceLight hover:bg-surfaceInverse disabled:bg-surfaceSecondary stroke-textPrimary disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs font-medium;
+  }
+  .button-secondary {
+    @apply text-textInverse disabled:text-textSecondary bg-surfaceSecondary hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse disabled:stroke-textPrimary border border-transparent hover:border-borderSecondary disabled:border-transparent flex items-center gap-xxs font-medium;
+  }
+  .button-brand-lavender {
+    @apply text-textInverse hover:text-textBrandLavender disabled:text-textSecondary bg-surfaceBrandLavender hover:bg-surfacePrimary disabled:bg-surfaceSecondary stroke-textInverse hover:stroke-textBrandLavender disabled:stroke-textPrimary border border-transparent hover:border-borderBrandLavender disabled:border-transparent flex items-center gap-xxs font-medium;
+  }
+  .button-sm {
+    @apply text-sm p-xs rounded-lg;
+  }
+  .button-md {
+    @apply text-sm p-sm rounded-xl;
+  }
+  .button-lg {
+    @apply text-base p-md rounded-48;
+  }
+
+  .balance-text-gradient {
+    background: linear-gradient(92deg, #c496ff 10.29%, #86f9e4 99.41%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .total-rewards-text-gradient {
+    background: linear-gradient(180deg, #c496ff 26.51%, #86f9e4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .domain-cards {
+    position: relative;
+    height: 100px;
+    width: 100%;
+  }
+  .domain-cards > img {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  .collection-card .domain-cards img:nth-last-child(1) {
+    transform: translateX(-50%) rotate(10deg);
+  }
+  .collection-card .domain-cards img:nth-last-child(3) {
+    transform: translate(-50%, -15%);
+  }
+  .collection-card .domain-cards img:nth-child(2) {
+    transform: translateX(-75%) rotate(-10deg);
+  }
+  .collection-card .domain-cards img:nth-child(3) {
+    transform: translateX(-25%) rotate(10deg);
+  }
+  .collection-card:hover .domain-cards img:nth-child(2) {
+    transform: translateX(-115%) rotate(-10deg);
+  }
+  .collection-card:hover .domain-cards img:nth-child(3) {
+    transform: translateX(15%) rotate(10deg);
+  }
+
+  .info-point:hover .info-point-text {
+    @apply block;
+  }
+  .info-point:hover .info-point-icon {
+    @apply opacity-50;
+  }
+  .info-point .info-point-text {
+    @apply hidden absolute max-w-60 p-4 text-xs bg-surfacePrimary text-textSecondary border border-borderPrimary rounded-lg -translate-x-3/4 -translate-y-full;
+  }
+
+  a.anchor {
+    display: block;
+    position: relative;
+    top: -100px;
+    visibility: hidden;
+  }
+}

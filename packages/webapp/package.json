@@ -1,0 +1,48 @@
+{
+  "name": "webapp",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build-mainnet": "tsc -b && vite build --mode mainnet",
+    "build-sepolia": "tsc -b && vite build --mode sepolia",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "deploy-mainnet": "netlify deploy --build --prod --context mainnet --site c8dd0f4d-fa83-47f6-bd94-6dae31251a44",
+    "preview-mainnet": "netlify deploy --build --alias preview --context mainnet --site c8dd0f4d-fa83-47f6-bd94-6dae31251a44",
+    "deploy-sepolia": "netlify deploy --build --prod --context sepolia --site 3f763e7f-ec44-4a0e-9c5b-f8f34f84f28b"
+  },
+  "dependencies": {
+    "@rainbow-me/rainbowkit": "^2.1.7",
+    "@sentry/react": "^8.33.1",
+    "@sentry/vite-plugin": "^2.22.5",
+    "@tanstack/react-query": "^5.51.24",
+    "@tanstack/react-query-devtools": "^5.51.24",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.4.1",
+    "react-router-dom": "^6.25.1",
+    "tslib": "^2.7.0",
+    "viem": "^2.21.24",
+    "wagmi": "^2.12.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "netlify-cli": "^17.37.2",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.2.2",
+    "unplugin-fonts": "^1.1.1",
+    "vite": "^5.3.4",
+    "vite-plugin-favicon": "^1.0.8"
+  }
+}

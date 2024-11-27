@@ -1,0 +1,104 @@
+specVersion: 0.0.4
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: NNSController
+    network: base
+    source:
+      abi: NNSController
+      address: "0xf4cc2b5f631998ebc7fa362aee30141c5a10f519"
+      startBlock: 21933598
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/controller.ts
+      entities:
+        - Registry
+      abis:
+        - name: NNSController
+          file: ./abis/IController.json
+      eventHandlers:
+        - event: CldRegistered(uint256,string,address,bool)
+          handler: handleCldRegistered
+        - event: CldSignatureRequiredChanged(uint256,bool)
+          handler: handleCldSignatureRequiredChanged
+  - kind: ethereum
+    name: NNSResolver
+    network: base
+    source:
+      abi: NNSResolver
+      address: "0x78997d8ca4316421620a09f015512d779dc34217"
+      startBlock: 21933576
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/resolver.ts
+      entities:
+        - Registry
+      abis:
+        - name: NNSResolver
+          file: ./abis/IResolver.json
+      eventHandlers:
+        - event: DefaultCldChanged(address,uint256)
+          handler: handleDefaultCldChanged
+  - kind: ethereum
+    name: NNSResolverToken
+    network: base
+    source:
+      abi: NNSResolverToken
+      address: "0x46770d62E56943791Cbf4A3C48F8f6Bd0C9728FD"
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/resolver-token.ts
+      entities:
+        - Registry
+      abis:
+        - name: NNSResolverToken
+          file: ./abis/NNSResolverToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+templates:
+  - name: Registry
+    kind: ethereum/contract
+    network: base
+    source:
+      abi: CLDRegistry
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/registry.ts
+      entities:
+        - Account
+        - Domain
+      abis:
+        - name: CLDRegistry
+          file: ./abis/IRegistry.json
+      eventHandlers:
+        - event: NameRegistered(uint256,uint256,string,address,uint256)
+          handler: handleNameRegistered
+        - event: NameRenewed(uint256,uint256,uint256)
+          handler: handleNameRenewed
+        - event: ReverseChanged(uint256,address,uint256,uint256)
+          handler: handleReverseChanged
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: RecordSet(uint256,uint256,uint256,string)
+          handler: handleRecordSet
+        - event: RecordsReset(uint256,uint256)
+          handler: handleRecordsReset
+        - event: SubdomainRegistered(uint256,uint256,string,uint256)
+          handler: handleSubdomainRegistered
+        - event: SubdomainDeleted(uint256,uint256)
+          handler: handleSubdomainDeleted

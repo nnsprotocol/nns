@@ -1,0 +1,49 @@
+<svg width="64" height="65" viewBox="0 0 64 65" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1315_28606)">
+<path d="M0 32.0117C0 14.3386 14.3269 0.0117188 32 0.0117188C49.6731 0.0117188 64 14.3386 64 32.0117C64 49.6848 49.6731 64.0117 32 64.0117C14.3269 64.0117 0 49.6848 0 32.0117Z" fill="#04030F"/>
+<g style="mix-blend-mode:plus-lighter" filter="url(#filter0_f_1315_28606)">
+<path d="M40 33.5117H23.5L27 47.5117H13C13.6667 51.3451 15.5 59.6117 17.5 62.0117C20 65.0117 26.5 75.0117 48 70.0117C69.5 65.0117 57.5 62.5117 59 59.0117C60.2 56.2117 61.8333 47.5117 62.5 43.5117L40 33.5117Z" fill="#86F9E4"/>
+</g>
+<g style="mix-blend-mode:plus-lighter" filter="url(#filter1_f_1315_28606)">
+<path d="M28.5 15.5117L12 36.5117H-1L20.5 51.5117C30.5 48.8451 51.2 43.2117 54 42.0117C56.8 40.8117 61.8333 27.1784 64 20.5117L41 7.01172L28.5 15.5117Z" fill="#C496FF"/>
+</g>
+<g filter="url(#filter2_f_1315_28606)">
+<ellipse cx="20" cy="69.0117" rx="27" ry="25" fill="#11101B"/>
+</g>
+<path d="M27 40.0367V31.0117H28.6C28.7167 31.0117 28.8333 31.0242 28.95 31.0492C29.0667 31.0742 29.1833 31.1034 29.3 31.1367L36.225 33.7117C36.4583 33.7951 36.6458 33.9451 36.7875 34.1617C36.9292 34.3784 37 34.6034 37 34.8367C37 35.1867 36.8792 35.4701 36.6375 35.6867C36.3958 35.9034 36.1167 36.0117 35.8 36.0117H33.175C33.0917 36.0117 33.0292 36.0076 32.9875 35.9992C32.9458 35.9909 32.8917 35.9701 32.825 35.9367L31.225 35.3117L30.9 36.2867L32.825 36.9617C32.8583 36.9784 32.9083 36.9909 32.975 36.9992C33.0417 37.0076 33.1 37.0117 33.15 37.0117H40C40.5333 37.0117 41 37.2034 41.4 37.5867C41.8 37.9701 42 38.4451 42 39.0117L34.025 42.0117L27 40.0367ZM21 42.0117V31.0117H25V42.0117H21Z" fill="url(#paint0_linear_1315_28606)"/>
+<circle cx="36.5" cy="27.5117" r="5.5" fill="url(#paint1_linear_1315_28606)"/>
+</g>
+<path d="M0.5 32.0117C0.5 14.6147 14.603 0.511719 32 0.511719C49.397 0.511719 63.5 14.6147 63.5 32.0117C63.5 49.4087 49.397 63.5117 32 63.5117C14.603 63.5117 0.5 49.4087 0.5 32.0117Z" stroke="url(#paint2_linear_1315_28606)"/>
+<defs>
+<filter id="filter0_f_1315_28606" x="-3" y="17.5117" width="81.5" height="69.877" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="8" result="effect1_foregroundBlur_1315_28606"/>
+</filter>
+<filter id="filter1_f_1315_28606" x="-17" y="-8.98828" width="97" height="76.5" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="8" result="effect1_foregroundBlur_1315_28606"/>
+</filter>
+<filter id="filter2_f_1315_28606" x="-23" y="28.0117" width="86" height="82" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="8" result="effect1_foregroundBlur_1315_28606"/>
+</filter>
+<linearGradient id="paint0_linear_1315_28606" x1="22.0426" y1="36.5117" x2="42" y2="36.5117" gradientUnits="userSpaceOnUse">
+<stop stop-color="#11101B" stop-opacity="0.5"/>
+<stop offset="1" stop-color="#04030F"/>
+</linearGradient>
+<linearGradient id="paint1_linear_1315_28606" x1="31.5461" y1="27.5117" x2="42" y2="27.5117" gradientUnits="userSpaceOnUse">
+<stop stop-color="#11101B" stop-opacity="0.5"/>
+<stop offset="1" stop-color="#04030F"/>
+</linearGradient>
+<linearGradient id="paint2_linear_1315_28606" x1="59.2" y1="0.0117153" x2="1.10865e-06" y2="60.0117" gradientUnits="userSpaceOnUse">
+<stop stop-color="#04030F" stop-opacity="0.08"/>
+<stop offset="1" stop-color="#04030F" stop-opacity="0"/>
+</linearGradient>
+<clipPath id="clip0_1315_28606">
+<path d="M0 32.0117C0 14.3386 14.3269 0.0117188 32 0.0117188C49.6731 0.0117188 64 14.3386 64 32.0117C64 49.6848 49.6731 64.0117 32 64.0117C14.3269 64.0117 0 49.6848 0 32.0117Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

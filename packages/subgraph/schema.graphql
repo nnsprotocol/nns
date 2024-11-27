@@ -1,0 +1,78 @@
+type Account @entity {
+  id: ID!
+  domains: [Domain!]! @derivedFrom(field: "owner")
+  approvedDomains: [Domain!]! @derivedFrom(field: "approval")
+
+  stats: [OwnerStats!]! @derivedFrom(field: "owner")
+  numberOfDomains: BigInt!
+  defaultResolverRegistry: Registry
+
+  resolvingTokens: [ResolverToken]! @derivedFrom(field: "owner")
+}
+
+type DomainOperator @entity {
+  id: ID!
+  registry: Registry!
+  owner: Account!
+  operator: Account!
+  approved: Boolean!
+}
+
+type Registry @entity {
+  id: ID!
+  name: String!
+  address: Bytes!
+  domains: [Domain!]! @derivedFrom(field: "registry")
+  operators: [DomainOperator!]! @derivedFrom(field: "registry")
+  totalSupply: BigInt!
+
+  ownerStats: [OwnerStats!]! @derivedFrom(field: "registry")
+  uniqueOwners: BigInt!
+
+  hasExpiringNames: Boolean!
+  registrationWithSignature: Boolean!
+}
+
+type OwnerStats @entity {
+  id: ID!
+  owner: Account!
+  registry: Registry!
+  numberOfDomains: BigInt!
+}
+
+type DomainRecord @entity {
+  id: ID!
+  key: BigInt!
+  value: String!
+  domain: Domain
+  subdomain: Subdomain
+}
+
+type Domain @entity {
+  id: ID!
+  tokenId: BigInt!
+  name: String!
+  registry: Registry!
+  owner: Account!
+  approval: Account
+  expiry: BigInt
+  resolvedAddress: Bytes
+  records: [DomainRecord!]! @derivedFrom(field: "domain")
+  subdomains: [Subdomain!]! @derivedFrom(field: "parent")
+}
+
+type Subdomain @entity {
+  id: ID!
+  tokenId: BigInt!
+  name: String!
+  parent: Domain!
+  records: [DomainRecord!]! @derivedFrom(field: "subdomain")
+  resolvedAddress: Bytes
+}
+
+type ResolverToken @entity {
+  id: ID!
+  tokenId: BigInt!
+  name: String!
+  owner: Account!
+}

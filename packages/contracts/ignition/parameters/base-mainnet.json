@@ -1,0 +1,19 @@
+{
+  "NNSModule": {
+    "erc20": "0x13741c5df9ab03e7aa9fb3bf1f714551dd5a5f8a",
+    "swapRouter": "0x2626664c2603336E57B271c5C0b26F421741e481",
+    "weth": "0x4200000000000000000000000000000000000006",
+    "aggregator": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
+    "signer": "0x0D141139db51e4fA8F56C1edb81c129d006109D6",
+    "holderSnapshotIntervalSeconds": 2592000,
+    "ecosystemSnapshotIntervalSeconds": 2592000,
+    "nnsWallet": "0x091fC3d6855712B4EAa74BCe26E5e733a9f0e60A"
+  },
+  "NounsModule": {
+    "aggregator": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
+    "nounsManager": "0xe13CF07cCC770F406aFe0ECCe3be9Fb0Eb8Ab04c"
+  },
+  "TestModule": {
+    "aggregator": "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70"
+  }
+}

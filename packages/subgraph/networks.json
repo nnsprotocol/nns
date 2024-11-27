@@ -1,0 +1,30 @@
+{
+  "base": {
+    "NNSController": {
+      "address": "0xf4cc2b5f631998ebc7fa362aee30141c5a10f519",
+      "startBlock": 21933598
+    },
+    "NNSResolver": {
+      "address": "0x78997d8ca4316421620a09f015512d779dc34217",
+      "startBlock": 21933576
+    },
+    "NNSResolverToken": {
+      "address": "0x46770d62E56943791Cbf4A3C48F8f6Bd0C9728FD",
+      "startBlock": 0
+    }
+  },
+  "base-sepolia": {
+    "NNSController": {
+      "address": "0x389c9ca2025c2694bfb0c2fd3d5766c749042926",
+      "startBlock": 16837242
+    },
+    "NNSResolver": {
+      "address": "0x764a29FAc0521A7B32a9bB74972e09E7FC476dfe",
+      "startBlock": 16837220
+    },
+    "NNSResolverToken": {
+      "address": "0x591FB6336aB117De24bE4322258D4956D4Bc248A",
+      "startBlock": 16837220
+    }
+  }
+}

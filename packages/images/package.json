@@ -1,0 +1,20 @@
+{
+  "name": "@nns/images",
+  "packageManager": "yarn@4.2.2",
+  "scripts": {
+    "build": "rm -rf dist && rollup -c"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "rollup": "^4.21.3",
+    "rollup-plugin-dotenv": "^0.5.1",
+    "serve": "^14.2.4",
+    "tslib": "^2.7.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.651.1",
+    "@types/aws-lambda": "^8.10.145"
+  }
+}
