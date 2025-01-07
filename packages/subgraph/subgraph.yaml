@@ -6,7 +6,7 @@ dataSources:
     name: NNSController
     network: base
     source:
-      abi: NNSController
+      abi: IController
       address: "0xf4cc2b5f631998ebc7fa362aee30141c5a10f519"
       startBlock: 21933598
     mapping:
@@ -17,7 +17,7 @@ dataSources:
       entities:
         - Registry
       abis:
-        - name: NNSController
+        - name: IController
           file: ./abis/IController.json
       eventHandlers:
         - event: CldRegistered(uint256,string,address,bool)
@@ -28,7 +28,7 @@ dataSources:
     name: NNSResolver
     network: base
     source:
-      abi: NNSResolver
+      abi: IResolver
       address: "0x78997d8ca4316421620a09f015512d779dc34217"
       startBlock: 21933576
     mapping:
@@ -39,7 +39,7 @@ dataSources:
       entities:
         - Registry
       abis:
-        - name: NNSResolver
+        - name: IResolver
           file: ./abis/IResolver.json
       eventHandlers:
         - event: DefaultCldChanged(address,uint256)
@@ -50,7 +50,7 @@ dataSources:
     source:
       abi: NNSResolverToken
       address: "0x46770d62E56943791Cbf4A3C48F8f6Bd0C9728FD"
-      startBlock: 0
+      startBlock: 21933555
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -64,6 +64,26 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+  - kind: ethereum
+    name: NNSRewarder
+    network: base
+    source:
+      abi: IRewarder
+      address: "0xcE0624b0410610BFDE1699A7D97Ba563698bE293"
+      startBlock: 21933578
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/rewarder.ts
+      entities:
+        - Registry
+      abis:
+        - name: IRewarder
+          file: ./abis/IRewarder.json
+      eventHandlers:
+        - event: Collected(uint256,address,uint256,uint256)
+          handler: handleCollected
 templates:
   - name: Registry
     kind: ethereum/contract

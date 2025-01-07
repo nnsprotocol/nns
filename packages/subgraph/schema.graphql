@@ -29,6 +29,8 @@ type Registry @entity {
   ownerStats: [OwnerStats!]! @derivedFrom(field: "registry")
   uniqueOwners: BigInt!
 
+  domainsSold: BigInt!
+
   hasExpiringNames: Boolean!
   registrationWithSignature: Boolean!
 }
@@ -75,4 +77,12 @@ type ResolverToken @entity {
   tokenId: BigInt!
   name: String!
   owner: Account!
+}
+
+type GlobalStats @entity {
+  id: ID!
+  domainsSold: BigInt!
+  totalSupply: BigInt!
+  registries: BigInt!
+  resolvers: BigInt!
 }

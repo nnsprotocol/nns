@@ -20,7 +20,14 @@ import {
   SubdomainRegistered,
   Transfer,
 } from "../generated/templates/Registry/CLDRegistry";
-import { domainId, fetchAccount, fetchDomain, fetchRegistry } from "./shared";
+import {
+  domainId,
+  fetchAccount,
+  fetchDomain,
+  fetchGlobalStats,
+  fetchRegistry,
+  ONE,
+} from "./shared";
 
 function fetchRegistryByAddress(address: Address): Registry {
   const registry = CLDRegistry.bind(address);
@@ -124,17 +131,18 @@ function loadOrCreateOwnerStats(
 
 export function handleTransfer(event: Transfer): void {
   const registry = fetchRegistryByAddress(event.address);
-
-  const ONE = BigInt.fromI32(1);
+  const globalStats = fetchGlobalStats();
 
   // Mint
   if (event.params.from.equals(Address.zero())) {
     // The creation of the domain is handled by the NameRegistered event
     registry.totalSupply = registry.totalSupply.plus(ONE);
+    globalStats.totalSupply = globalStats.totalSupply.plus(ONE);
   }
   // Burn
   else if (event.params.to.equals(Address.zero())) {
     registry.totalSupply = registry.totalSupply.minus(ONE);
+    globalStats.totalSupply = globalStats.totalSupply.minus(ONE);
   }
   // Transfer
   else {
@@ -168,6 +176,7 @@ export function handleTransfer(event: Transfer): void {
   }
 
   registry.save();
+  globalStats.save();
 }
 
 function updateNumberOfDomainsForOwner(

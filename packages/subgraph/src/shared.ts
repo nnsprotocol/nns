@@ -1,5 +1,7 @@
-import { Account, Domain, Registry } from "../generated/schema";
 import { Address, BigInt, log } from "@graphprotocol/graph-ts";
+import { Account, Domain, GlobalStats, Registry } from "../generated/schema";
+
+export const ONE = BigInt.fromU32(1);
 
 export function fetchAccount(address: Address): Account {
   let account = Account.load(address.toHexString());
@@ -35,4 +37,17 @@ export function fetchRegistry(cldId: BigInt): Registry {
     throw new Error("Registry not found");
   }
   return registry;
+}
+
+export function fetchGlobalStats(): GlobalStats {
+  let stats = GlobalStats.load("nns");
+  if (stats == null) {
+    stats = new GlobalStats("nns");
+    stats.totalSupply = BigInt.zero();
+    stats.domainsSold = BigInt.zero();
+    stats.registries = BigInt.zero();
+    stats.resolvers = BigInt.zero();
+    stats.save();
+  }
+  return stats;
 }

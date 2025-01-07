@@ -10,7 +10,11 @@
     },
     "NNSResolverToken": {
       "address": "0x46770d62E56943791Cbf4A3C48F8f6Bd0C9728FD",
-      "startBlock": 0
+      "startBlock": 21933555
+    },
+    "NNSRewarder": {
+      "address": "0xcE0624b0410610BFDE1699A7D97Ba563698bE293",
+      "startBlock": 21933578
     }
   },
   "base-sepolia": {
@@ -25,6 +29,10 @@
     "NNSResolverToken": {
       "address": "0x591FB6336aB117De24bE4322258D4956D4Bc248A",
       "startBlock": 16837220
+    },
+    "NNSRewarder": {
+      "address": "0x477a463B2E40DF967513374c067Ab0996442e2C9",
+      "startBlock": 16837222
     }
   }
 }

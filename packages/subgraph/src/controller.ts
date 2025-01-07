@@ -5,7 +5,7 @@ import {
 } from "../generated/NNSController/NNSController";
 import { Registry } from "../generated/schema";
 import { Registry as RegistryTemplate } from "../generated/templates";
-import { fetchRegistry } from "./shared";
+import { fetchGlobalStats, fetchRegistry } from "./shared";
 
 export function handleCldRegistered(event: CldRegistered): void {
   const r = new Registry(event.params.cldId.toHexString());
@@ -14,9 +14,13 @@ export function handleCldRegistered(event: CldRegistered): void {
   r.hasExpiringNames = event.params.hasExpiringNames;
   r.totalSupply = BigInt.zero();
   r.uniqueOwners = BigInt.zero();
+  r.domainsSold = BigInt.zero();
   r.registrationWithSignature = false;
-
   r.save();
+
+  const stats = fetchGlobalStats();
+  stats.registries = stats.registries.plus(BigInt.fromU32(1));
+  stats.save();
 
   RegistryTemplate.create(event.params.registry);
 }
